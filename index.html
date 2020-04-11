@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Gravityball</title>
+        <meta name="author" content="Haunted Bees Productions">
+        <meta name="description" content="We're having a ball out here in space!">
+        <meta name="keywords" content="gravity,sports,2">
+        <style>
+            @font-face { font-family: "Retro"; src: url("RetroGamingZ.ttf") }
+            body {
+				font-family: "Retro";
+				text-align: center;
+				border: 0 !important;
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+            canvas {
+                border: 1px solid black;
+                image-rendering: pixelated;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0; 
+                text-align: center;
+            }
+            canvas:not(#canvas) { pointer-events: none }
+        </style>
+        <!--<link rel="shortcut icon" href="favicon.ico">-->
+    </head>
+    <body style="text-align: center">
+        <canvas id="canvas" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="background" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="debug" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="interface" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="overlay" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="text" width="640" height="480" style="border: 1px solid black"></canvas>
+        <div id="fontLoader"><div style="font-family:Retro">&nbsp;</div></div>
+        <script type="text/javascript" src="mespeak/mespeak.js"></script>
+        <script type="text/javascript" src="js/box2d.min.js"></script>
+        <script type="text/javascript" src="js/helper.js"></script>
+        <script type="text/javascript" src="js/b2helpers.js"></script>
+        <script type="text/javascript" src="js/gravity.js"></script>
+        <script type="text/javascript" src="js/input.js"></script>
+        <script type="text/javascript" src="js/constellations.js"></script>
+        <script type="text/javascript" src="js/basegame.js"></script>
+        <script type="text/javascript" src="js/gamehandler.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.batting.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.pitching.js"></script>
+        <script type="text/javascript" src="js/game.players.js"></script>
+        <script type="text/javascript" src="js/game.space.js"></script>
+        <script type="text/javascript" src="js/game.space.running.js"></script>
+        <script type="text/javascript" src="js/game.space.fielding.js"></script>
+        <script type="text/javascript" src="js/rendering.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
+        <script type="text/javascript">
+        // https://opengameart.org/content/another-space-backgrounds-0
+        // https://mentalgrain.com/box2d/simulating-multiple-sources-of-gravity-in-box2d/
+        // https://en.wikipedia.org/wiki/File:Cleveland_Browns_New_Uniform_Unveiling_(16947116187).jpg
+            document.addEventListener("DOMContentLoaded", function() {
+                meSpeak.loadVoice("voices/en/en-us.json");
+                game.Start();
+                //init();
+                //myInit();
+            });
+        </script>
+    </body>
+</html>
