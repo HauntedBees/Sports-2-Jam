@@ -98,7 +98,7 @@ class FieldRunHandler extends Handler {
             const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
             runnerStars.push({ x: x, y: y });
             this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * powerMult));
-            this.fielders.push(new Infielder(fieldTeam.name, "", x, y, i))
+            this.fielders.push(new Infielder(fieldTeam.name, "", x, y, i));
         });
         this.runner = new Runner(runningTeam.name, "", 10, 240, runnerStars);
         BaseStar.data.inning.playersOnBase.forEach(e => {
@@ -117,6 +117,7 @@ class FieldRunHandler extends Handler {
         this.balls.push(BaseStar.b2Helper.GetBaseball(startPos, linearVelocity, this.runner));
     }
     SafeBall() {
+        BaseStar.data.inning.strikes = 0;
         BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.map(e => e.GetRunnerShell());
         BaseStar.data.inning.playersOnBase.push(this.runHandler.runner.GetRunnerShell());
         if(BaseStar.data.inning.playersOnBase.length === this.stars.length) {
@@ -127,11 +128,12 @@ class FieldRunHandler extends Handler {
         }
     }
     Touchdown() {
-
+        BaseStar.data.Touchdown();
+        BaseStar.SwitchHandler(AtBatHandler);
     }
     CatchOut() { // a fielder has caught the ball while the batter was still on it; all players not on bases are out
         BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.atBase).map(e => e.GetRunnerShell());
-        if(++BaseStar.data.inning.outs === 1) { // 3
+        if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
             AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
         } else {
             BaseStar.SwitchHandler(AtBatHandler);
@@ -182,6 +184,10 @@ class FieldRunHandler extends Handler {
         this.ApplyBallGravityForces();
         this.runHandler.Update();
         this.fieldHandler.Update();
+        if(this.runner.atBase && this.runner.targetStar === this.fieldHandler.ballFielderIdx) {
+            const me = this;
+            AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
+        }
     }
     ApplyBallGravityForces() {
         this.balls.forEach(ball => {

@@ -8,17 +8,29 @@ class AtBatHandler extends Handler {
         const battingTeam = p1IsBatter ? BaseStar.data.team1 : BaseStar.data.team2;
         const pitchingTeam = p1IsBatter ? BaseStar.data.team2 : BaseStar.data.team1;
         this.batHandler = new BatHandler(battingTeam);
-        this.pitchHandler = new PitchHandler(pitchingTeam);
+        this.pitchHandler = new PitchHandler(pitchingTeam, this);
         BaseStar.cpu.InitPitchBat(this.batHandler, this.pitchHandler, !battingTeam.isPlayerControlled, !pitchingTeam.isPlayerControlled);
     }
     CleanUp() {
         BaseStar.cpu.ClearPitchBat();
+    }
+    StrikeOut() {
+        if(BaseStar.data.inning.StruckOut()) {
+            if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
+                AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
+            } else {
+                BaseStar.SwitchHandler(AtBatHandler);
+            }
+        } else {
+            BaseStar.SwitchHandler(AtBatHandler);
+        }
     }
     KeyPress(key) {
         this.batHandler.KeyPress(key);
         this.pitchHandler.KeyPress(key);
     }
     Update() {
+        if(AnimationHelpers.IsAnimating()) { return; }
         this.batHandler.Update();
         this.pitchHandler.Update();
         if(this.state === 0) {

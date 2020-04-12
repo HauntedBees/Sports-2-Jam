@@ -6,6 +6,11 @@ class PitchHandler extends SecondaryHandler {
     idealBatX = 0; idealBatY = 0; 
     ballx = 0; bally = 0; balldx = 0; balldy = 0; 
     throwing = false;
+    /** @param {Team} team @param {AtBatHandler} atBatHandler */
+    constructor(team, atBatHandler) {
+        super(team);
+        this.fullHandler = atBatHandler;
+    }
     ThrowBall() {
         this.throwing = true;
         this.t = 1;
@@ -84,6 +89,15 @@ class PitchHandler extends SecondaryHandler {
                 case 3: this.ballPos += 1.3 + Math.log(0.8 + this.ballPos / 1000); break;
             }
             this.miscCounter = (this.miscCounter + 1) % 8;
+            if(this.ballPos > 50) {
+                const struckOut = BaseStar.data.inning.AddStrikeAndReturnIfOut();
+                const me = this.fullHandler;
+                if(struckOut) {
+                    AnimationHelpers.StartScrollText("STRUCK OUT!", function() { me.StrikeOut(); });
+                } else {
+                    AnimationHelpers.StartScrollText("STRUCK IN!", function() { me.StrikeOut(); });
+                }
+            }
         } else if(this.throwing && this.pitchAnimState < 5 && ++this.miscCounter > 8) {
             this.pitchAnimState++;
             this.miscCounter = 0;

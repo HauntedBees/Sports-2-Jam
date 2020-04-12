@@ -57,7 +57,8 @@ class RunHandler extends SecondaryHandler {
     }
     AnimUpdate() {
         this.runner.Draw();
-        if(this.runner.targetStar >= 0 && this.team.isPlayerControlled) {
+        this.onBaseRunners.forEach(e => e.Draw());
+        if(this.runner.targetStar >= 0) {
             const targ = this.runner.targetStar;
             const stars = this.runner.stargets, len = this.runner.stargets.length;
             const currStar = stars[targ];
@@ -74,6 +75,5 @@ class RunHandler extends SecondaryHandler {
                 gfx.DrawCenteredSprite("sprites", 10, 2, this.runner.x, this.runner.y - 24, "overlay", 32, scale);
             }
         }
-        this.onBaseRunners.forEach(e => e.Draw());
     }
 }
