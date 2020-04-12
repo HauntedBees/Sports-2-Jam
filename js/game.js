@@ -1,6 +1,7 @@
 const BaseStar = {
     /** @type GameData */ data: null, 
     /** @type CPUplayer */ cpu: null, 
+    /** @type Camera[] */ cameras: [],
     fast: true, 
     /** @type Handler */ subhandler: null,
     freeMovement: true, 
@@ -8,13 +9,20 @@ const BaseStar = {
     Init: function() {
         this.data = new GameData(0, 1, false);
         this.cpu = new CPUplayer();
+        this.cameras = [
+            new Camera(null, [], true), // player 1 camera
+            new Camera(null, [], true), // player 2 camera
+            new MiniMapCamera(null)  // minimap camera
+        ];
+        this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "p2background", 0, 0);
         this.SwitchHandler(AtBatHandler);
     },
     KeyPress: function(key) { this.subhandler.KeyPress(key); },
     Update: function() { this.subhandler.Update(); },
     AnimUpdate: function() {
-        gfx.ClearSome(["interface", "overlay"]);
+        gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay"]);
         this.subhandler.AnimUpdate();
     },
     ChangePlaces: function() {
@@ -40,7 +48,8 @@ const game = {
     animIdx: 0, updateIdx: 0, 
     Start: function() {
         game.currentHandler = Title;
-        const canvasLayers = ["background", "debug", "interface", "overlay", "text", "specialanim"];
+        const canvasLayers = ["background", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
+                              "p2background", "p2debug", "p2interface", "p2overlay", "p2text", "p2specialanim"];
         /** @type {{[key:string] : HTMLCanvasElement }} */ 
         let canvasObj = {};
         for(let i = 0; i < canvasLayers.length; i++) {
@@ -57,13 +66,14 @@ const game = {
             document.addEventListener("keypress", input.keyPress);
             document.addEventListener("keydown", input.keyDown);
             document.addEventListener("keyup", input.keyUp);
-            game.animIdx = setInterval(game.AnimUpdate, fps);
-            game.updateIdx = setInterval(game.Update, 80);
+            game.animIdx = setInterval(game.AnimUpdate, fpsAnim);
+            game.updateIdx = setInterval(game.Update, fpsUpdate);
             Title.Init();
         });
     },
     AnimUpdate: function() {
         if(game.currentHandler === null) { return; }
+        gfx.ClearLayer("minimap");
         game.currentHandler.AnimUpdate();
     },
     Update: function() {
@@ -76,10 +86,10 @@ const game = {
         gfx.ClearAll();
         if(wasFast && !newscene.fast) {
             clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, 80);
+            game.updateIdx = setInterval(game.Update, fpsUpdate);
         } else if(!wasFast && newscene.fast) {
             clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, fps);
+            game.updateIdx = setInterval(game.Update, fpsAnim);
         }
         game.currentHandler.Init(...args);
     }

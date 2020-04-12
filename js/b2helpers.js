@@ -2,6 +2,7 @@ const toRadians = 180 / Math.PI;
 const PIXELS_TO_METERS = 30.0;
 const p2m = pixels => pixels / PIXELS_TO_METERS;
 const m2p = meters => meters * PIXELS_TO_METERS;
+const vecm2p = meterpoint => ({ x: m2p(meterpoint.x), y: m2p(meterpoint.y) });
 const b2Vec2 = Box2D.Common.Math.b2Vec2,
 	b2BodyDef = Box2D.Dynamics.b2BodyDef,
 	b2Body = Box2D.Dynamics.b2Body,

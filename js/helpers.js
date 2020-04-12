@@ -1,4 +1,5 @@
-const fps = 1000 / 60;
+const fpsAnim = 1000 / 60;
+const fpsUpdate = 80;
 const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,
@@ -8,7 +9,7 @@ const AnimationHelpers = {
 			text: text, callback: callback,
 			x: 640 + len / 2, y: 300, 
 			length: len, endX: (-len / 2) };
-		this.animIdx = setInterval(this.AnimateScrollText, fps);
+		this.animIdx = setInterval(this.AnimateScrollText, fpsAnim);
 	},
 	AnimateScrollText: function() {
 		const data = AnimationHelpers.animData;

@@ -14,7 +14,7 @@ class Player {
         };
         this.Update = function () { };
         this.Draw = function () {
-            gfx.DrawCenteredSprite(this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
         };
     }
 }
@@ -133,9 +133,7 @@ class Runner extends Player {
                 animFrame = (++animFrame % 3);
                 animCounter = 0;
             }
-            if (!running) {
-                return;
-            }
+            if (!running) { return; }
             if (dashTimer-- > 0) {
                 const mult = 1 + Math.floor(dashTimer / 8);
                 this.x += mult * stepVector.x;
@@ -153,10 +151,10 @@ class Runner extends Player {
         };
         this.Draw = function () {
             if (running) {
-                gfx.DrawCenteredSprite(this.team, animFrame, 2, this.x, this.y, "interface", 64, 0.5);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, 2, this.x, this.y, "interface", 64, 0.5);
             }
             else {
-                gfx.DrawCenteredSprite(this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
             }
         };
     }

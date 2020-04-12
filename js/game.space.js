@@ -1,5 +1,5 @@
 class FieldRunHandler extends Handler {
-    state = 0; debug = true;
+    state = 0; debug = 1; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; balls = [];
     particles = []; slamdunks = [];
     /** @type Fielder[] */ fielders = [];
@@ -28,6 +28,18 @@ class FieldRunHandler extends Handler {
         this.fieldHandler = new FieldHandler(fieldTeam, this, this.fielders);
         this.freeMovement = !p1IsRunner;
         this.freeMovement2 = p1IsRunner;
+
+        if(p1IsRunner) {
+            BaseStar.cameras[0].ignores = ["f_"];
+            BaseStar.cameras[0].SwitchFocus(this.runner);
+            BaseStar.cameras[1].ignores = ["r_"];
+            BaseStar.cameras[1].SwitchFocus(this.balls[0], true);
+        } else {
+            BaseStar.cameras[0].ignores = ["r_"];
+            BaseStar.cameras[0].SwitchFocus(this.balls[0], true);
+            BaseStar.cameras[1].ignores = ["f_"];
+            BaseStar.cameras[1].SwitchFocus(this.runner);
+        }
         BaseStar.cpu.InitFieldRun(this.runHandler, this.fieldHandler, !runningTeam.isPlayerControlled, !fieldTeam.isPlayerControlled);
     }
     CleanUp() {
@@ -77,7 +89,7 @@ class FieldRunHandler extends Handler {
         }*/
     }
     InitDebug() {
-        if(!this.debug) { return; }
+        if(this.debug !== 2) { return; }
         const debugDraw = new b2DebugDraw();
         debugDraw.SetSprite(gfx.ctx["debug"]);
         debugDraw.SetDrawScale(PIXELS_TO_METERS);
@@ -264,7 +276,7 @@ class FieldRunHandler extends Handler {
                 particle.frame = (++particle.frame % 2);
                 particle.timer = Math.ceil(Math.random() * 6);
             }
-            gfx.DrawSprite("sprites", particle.frame, 1, particle.x, particle.y, "interface");
+            gfx.DrawSpriteToCameras("debug", "sprites", particle.frame, 1, particle.x, particle.y, "interface");
         });
         this.slamdunks.forEach(slammer => {
             const pos = slammer.body.GetWorldCenter();
@@ -272,33 +284,36 @@ class FieldRunHandler extends Handler {
                 slammer.animIdx = 0;
                 slammer.frame = slammer.frame === 1 ? 0 : 1;
             }
-            gfx.DrawCenteredSprite("sprites", 7, slammer.frame, m2p(pos.x), m2p(pos.y), "interface", 32);
+            gfx.DrawCenteredSpriteToCameras("dunk", "sprites", 7, slammer.frame, m2p(pos.x), m2p(pos.y), "interface", 32);
         });
         this.balls.forEach(ball => {
             const pos = ball.GetWorldCenter();
             const linearVelocity = ball.GetLinearVelocity();
             const sx = this.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
-            gfx.DrawCenteredSprite("sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
+            gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
         });
         this.stars.forEach(star => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
-            gfx.DrawCenteredSprite("sprites", data.powerIdx, 0, m2p(pos.x), m2p(pos.y), "interface", 32);
+            gfx.DrawCenteredSpriteToCameras("star", "sprites", data.powerIdx, 0, m2p(pos.x), m2p(pos.y), "interface", 32);
         });
         this.fieldHandler.AnimUpdate();
         this.runHandler.AnimUpdate();
     }
-    DebugDraw() {
-        if(!this.debug) { return; }
-        this.world.DrawDebugData();
+    DebugDraw() { // TODO: this ain't gonna last long
+        if(this.debug === 0) { return; }
+        if(this.debug === 2) {
+            this.world.DrawDebugData();
+        } else {
+            gfx.ClearLayer("debug");
+        }
         const ctx = gfx.ctx["debug"];
         const baseStroke = "#666666";
         ctx.save();
         ctx.lineWidth = 1;
-        for (let i = 0; i < this.stars.length; i++) {
-            const star = this.stars[i];
+        this.stars.forEach(star => {
             const ud = star.GetUserData()
             const radius = m2p(ud.radius) * ud.gravityRange;
-            const pos = star.GetWorldCenter();
+            const pos = BaseStar.cameras[0].GetPosFromMeters(star.GetWorldCenter(), "debug");
             let fillColor = "#00000000", strokeOpacity = "";
             switch(ud.powerIdx) { // [0, 4]
                 case 0: fillColor = "#D0D0D010"; strokeOpacity = "11"; break;
@@ -310,33 +325,32 @@ class FieldRunHandler extends Handler {
             ctx.fillStyle = fillColor;
             ctx.strokeStyle = baseStroke + strokeOpacity;
             ctx.beginPath();
-            ctx.arc(m2p(pos.x), m2p(pos.y), radius, 0, 2 * Math.PI, false);
+            ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI, false);
             ctx.fill();
             ctx.stroke();
-        }
+        });
         ctx.restore();
         ctx.save();
         ctx.lineWidth = 1;
-        for(let i = 0; i < this.balls.length; i++) {
-            const ball = this.balls[i];
-            const pos = ball.GetWorldCenter();
+        this.balls.forEach(ball => {
+            const pos = BaseStar.cameras[0].GetPosFromMeters(ball.GetWorldCenter(), "ball");
             const vel = ball.GetLinearVelocity();
             ctx.strokeStyle = "#FF0000";
             ctx.beginPath();
-            ctx.moveTo(m2p(pos.x), m2p(pos.y));
-            ctx.lineTo(m2p(pos.x + vel.x * 0.5), m2p(pos.y + vel.y * 0.5));
+            ctx.moveTo(pos.x, pos.y);
+            ctx.lineTo(pos.x + m2p(vel.x) * 0.5, pos.y + m2p(vel.y) * 0.5);
             ctx.stroke();
             ctx.fill();
             ctx.strokeStyle = "#0000FF";
-            for(let j = 0; j < ball.beeForces.length; j++) {
-                const f = ball.beeForces[j];
+            ball.beeForces.forEach(f => {
+                const pos = BaseStar.cameras[0].GetPos(f, "debug");
                 ctx.beginPath();
-				ctx.moveTo(f.x, f.y);
-				ctx.lineTo(f.x + f.dx, f.y + f.dy);
+				ctx.moveTo(pos.x, pos.y);
+				ctx.lineTo(pos.x + f.dx, pos.y + f.dy);
 				ctx.stroke();
 				ctx.fill();
-            }
-        }
+            });
+        });
         ctx.restore();
     }
 }

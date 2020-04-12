@@ -81,19 +81,19 @@ class FieldHandler extends SecondaryHandler {
     }
     AnimUpdate() {
         this.fielders.forEach(e => e.Draw());
-        if(this.targetFielderIdx >= 0 && this.team.isPlayerControlled) {
+        if(this.targetFielderIdx >= 0) {
             const targ = this.targetFielderIdx;
             const len = this.fielders.length;
             const currFielder = this.fielders[targ];
             const prevFielder = this.fielders[(targ - 1 + len) % len];
             const nextFielder = this.fielders[(targ + 1) % len];
             const scale = 1 + Math.sin(this.animCounter) / 4;
-            gfx.DrawCenteredSprite("sprites", 8, 3, prevFielder.x - 8, prevFielder.y - 24, "overlay", 32, scale);
-            gfx.DrawCenteredSprite("sprites", 9, 3, nextFielder.x - 8, nextFielder.y - 24, "overlay", 32, scale);
+            gfx.DrawCenteredSpriteToCameras("f_UI", "sprites", 8, 3, prevFielder.x - 8, prevFielder.y - 24, "overlay", 32, scale);
+            gfx.DrawCenteredSpriteToCameras("f_UI", "sprites", 9, 3, nextFielder.x - 8, nextFielder.y - 24, "overlay", 32, scale);
             if(targ === this.ballFielderIdx) {
-                gfx.DrawCenteredSprite("sprites", 10, this.dunked ? 0 : 1, currFielder.x - 8, currFielder.y - 24, "overlay", 32, 2 * scale);
+                gfx.DrawCenteredSpriteToCameras("f_UI", "sprites", 10, this.dunked ? 0 : 1, currFielder.x - 8, currFielder.y - 24, "overlay", 32, 2 * scale);
             } else {
-                gfx.DrawCenteredSprite("sprites", 9, 1, currFielder.x - 8, currFielder.y - 24, "overlay", 32, 2 * scale);
+                gfx.DrawCenteredSpriteToCameras("f_UI", "sprites", 9, 1, currFielder.x - 8, currFielder.y - 24, "overlay", 32, 2 * scale);
             }
         }
     }

@@ -1,10 +1,14 @@
 const gfx = {
-    canvas: [],  ctx: [], pi2: Math.PI * 2, 
+    /** @type {{[key:string] : HTMLCanvasElement }} */ canvas: {}, 
+    /** @type {{[key:string] : CanvasRenderingContext2D }} */ ctx: {}, 
+    pi2: Math.PI * 2, 
     canvasWidth: 960, canvasHeight: 760,
     tileWidth: 960, tileHeight: 720, 
     spritesheets: [], teamSheets: [], 
-    LoadSpriteSheets: function(source, paths, callback) {
-        count = 0; source = source || "img";
+
+    LoadSpriteSheets: /** @param {string} source @param {string[]} paths @param {() => void} callback */
+    function(source, paths, callback) {
+        let count = 0;
         paths.forEach(function(path) {
             const f = function(path, len) {
                 const img = new Image();
@@ -18,16 +22,17 @@ const gfx = {
             f(path, paths.length);
         });
     },
-    ClearLayer: key => gfx.ctx[key].clearRect(0, 0, gfx.canvasWidth, gfx.canvasWidth),
-    ClearSome: keys => keys.forEach(e => gfx.ClearLayer(e)),
-    ClearAll: function(includingTutorial) {
+    ClearLayer: /**@param {string} key */ key => gfx.ctx[key].clearRect(0, 0, gfx.canvasWidth, gfx.canvasWidth),
+    ClearSome: /**@param {string[]} keys */ keys => keys.forEach(e => gfx.ClearLayer(e)),
+    ClearAll: function() {
         for(const key in gfx.ctx) {
-            if(key === "tutorial" && !includingTutorial) { continue; } 
             gfx.ClearLayer(key);
         }
     },
 
-    CreateTeamSheet: function(team, tint) {
+    CreateTeamSheet: /**
+     * @param {string} team @param {string} tint */
+    function(team, tint) {
         const sheet = gfx.spritesheets["baseballers"];
         const canvas = document.createElement("canvas");
         canvas.width = sheet.width;
@@ -40,22 +45,78 @@ const gfx = {
         gfx.teamSheets[team] = canvas;
     },
 
-    DrawLine: function(x1, y1, x2, y2, color, layer) {
-        const ctx = gfx.ctx[layer || "interface"];
+    DrawLine: /**
+     * @param {number} x1 @param {number} y1
+     * @param {number} x2 @param {number} y2
+     * @param {string} color @param {any} layer
+     * @param {number} [cx] @param {number} [cy] */
+    function(x1, y1, x2, y2, color, layer, cx, cy) {
+        const ctx = gfx.ctx[layer];
         ctx.strokeStyle = color || "#DDDDDDFF";
-        ctx.lineWidth = "3";
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
+        if(cx !== undefined) {
+            ctx.quadraticCurveTo(cx, cy, x2, y2);
+        } else {
+            ctx.lineTo(x2, y2);
+        }
         ctx.stroke();
     },
-    DrawCenteredSprite: function(sheetpath, sx, sy, x, y, layer, size, scale) {
+
+
+    DrawSpriteToCameras: /**
+     * @param {string} type
+     * @param {string} sheetpath
+     * @param {number} sx @param {number} sy
+     * @param {number} x @param {number} y
+     * @param {string} layer @param {number} [size] @param {number} [scale] */
+    function(type, sheetpath, sx, sy, x, y, layer) {
+        BaseStar.cameras.forEach(camera => {
+            const point = camera.GetPos({ x: x, y: y }, type);
+            if(point.ignore) { return; }
+            gfx.DrawSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), 32, camera.zoom);
+        });
+    },
+    DrawCenteredSpriteToCameras: /**
+    * @param {string} type
+    * @param {string} sheetpath
+    * @param {number} sx @param {number} sy
+    * @param {number} x @param {number} y
+    * @param {string} layer @param {number} size @param {number} [scale] */
+    function(type, sheetpath, sx, sy, x, y, layer, size, scale) {
+        BaseStar.cameras.forEach(camera => {
+            const point = camera.GetPos({ x: x, y: y }, type);
+            if(point.ignore) { return; }
+            gfx.DrawCenteredSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size, (scale || 1) * camera.zoom);
+        });
+    },
+
+
+    DrawCenteredSprite: /**
+     * @param {string} sheetpath
+     * @param {number} sx @param {number} sy
+     * @param {number} x @param {number} y
+     * @param {string} layer @param {number} size @param {number} [scale] */
+    function(sheetpath, sx, sy, x, y, layer, size, scale) {
         scale = scale || 1;
         const delta = (size / 2) * scale;
         gfx.DrawSprite(sheetpath, sx, sy, x - delta, y - delta, layer, size, scale);
     },
-    DrawSpriteFromPoint: function(sheetpath, spoint, x, y, layer) { gfx.DrawSprite(sheetpath, spoint[0], spoint[1], x, y, layer); },
-    DrawSprite: function(sheetpath, sx, sy, x, y, layer, size, scale) {
+
+    DrawSpriteFromPoint: /**
+     * @param {string} sheetpath
+     * @param {number[]} spoint
+     * @param {number} x @param {number} y
+     * @param {string} layer */
+    function(sheetpath, spoint, x, y, layer) { gfx.DrawSprite(sheetpath, spoint[0], spoint[1], x, y, layer); },
+
+    DrawSprite: /**
+     * @param {string} sheetpath
+     * @param {number} sx @param {number} sy
+     * @param {number} x @param {number} y
+     * @param {string} layer @param {number} [size] @param {number} [scale] */
+    function(sheetpath, sx, sy, x, y, layer, size, scale) {
         scale = scale || 1;
         size = size || 32;
         const sheet = gfx.teamSheets[sheetpath] !== undefined ? gfx.teamSheets[sheetpath] : gfx.spritesheets[sheetpath];
@@ -63,27 +124,66 @@ const gfx = {
         const startY = sy * size;
         gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, size, size, x, y, size * scale, size * scale);
     },
-    DrawMapCharacter: function(x, y, offset, sheet, w, h, layer, sx, sy) {
+
+    DrawMapCharacter: /**
+     * @param {number} x @param {number} y
+     * @param {{ x: number; y: number; }} offset
+     * @param {string} sheet
+     * @param {number} w @param {number} h
+     * @param {string} layer
+     * @param {number} sx @param {number} sy */
+    function(x, y, offset, sheet, w, h, layer, sx, sy) {
         layer = layer || "characters"; sx = sx || 0; sy = sy || 0;
         gfx.DrawImage(gfx.ctx[layer], gfx.spritesheets[sheet], sx * w, sy * h, w, h, (x - offset.x), (y - offset.y), w, h);
     },
-    DrawImage: function(ctx, image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
+
+    DrawImage: /**
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {any} image
+     * @param {any} srcX @param {any} srcY
+     * @param {any} srcW @param {any} srcH
+     * @param {any} dstX @param {any} dstY
+     * @param {any} dstW @param {any} dstH */
+    function(ctx, image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
         ctx.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);  
     },
-    WriteEchoOptionText: function(t, x, y, layer, topColor, bottomColor, size) {
+
+
+    WriteEchoOptionText: /**
+     * @param {string} t
+     * @param {number} x @param {number} y
+     * @param {string} layer
+     * @param {string} topColor @param {string} bottomColor
+     * @param {number} size */
+    function(t, x, y, layer, topColor, bottomColor, size) {
         gfx.WriteOptionText(t, x + 1, y + 1, layer, bottomColor, size);
         gfx.WriteOptionText(t, x, y, layer, topColor, size);
     },
-    WriteOptionText: function(t, x, y, layer, color, size) {
+
+    WriteOptionText: /**
+     * @param {string} t
+     * @param {number} x
+     * @param {number} y
+     * @param {string} layer
+     * @param {string} color
+     * @param {number} size */
+    function(t, x, y, layer, color, size) {
         const ctx = gfx.ctx[layer];
-        ctx.fillStyle = color || "#FFFFFF";
+        ctx.fillStyle = color;
         size = size || 12;
         ctx.font = size + "px Retro";
         ctx.textAlign = "center";
         ctx.fillText(t, x, y);
         return ctx.measureText(t).width;
     },
-    WriteBorderedText: function(t, x, y, layer, color, borderColor, size, lineWidth) {
+
+    WriteBorderedText: /**
+     * @param {string} t
+     * @param {number} x @param {number} y
+     * @param {string} layer
+     * @param {string} color @param {string} borderColor
+     * @param {number} size @param {number} lineWidth */
+    function(t, x, y, layer, color, borderColor, size, lineWidth) {
         const ctx = gfx.ctx[layer];
         ctx.fillStyle = color || "#FFFFFF";
         ctx.strokeStyle = borderColor || "#0000FF";
@@ -95,6 +195,7 @@ const gfx = {
         ctx.fillText(t, x, y);
         return ctx.measureText(t).width;
     },
+
     // ****************
     // ****************
     // ****************
@@ -117,6 +218,7 @@ const gfx = {
     // ****************
     // ****************
     // ****************
+    /*
     DrawStar: function(x, y, radius) {
         const layer = gfx.ctx["background"];
         layer.beginPath();
@@ -132,7 +234,7 @@ const gfx = {
     DrawLaser: function(laser) {
         const layer = gfx.ctx["characters"];
         layer.strokeStyle ="#00FF00";
-        layer.lineWidth = "3";
+        layer.lineWidth = 3;
         layer.beginPath();
         layer.moveTo(laser.sx, laser.sy);
         layer.lineTo(laser.dx, laser.dy);
@@ -170,7 +272,7 @@ const gfx = {
         minBottom = minBottom || 0;
         const ctx = gfx.ctx["menutext"];
         ctx.fillStyle = "#000000";
-        size = gfx.GetFontSize(22, true);
+        const size = gfx.GetFontSize(22, true);
         ctx.font = size + "px " + gfx.GetFont();
         const ddy = size * 1.25, ts = t.split(" ");
         let row = ts[0], dy = 0;
@@ -205,5 +307,5 @@ const gfx = {
         gfx.DrawImage(gfx.ctx["background"], mapImg, offset.x, offset.y, gfx.canvasWidth, gfx.canvasHeight, 0, 0, gfx.canvasWidth, gfx.canvasHeight);
         return offset;
     },
-    numberDeltas: { "1": [1, 0], "2": [2, 0], "3": [3, 0], "4": [4, 0], "5": [5, 0], "6": [1, 1], "7": [2, 1], "8": [3, 1], "9": [4, 1], "0": [5, 1] }
+    numberDeltas: { "1": [1, 0], "2": [2, 0], "3": [3, 0], "4": [4, 0], "5": [5, 0], "6": [1, 1], "7": [2, 1], "8": [3, 1], "9": [4, 1], "0": [5, 1] }*/
 };
