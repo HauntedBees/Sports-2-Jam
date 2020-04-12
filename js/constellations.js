@@ -36,5 +36,4 @@ const constellations = {
         /*this.canvas = document.getElementById("canvas");
         this.canvas.addEventListener("mouseup", function(e) {
             console.log(getMousePos(e, this));
-            BaseStar.SwingBat(e, 0, 0, 0, "", "rubberband");
         });*/

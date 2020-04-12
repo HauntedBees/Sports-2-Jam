@@ -1,21 +1,24 @@
-BaseStar.ThePitch = {
-    state: 0, // 0 = waiting on both players, 1 = ball is being pitched or hit
-    batHandler: null, pitchHandler: null, freeMovement: true, 
-    p1IsBatter: false, 
-    ballData: {}, 
-    Init: function(p1Handler, p2Handler) {
-        this.p1IsBatter = p1Handler === BaseStar.Batting;
-        this.batHandler = this.p1IsBatter ? p1Handler : p2Handler;
-        this.pitchHandler = !this.p1IsBatter ? p1Handler : p2Handler;
-        this.state = 0;
-        this.batHandler.Init(this.p1IsBatter ? controls : controls2, this.p1IsBatter ? BaseStar.p1Team : BaseStar.p2Team);
-        this.pitchHandler.Init(!this.p1IsBatter ? controls : controls2, !this.p1IsBatter ? BaseStar.p1Team : BaseStar.p2Team);
-    },
-    KeyPress: function(key) {
+class AtBatHandler extends Handler {
+    state = 0; // 0 = waiting on both players, 1 = ball is being pitched or hit
+    ballData = {};
+    constructor() {
+        super();
+        this.freeMovement = true;
+        const p1IsBatter = BaseStar.data.team1.isUp;
+        const battingTeam = p1IsBatter ? BaseStar.data.team1 : BaseStar.data.team2;
+        const pitchingTeam = p1IsBatter ? BaseStar.data.team2 : BaseStar.data.team1;
+        this.batHandler = new BatHandler(battingTeam);
+        this.pitchHandler = new PitchHandler(pitchingTeam);
+        BaseStar.cpu.InitPitchBat(this.batHandler, this.pitchHandler, !battingTeam.isPlayerControlled, !pitchingTeam.isPlayerControlled);
+    }
+    CleanUp() {
+        BaseStar.cpu.ClearPitchBat();
+    }
+    KeyPress(key) {
         this.batHandler.KeyPress(key);
         this.pitchHandler.KeyPress(key);
-    },
-    Update: function() {
+    }
+    Update() {
         this.batHandler.Update();
         this.pitchHandler.Update();
         if(this.state === 0) {
@@ -55,13 +58,11 @@ BaseStar.ThePitch = {
             }
         } else if(this.state === 2 && this.pitchHandler.throwState === 2) {
             this.state = 3;
-            const p1Handler = this.p1IsBatter ? BaseStar.Running : BaseStar.Fielding;
-            const p2Handler = !this.p1IsBatter ? BaseStar.Running : BaseStar.Fielding;
-            this.parentHandler.SwitchTo(BaseStar.SpaceFly, p1Handler, p2Handler, false, this.ballData, "Aries");
+            BaseStar.SwitchHandlerWithArgs(FieldRunHandler, this.ballData, BaseStar.data.constellation);
         }
-    },
-    AnimUpdate: function() {
+    }
+    AnimUpdate() {
         this.pitchHandler.AnimUpdate();
         this.batHandler.AnimUpdate();
     }
-};
+}

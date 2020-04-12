@@ -1,7 +1,7 @@
 /*function CreateStar(x, y, radius, gravityForce, gravityRange) {
-    x = p2b(x);
-    y = p2b(y);
-    radius = p2b(radius);
+    x = p2m(x);
+    y = p2m(y);
+    radius = p2m(radius);
 	const fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
 	fixDef.friction = 1.0;
@@ -25,7 +25,7 @@
 }*/
 
 /*function RandomForce() { return Math.ceil(20 * Math.random()); } // force is between 1 and 20
-function RandomRange() { return 5 + Math.ceil(20 * Math.random()); }*/
+function RandomRange() { return 5 + Math.ceil(20 * Math.random()); }
 function UrsaMajor() {
     planets = [
         CreateStar(20, 12, 10, RandomForce(), RandomRange()),
@@ -44,11 +44,11 @@ function UrsaMajor() {
         CreateStar(550, 370, 10, RandomForce(), RandomRange()),
         CreateStar(530, 409, 10, RandomForce(), RandomRange())
     ];
-}
+}*/
 
 function Draw() {
     gfx.ClearLayer("canvastop");
-    for (let i = 0; i < debris.length; i++ ) {
+    /*for (let i = 0; i < debris.length; i++ ) {
         const pos = debris[i].GetWorldCenter();
 		const linear_velocity = debris[i].GetLinearVelocity();
         const angle = Math.atan2(linear_velocity.y, linear_velocity.x);//debris[i].GetAngle();
@@ -72,19 +72,19 @@ function Draw() {
         } else if(angleDegrees >= 292 && angleDegrees < 337) {
             sx = 3;
         }
-        gfx.DrawSprite("sprites", sx, 2, b2p(pos.x) - 16, b2p(pos.y) - 16, "canvastop");
+        gfx.DrawSprite("sprites", sx, 2, m2p(pos.x) - 16, m2p(pos.y) - 16, "canvastop");
     }
     for(let i = 0; i < planets.length; i++) {
         const pos = planets[i].GetWorldCenter();
         const data = planets[i].GetUserData();
         const powerIdx = Math.floor(5 * (data.gravity / 20));
-        gfx.DrawSprite("sprites", powerIdx, 0, b2p(pos.x) - 16, b2p(pos.y) - 16, "canvastop");
-    }
+        gfx.DrawSprite("sprites", powerIdx, 0, m2p(pos.x) - 16, m2p(pos.y) - 16, "canvastop");
+    }*/
 }
 //const toRadians = 180 / Math.PI;
 function myInit() {
     gfx.LoadSpriteSheets("img", ["sprites", "title"], function() {
-        UrsaMajor();
+        //UrsaMajor();
         setInterval(Draw, 10);
     });
     

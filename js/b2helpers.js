@@ -1,4 +1,17 @@
 const toRadians = 180 / Math.PI;
+const PIXELS_TO_METERS = 30.0;
+const p2m = pixels => pixels / PIXELS_TO_METERS;
+const m2p = meters => meters * PIXELS_TO_METERS;
+const b2Vec2 = Box2D.Common.Math.b2Vec2,
+	b2BodyDef = Box2D.Dynamics.b2BodyDef,
+	b2Body = Box2D.Dynamics.b2Body,
+	b2FixtureDef = Box2D.Dynamics.b2FixtureDef,
+	b2World = Box2D.Dynamics.b2World,
+	m2polygonShape = Box2D.Collision.Shapes.m2polygonShape,
+	b2CircleShape = Box2D.Collision.Shapes.b2CircleShape,
+	b2DebugDraw = Box2D.Dynamics.b2DebugDraw,
+	b2ContactListener = Box2D.Dynamics.b2ContactListener;
+
 function b2Helpers(world) {    
     this.world = world;
     this.GetStar = function(x, y, power) {
@@ -29,8 +42,8 @@ function b2Helpers(world) {
     this.RandomForce = () => (Math.ceil(20 * Math.random()));     // [1, 20]
     this.RandomRange = () => (5 + Math.ceil(20 * Math.random())); // [5, 25]
     this.GetPlayerCollider = function(x, y, radius, player, playerType) {
-        x = p2b(x); y = p2b(y);
-        radius = p2b(radius);
+        x = p2m(x); y = p2m(y);
+        radius = p2m(radius);
         const userData = {
             player: player,
             identity: playerType
@@ -54,8 +67,8 @@ function b2Helpers(world) {
         return circle;
     };
     this.GetCircle = function(x, y, radius, isDynamic, userData, isSensor) {
-        x = p2b(x); y = p2b(y);
-        radius = p2b(radius);
+        x = p2m(x); y = p2m(y);
+        radius = p2m(radius);
         const fixDef = new b2FixtureDef;
         fixDef.density = 1.0;
         fixDef.friction = 1.0;
@@ -75,12 +88,12 @@ function b2Helpers(world) {
         return circle;
     };
     this.GetBox = function(x, y, w, h, isDynamic, isSensor) {
-        x = p2b(x); y = p2b(y);
+        x = p2m(x); y = p2m(y);
         const fixDef = new b2FixtureDef();
         fixDef.density = 1.0;
         fixDef.friction = 1.0;
         fixDef.restitution = 0.1;
-        fixDef.shape = new b2PolygonShape();
+        fixDef.shape = new m2polygonShape();
         fixDef.shape.SetAsBox(w, h);
         fixDef.isSensor = isSensor;
         

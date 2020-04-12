@@ -1,49 +1,3 @@
-const game = {
-    currentHandler: null, animIdx: 0, updateIdx: 0, 
-    Start: function() {
-        game.currentHandler = Title;
-        const canvasLayers = ["background", "debug", "interface", "overlay", "text"];
-        let canvasObj = {};
-        for(let i = 0; i < canvasLayers.length; i++) {
-            const name = canvasLayers[i];
-            canvasObj[name] = document.getElementById(name);
-        }
-        let contextObj = {};
-        for(const key in canvasObj) {
-            contextObj[key] = canvasObj[key].getContext("2d");
-        }
-        gfx.canvas = canvasObj; gfx.ctx = contextObj;
-        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "batmeter", "baseballers"], function() {
-            document.addEventListener("keypress", input.keyPress);
-            document.addEventListener("keydown", input.keyDown);
-            document.addEventListener("keyup", input.keyUp);
-            game.animIdx = setInterval(game.AnimUpdate, 1000 / 60);
-            game.updateIdx = setInterval(game.Update, 80);
-            Title.Init();
-        });
-    },
-    AnimUpdate: function() {
-        if(game.currentHandler === null) { return; }
-        game.currentHandler.AnimUpdate();
-    },
-    Update: function() {
-        if(game.currentHandler === null) { return; }
-        game.currentHandler.Update();
-    },
-    Transition: function(newscene, args) {
-        const wasFast = game.currentHandler.fast || false;
-        game.currentHandler = newscene;
-        gfx.ClearAll();
-        if(wasFast && !newscene.fast) {
-            clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, 80);
-        } else if(!wasFast && newscene.fast) {
-            clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, 1000 / 60);
-        }
-        game.currentHandler.Init(...args);
-    }
-};
 const Title = {
     pressedStart: false, elems: [], selection: 0, 
     Init: function() {
@@ -60,15 +14,15 @@ const Title = {
                     this.ConfirmSelection();
                 } else {
                     //meSpeak.speak("Let's play some Base Star!", { variant: "croak", pitch: 15 });
-                    this.SwitchToSelection();
+                    this.ShowChoices();
                 }
                 break;
             case controls.down: this.ToggleSelection(1); break;
             case controls.up: this.ToggleSelection(-1); break;
         }
     },
-    SwitchToSelection: function() {
-        game.Transition(BaseStar, [1]);
+    ShowChoices: function() {
+        game.Transition(BaseStar, []);
         return;
         // TODO: probably some fucking animation
         this.pressedStart = true;
@@ -101,12 +55,6 @@ const Title = {
         this.elems.forEach(e => e.Draw());
     }
 };
-const Teams = [
-    { name: "New York Bulls", hx: 0, hy: 0 },
-    { name: "San Jose Scorpions", hx: 1, hy: 0 },
-    { name: "Raleigh Twins", hx: 3, hy: 0 },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1 }
-];
 const TeamSelection = {
     elems: [], selection: 0, 
     Init: function(numPlayers, isOnline) {
@@ -114,8 +62,8 @@ const TeamSelection = {
         gfx.WriteOptionText("Choose your Team", 320, 32, "background", "#FFFFFF", 24);
         this.selection = 0;
         this.elems = [];
-        for(let i = 0; i < Teams.length; i++) {
-            const team = Teams[i];
+        for(let i = 0; i < TeamInfo.length; i++) {
+            const team = TeamInfo[i];
             this.elems.push(new TextOption(team.name, 9.5, 9 + i, i === 0));
         }
         gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
@@ -125,7 +73,7 @@ const TeamSelection = {
         switch(key) {
             case controls.pause: 
             case controls.confirm:
-                meSpeak.speak(Teams[this.selection].name, { variant: "croak", pitch: 15 });
+                meSpeak.speak(TeamInfo[this.selection].name, { variant: "croak", pitch: 15 });
                 game.Transition(CoinToss, [this.selection, Math.abs(this.selection - 1)]);
                 break;
             case controls.down: this.ToggleSelection(1); break;
@@ -134,7 +82,7 @@ const TeamSelection = {
     },
     ToggleSelection: function(dir) {
         if(dir < 0 && this.selection === 0) { return; }
-        if(dir > 0 && this.selection === (Teams.length - 1)) { return; }
+        if(dir > 0 && this.selection === (TeamInfo.length - 1)) { return; }
         this.elems[this.selection].Deselect();
         this.selection += dir;
         this.elems[this.selection].Select();
@@ -145,7 +93,7 @@ const TeamSelection = {
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
         this.elems.forEach(e => e.Draw());
-        const team = Teams[this.selection];
+        const team = TeamInfo[this.selection];
         gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
         gfx.DrawSprite("helmets", team.hx, team.hy, 240, 80, "interface", 160);
     }
@@ -153,7 +101,7 @@ const TeamSelection = {
 const CoinToss = {
     elems: [], 
     coinFrame: 0, state: 0, 
-    calledHeads: 0, callingTeam: 0, opposingTeam: 0, 
+    calledHeads: false, callingTeam: 0, opposingTeam: 0, 
     Init: function(callingTeam, opposingTeam) {
         this.coinFrame = 0;
         this.state = 0;
@@ -161,7 +109,7 @@ const CoinToss = {
         this.callingTeam = callingTeam;
         this.opposingTeam = opposingTeam;
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
-        gfx.WriteEchoOptionText(Teams[callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(TeamInfo[callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText("Captain - Call the Coin Toss!", 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
 
         gfx.WriteEchoOptionText("Player One", 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
@@ -183,7 +131,7 @@ const CoinToss = {
         this.calledHeads = calledHeads;
         this.state = 1;
         gfx.ClearLayer("text");
-        gfx.WriteEchoOptionText(Teams[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Called ${calledHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
         const spinTime = 1500 + Math.ceil(Math.random() * 1500);
         setTimeout(function() { CoinToss.Landed(); }, spinTime);
@@ -192,9 +140,9 @@ const CoinToss = {
         this.state = 2;
         const landedHeads = this.coinFrame % 2 === 0;
         gfx.ClearLayer("text");
-        gfx.WriteEchoOptionText(Teams[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
-        gfx.WriteEchoOptionText(`${((this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads)) ? Teams[this.callingTeam].name : Teams[this.opposingTeam].name} bat first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(`${((this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads)) ? TeamInfo[this.callingTeam].name : TeamInfo[this.opposingTeam].name} bat first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
     },
     Update: function() { },
     AnimUpdate: function() {
@@ -212,7 +160,7 @@ class TextOption {
         this.bounceState = -1;
         this.shinePanel = -1;
         this.isSelected = selected || false;
-        this.numTiles = Math.ceil(gfx.WriteOptionText(this.text, -30, -30, "text") / 32);
+        this.numTiles = Math.ceil(gfx.WriteOptionText(this.text, -30, -30, "text", "#FFFFFF", 12) / 32);
         console.log(this.text + ": " + this.numTiles);
     }
     Deselect() {
@@ -242,7 +190,7 @@ class TextOption {
     }
     Draw() {
         const rx = this.x * 32, ry = this.y * 32;
-        gfx.WriteEchoOptionText(this.text, rx + 16, ry + 20, "text", "#FFFFFF", "#BA66FF");
+        gfx.WriteEchoOptionText(this.text, rx + 16, ry + 20, "text", "#FFFFFF", "#BA66FF", 12);
         const leftX = this.numTiles % 2 === 0 ? (rx + 16 - 32 * (this.numTiles / 2)) : (rx - 32 * (this.numTiles - 1) / 2);
         gfx.DrawSpriteFromPoint("sprites", this.GetFrames(0, this.numTiles), leftX, ry, "interface");
         for(let i = 1; i < (this.numTiles - 1); i++) {
@@ -263,10 +211,10 @@ class TextOption {
 }
 
 
-
+/*
 const Shell = {
     elems: [], selection: 0, 
-    Init: function() {
+    Init: function(s) {
 
     },
     KeyPress: function(key) {
@@ -285,3 +233,4 @@ const Shell = {
 
     }
 };
+*/
