@@ -51,6 +51,10 @@ class FieldRunHandler extends Handler {
         this.world = null;
         BaseStar.cpu.ClearFieldRun();
         gfx.ClearLayer("debug");
+        BaseStar.cameras[0].SwitchFocus(null);
+        BaseStar.cameras[0].ignores = [];
+        BaseStar.cameras[1].SwitchFocus(null);
+        BaseStar.cameras[1].ignores = [];
     }
     StartCollision(c) {
         const b1 = c.GetFixtureA().GetBody(), b2 = c.GetFixtureB().GetBody();
