@@ -30,6 +30,7 @@ function InningData() {
     this.bothTeamsBatted = false;
     /** @type {RunnerShell[]} */this.playersOnBase = [];
     this.IncreaseOutsAndReturnIfSwitch = function() {
+        this.strikes = 0;
         return ++this.outs === 3;
     };
     this.StruckOut = function() { return this.strikes === 2; }
