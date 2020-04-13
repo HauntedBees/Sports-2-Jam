@@ -22,7 +22,8 @@ const Title = {
         }
     },
     ShowChoices: function() {
-        game.Transition(BaseStar, []);
+        game.Transition(TeamSelection, []);
+        //game.Transition(BaseStar, []);
         return;
         // TODO: probably some fucking animation
         this.pressedStart = true;
@@ -57,7 +58,7 @@ const Title = {
 };
 const TeamSelection = {
     elems: [], selection: 0, 
-    Init: function(numPlayers, isOnline) {
+    Init: function() {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteOptionText("Choose your Team", 320, 32, "background", "#FFFFFF", 24);
         this.selection = 0;
@@ -66,8 +67,8 @@ const TeamSelection = {
             const team = TeamInfo[i];
             this.elems.push(new TextOption(team.name, 9.5, 9 + i, i === 0));
         }
-        gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
-        gfx.DrawSprite("helmets", 0, 0, 0, 0, "interface", 160);
+        //gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
+        //gfx.DrawSprite("helmets", 0, 0, 0, 0, "interface", 160);
     },
     KeyPress: function(key) {
         switch(key) {

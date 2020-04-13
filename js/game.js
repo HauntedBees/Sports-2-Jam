@@ -7,7 +7,8 @@ const BaseStar = {
     freeMovement: true, 
     b2Helper: null,
     Init: function() {
-        this.data = new GameData(0, 1, false);
+        const p1Team = Math.floor(Math.random() * TeamInfo.length);
+        this.data = new GameData(p1Team, (p1Team + 1) % TeamInfo.length, false);
         this.cpu = new CPUplayer();
         this.cameras = [
             new Camera(null, [], true), // player 1 camera
@@ -48,8 +49,8 @@ const game = {
     animIdx: 0, updateIdx: 0, 
     Start: function() {
         game.currentHandler = Title;
-        const canvasLayers = ["background", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
-                              "p2background", "p2debug", "p2interface", "p2overlay", "p2text", "p2specialanim"];
+        const canvasLayers = ["background", "background2", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
+                              "p2background", "p2background2", "p2debug", "p2interface", "p2overlay", "p2text", "p2specialanim"];
         /** @type {{[key:string] : HTMLCanvasElement }} */ 
         let canvasObj = {};
         for(let i = 0; i < canvasLayers.length; i++) {
@@ -62,7 +63,7 @@ const game = {
             contextObj[key] = canvasObj[key].getContext("2d");
         }
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
-        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "batmeter", "baseballers"], function() {
+        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "batmeter", "baseballers", "basehud", "teamselect"], function() {
             document.addEventListener("keypress", input.keyPress);
             document.addEventListener("keydown", input.keyDown);
             document.addEventListener("keyup", input.keyUp);

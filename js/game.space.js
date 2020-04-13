@@ -114,11 +114,11 @@ class FieldRunHandler extends Handler {
             const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
             runnerStars.push({ x: x, y: y });
             this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * powerMult));
-            this.fielders.push(new Infielder(fieldTeam.name, "", x, y, i));
+            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + i) % 20], x, y, i));
         });
-        this.runner = new Runner(runningTeam.name, "", 10, 240, runnerStars);
+        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], 10, 240, runnerStars);
         BaseStar.data.inning.playersOnBase.forEach(e => {
-            const b = new Runner(runningTeam.name, e.name, e.x, e.y, runnerStars);
+            const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, runnerStars);
             b.targetStar = e.baseIdx;
             b.atBase = true;
             this.onBasePlayers.push(b);

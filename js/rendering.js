@@ -71,11 +71,11 @@ const gfx = {
      * @param {number} sx @param {number} sy
      * @param {number} x @param {number} y
      * @param {string} layer @param {number} [size] @param {number} [scale] */
-    function(type, sheetpath, sx, sy, x, y, layer) {
+    function(type, sheetpath, sx, sy, x, y, layer, size) {
         BaseStar.cameras.forEach(camera => {
             const point = camera.GetPos({ x: x, y: y }, type);
             if(point.ignore) { return; }
-            gfx.DrawSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), 32, camera.zoom);
+            gfx.DrawSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size || 32, camera.zoom);
         });
     },
     DrawCenteredSpriteToCameras: /**
@@ -149,24 +149,43 @@ const gfx = {
     },
 
 
+    WriteEchoPlayerText: /**
+    * @param {string} t @param {number} x @param {number} y @param {number} maxLen @param {string} layer 
+    * @param {string} topColor @param {string} bottomColor @param {number} size @param {CanvasTextAlign} alignment */
+   function(t, x, y, maxLen, layer, topColor, bottomColor, size, alignment) {
+        const ctx = gfx.ctx[layer];
+        ctx.font = size + "px Retro";
+        let name = t;
+        while(ctx.measureText(name).width > maxLen) {
+            name = name.substring(0, name.length - 4) + "...";
+        }
+       gfx.WritePlayerTextInner(name, x + 1, y + 1, layer, bottomColor, size, alignment);
+       gfx.WritePlayerTextInner(name, x, y, layer, topColor, size, alignment);
+   },
+
+   WritePlayerTextInner: /**
+    * @param {string} t @param {number} x @param {number} y @param {string} layer 
+    * @param {string} color @param {number} size @param {CanvasTextAlign} alignment */
+   function(t, x, y, layer, color, size, alignment) {
+       const ctx = gfx.ctx[layer];
+       ctx.fillStyle = color;
+       ctx.font = size + "px Retro";
+       ctx.textAlign = alignment;
+       ctx.fillText(t, x, y);
+       return ctx.measureText(t).width;
+   },
+
     WriteEchoOptionText: /**
-     * @param {string} t
-     * @param {number} x @param {number} y
-     * @param {string} layer
-     * @param {string} topColor @param {string} bottomColor
-     * @param {number} size */
+     * @param {string} t @param {number} x @param {number} y
+     * @param {string} layer @param {string} topColor @param {string} bottomColor @param {number} size */
     function(t, x, y, layer, topColor, bottomColor, size) {
         gfx.WriteOptionText(t, x + 1, y + 1, layer, bottomColor, size);
         gfx.WriteOptionText(t, x, y, layer, topColor, size);
     },
 
     WriteOptionText: /**
-     * @param {string} t
-     * @param {number} x
-     * @param {number} y
-     * @param {string} layer
-     * @param {string} color
-     * @param {number} size */
+     * @param {string} t @param {number} x @param {number} y
+     * @param {string} layer @param {string} color @param {number} size */
     function(t, x, y, layer, color, size) {
         const ctx = gfx.ctx[layer];
         ctx.fillStyle = color;

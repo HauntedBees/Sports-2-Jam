@@ -48,19 +48,20 @@ class BatHandler extends SecondaryHandler {
         }
     }
     AnimUpdate() {
+        const batHandlerX = 240, batHandlerY = 360;
         if(this.team.isPlayerControlled) {
-            gfx.DrawMapCharacter(0, 358, { x: 0, y: 0 }, "batmeter", 128, 128, "interface", 0, 0);
+            gfx.DrawMapCharacter(batHandlerX, batHandlerY, { x: 0, y: 0 }, "batmeter", 128, 128, "interface", 0, 0);
             const offset = Math.round(35 * Math.sin(this.dirCursorCounter));
-            gfx.DrawSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, 48 + offset, 431, "interface");
+            gfx.DrawSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + 48 + offset, batHandlerY + 73, "interface");
             if(this.power > 0) {
                 const pow = Math.max(0, Math.floor(this.power) - 1);
                 if(pow > 6) {
-                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), 60, 372, "interface");
+                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), batHandlerX + 60, batHandlerY + 14, "interface");
                 }
                 if(pow < 10) {
-                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), 60, 404, "interface");
+                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), batHandlerX + 60, batHandlerY + 46, "interface");
                 } else {
-                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, 60, 404, "interface");
+                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, batHandlerX + 60, batHandlerY + 46, "interface");
                 }
             }
         }

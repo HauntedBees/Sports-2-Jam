@@ -8,11 +8,11 @@ const constellations = {
         offset: { x: 30, y: 100 }, 
         scale: { x: 1.2, y: 1.4 }, 
         stars: [
-            new CStar(8, 163, 4),
-            new CStar(134, 6, 3),
-            new CStar(345, 84, 5),
-            new CStar(410, 136, 3),
-            new CStar(420, 170, 2)
+            new CStar(8, 163, 3),
+            new CStar(134, 6, 2),
+            new CStar(345, 84, 4),
+            new CStar(410, 136, 2),
+            new CStar(420, 170, 1)
         ]
     }
 };

@@ -1,7 +1,8 @@
 class Player {
-    constructor(teamname, name, x, y, type, radius) {
+    constructor(teamname, playerInfo, x, y, type, radius) {
         this.team = teamname;
-        this.name = name;
+        this.playerInfo = playerInfo;
+        //this.name = name;
         this.homex = x;
         this.x = x;
         this.homey = y;
@@ -19,8 +20,8 @@ class Player {
     }
 }
 class Fielder extends Player {
-    constructor(teamname, name, x, y, type, radius) {
-        super(teamname, name, x, y, type, radius);
+    constructor(teamname, playerInfo, x, y, type, radius) {
+        super(teamname, playerInfo, x, y, type, radius);
         this.x = x - 10 + Math.floor(11 * Math.random());
         this.y = y - 10 + Math.floor(11 * Math.random());
         this.CatchBall = function (ball) {
@@ -57,28 +58,29 @@ class Fielder extends Player {
     }
 }
 class Outfielder extends Fielder {
-    constructor(team, name, x, y) {
-        super(team, name, x, y, "outfielder", 25); 
+    constructor(team, playerInfo, x, y) {
+        super(team, playerInfo, x, y, "outfielder", 25); 
     }
 }
 class Infielder extends Fielder {
-    constructor(team, name, x, y, base) {
-        super(team, name, x, y, "infielder", 35);
+    constructor(team, playerInfo, x, y, base) {
+        super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
     }
 }
 class RunnerShell {
     /** @param {Runner} runner */
     constructor(runner) {
-        this.name = runner.name;
+        this.playerInfo = runner.playerInfo;
+        //this.name = runner.name;
         this.x = runner.x;
         this.y = runner.y;
         this.baseIdx = runner.targetStar;
     }
 }
 class Runner extends Player {
-    constructor(teamname, name, x, y, stars) {
-        super(teamname, name, x, y, "runner", 15);
+    constructor(teamname, playerInfo, x, y, stars) {
+        super(teamname, playerInfo, x, y, "runner", 15);
         this.dashed = false;
         this.targetStar = -1;
         let nextx = 0, nexty = 0, stepVector = null;

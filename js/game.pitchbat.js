@@ -7,11 +7,15 @@ class AtBatHandler extends Handler {
         const p1IsBatter = BaseStar.data.team1.isUp;
         const battingTeam = p1IsBatter ? BaseStar.data.team1 : BaseStar.data.team2;
         const pitchingTeam = p1IsBatter ? BaseStar.data.team2 : BaseStar.data.team1;
+        BaseStar.data.inning.IncrementBatter(); // TODO: this is wrong it'll increment even during strikes
         this.batHandler = new BatHandler(battingTeam);
         this.pitchHandler = new PitchHandler(pitchingTeam, this);
         BaseStar.cpu.InitPitchBat(this.batHandler, this.pitchHandler, !battingTeam.isPlayerControlled, !pitchingTeam.isPlayerControlled);
+        this.DrawPlayerInfo();
     }
     CleanUp() {
+        gfx.ClearLayer("background2");
+        gfx.ClearLayer("p2background2");
         BaseStar.cpu.ClearPitchBat();
     }
     StrikeOut() {
@@ -76,5 +80,37 @@ class AtBatHandler extends Handler {
     AnimUpdate() {
         this.pitchHandler.AnimUpdate();
         this.batHandler.AnimUpdate();
+    }
+    DrawPlayerInfo() {
+        gfx.DrawSpriteToCameras("UI", "basehud", 0, 0, 0, 320, "background2", 640);
+        gfx.WriteEchoOptionText("SPEED", 39, 356, "background2", "#FFFFFF", "#BA66FF", 12);
+        gfx.WriteEchoOptionText("km/s", 55, 373, "background2", "#FFFFFF", "#BA66FF", 11);
+        gfx.WriteEchoOptionText("OUTS: " + BaseStar.data.inning.outs, 38, 392, "background2", "#FFFFFF", "#BA66FF", 12);
+        if(BaseStar.data.inning.strikes === 1) {
+            gfx.WriteEchoOptionText("STRUCK", 38, 410, "background2", "#FFFFFF", "#BA66FF", 12);
+        }
+
+        gfx.WriteEchoOptionText("INNING " + BaseStar.data.inning.inningNumber, 585, 392, "background2", "#FFFFFF", "#BA66FF", 12);
+        const scoreX = 585, scoreY = 408, dx = 30;
+        gfx.WriteEchoOptionText(BaseStar.data.team1.initial, scoreX - dx, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
+        gfx.WriteEchoOptionText(`${BaseStar.data.team1.score}-${BaseStar.data.team2.score}`, scoreX, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
+        gfx.WriteEchoOptionText(BaseStar.data.team2.initial, scoreX + dx, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
+        const underlineMult = BaseStar.data.team1.isUp ? -1 : 1;
+        gfx.WriteOptionText("-", scoreX + underlineMult * dx, scoreY + 15, "background2", "#FFADCD", 30);
+
+        const playerInfoY = 435, batX = 10, pitchX = 525, dy = 17, statDx = 100;
+        const battingPlayer = this.batHandler.team.players[BaseStar.data.inning.atBatPlayerIdx];
+        gfx.WriteEchoPlayerText(battingPlayer.name, batX, playerInfoY, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText("WQ.", batX, playerInfoY + dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText("PF.", batX, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText(battingPlayer.stat1.toString(), batX + statDx, playerInfoY + dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
+        gfx.WriteEchoPlayerText(battingPlayer.stat2.toFixed(3), batX + statDx, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
+
+        const pitchingPlayer = this.pitchHandler.team.players[BaseStar.data.inning.pitcherIdx];
+        gfx.WriteEchoPlayerText(pitchingPlayer.name, pitchX, playerInfoY, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText("ZIG", pitchX, playerInfoY + dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText("KZ.", pitchX, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
+        gfx.WriteEchoPlayerText(pitchingPlayer.stat3.toFixed(2), pitchX + statDx, playerInfoY + dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
+        gfx.WriteEchoPlayerText(pitchingPlayer.stat4.toString(), pitchX + statDx, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
     }
 }
