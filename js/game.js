@@ -63,7 +63,8 @@ const game = {
             contextObj[key] = canvasObj[key].getContext("2d");
         }
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
-        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "batmeter", "baseballers", "basehud", "teamselect"], function() {
+        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", 
+                                     "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations"], function() {
             document.addEventListener("keypress", input.keyPress);
             document.addEventListener("keydown", input.keyDown);
             document.addEventListener("keyup", input.keyUp);

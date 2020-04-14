@@ -64,7 +64,30 @@ const gfx = {
         ctx.stroke();
     },
 
-
+    DrawLineToCameras: /**
+    * @param {number} x1 @param {number} y1
+    * @param {number} x2 @param {number} y2
+    * @param {string} color @param {any} layer
+    * @param {number} [cx] @param {number} [cy] */
+    function(x1, y1, x2, y2, color, layer, cx, cy) {
+        BaseStar.cameras.forEach(camera => {
+            const ctx = gfx.ctx[camera.prefix + (camera.forcedLayer || layer)];
+            ctx.strokeStyle = color || "#DDDDDDFF";
+            ctx.lineWidth = 3;
+            const p1 = camera.GetPos({ x: x1, y: y1 }, "line");
+            const p2 = camera.GetPos({ x: x2, y: y2 }, "line");
+            if(p1.ignore && p2.ignore) { return; }
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            if(cx !== undefined) {
+                const pc = camera.GetPos({ x: cx, y: cy }, "line");
+                ctx.quadraticCurveTo(pc.x, pc.y, p2.x, p2.y);
+            } else {
+                ctx.lineTo(p2.x, p2.y);
+            }
+            ctx.stroke();
+        });
+   },
     DrawSpriteToCameras: /**
      * @param {string} type
      * @param {string} sheetpath

@@ -1,6 +1,7 @@
 class FieldRunHandler extends Handler {
     state = 0; debug = 1; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; balls = [];
+    constellationName = "";
     particles = []; slamdunks = [];
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
@@ -9,6 +10,7 @@ class FieldRunHandler extends Handler {
         const p1IsRunner = BaseStar.data.team1.isUp;
         const runningTeam = p1IsRunner ? BaseStar.data.team1 : BaseStar.data.team2;
         const fieldTeam = p1IsRunner ? BaseStar.data.team2 : BaseStar.data.team1;
+        this.constellationName = constellation;
 
         this.world = new b2World(new b2Vec2(0, 0), true);
         BaseStar.b2Helper = new b2Helpers(this.world);
@@ -104,7 +106,7 @@ class FieldRunHandler extends Handler {
     }
     /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam */
     GetStarsAndPlayersFromConstellation(constellationName, runningTeam, fieldTeam) {
-        const c = constellations[constellationName];
+        /** @type {Constellation} */ const c = ConstellationInfo[constellationName];
         const o = c.offset, s = c.scale;
         const powerMult = 5;//20 / c.stars.length;
         this.stars = [];
@@ -299,6 +301,11 @@ class FieldRunHandler extends Handler {
         this.stars.forEach(star => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
             gfx.DrawCenteredSpriteToCameras("star", "sprites", data.powerIdx, 0, m2p(pos.x), m2p(pos.y), "interface", 32);
+        });
+        const myConstellation = ConstellationInfo[this.constellationName];
+        myConstellation.connections.forEach(e => {
+            const star1 = this.stars[e[0]].GetWorldCenter(), star2 = this.stars[e[1]].GetWorldCenter();
+            gfx.DrawLineToCameras(m2p(star1.x), m2p(star1.y), m2p(star2.x), m2p(star2.y), "#0000FF", "interface");
         });
         this.fieldHandler.AnimUpdate();
         this.runHandler.AnimUpdate();
