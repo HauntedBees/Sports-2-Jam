@@ -2,6 +2,7 @@ class Camera {
     /** @param {{ x: number; y: number; }} focus @param {string[]} ignores @param {boolean} visible */
     constructor(focus, ignores, visible) {
         this.cx = 320; this.cy = 240;
+        this.offsetx = 0; this.offsety = 0;
         this.visible = visible;
         if(focus === null) {
             this.focusObj = { x: this.cx, y: this.cy };
@@ -33,8 +34,8 @@ class Camera {
         if(myPos === null) { 
             return { x: posObj.x, y: posObj.y, ignore: !this.visible || this.ignores.some(e => type.includes(e)) };
         }
-        const newX = this.cx + this.zoom * (posObj.x - myPos.x);
-        const newY = this.cy + this.zoom * (posObj.y - myPos.y);
+        const newX = this.cx + this.zoom * (posObj.x - myPos.x) + this.offsetx;
+        const newY = this.cy + this.zoom * (posObj.y - myPos.y) + this.offsety;
         const bounds = this.zoom < 0.5 ? 9999 : 64;// * this.zoom;
         return {
             x: newX, y: newY,
