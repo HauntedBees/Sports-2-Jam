@@ -57,18 +57,29 @@ const Title = {
     }
 };
 const TeamSelection = {
-    elems: [], selection: 0, 
+    rowLength: 6, 
+    /** @type {TeamOption[]} */ teams: [],
+    sx: 0, sy: 0, confirmed: false, selText: null,
+    sx2: 1, sy2: 0, confirmed2: false, selText2: null,
+    twoPlayer: false, 
     Init: function() {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteOptionText("Choose your Team", 320, 32, "background", "#FFFFFF", 24);
-        this.selection = 0;
-        this.elems = [];
+        this.twoPlayer = false; // TODO: FUCKER
+        if(this.twoPlayer) {
+            this.sx = 0; this.sy = 0; this.confirmed = false;
+            this.selText = new TextOption(TeamInfo[0].name, 14, 2.25, true);
+            this.sx2 = 1; this.sy2 = 0; this.confirmed2 = false;
+            this.selText2 = new TextOption(TeamInfo[0].name, 13, 2.25, true);
+        } else {
+            this.sx = 0; this.sy = 0; this.confirmed = false;
+            this.selText = new TextOption(TeamInfo[0].name, 13.25, 2.25, true);
+        }
+        this.teams = [];
         for(let i = 0; i < TeamInfo.length; i++) {
             const team = TeamInfo[i];
-            this.elems.push(new TextOption(team.name, 9.5, 9 + i, i === 0));
+            this.teams.push(new TeamOption(i, this.rowLength, 80 + 96 * (i % this.rowLength), 320 + 96 * Math.floor(i / this.rowLength), team.hx, team.hy));
         }
-        //gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
-        //gfx.DrawSprite("helmets", 0, 0, 0, 0, "interface", 160);
     },
     KeyPress: function(key) {
         switch(key) {
@@ -77,26 +88,56 @@ const TeamSelection = {
                 meSpeak.speak(TeamInfo[this.selection].name, { variant: "croak", pitch: 15 });
                 game.Transition(CoinToss, [this.selection, Math.abs(this.selection - 1)]);
                 break;
-            case controls.down: this.ToggleSelection(1); break;
-            case controls.up: this.ToggleSelection(-1); break;
+            case controls.down: this.MoveCursor(0, 0, 1); break;
+            case controls.up: this.MoveCursor(0, 0, -1); break;
+            case controls.left: this.MoveCursor(0, -1, 0); break;
+            case controls.right: this.MoveCursor(0, 1, 0); break;
+            // TODO: the rest of p2 logic
+            case controls2.down: this.MoveCursor(1, 0, 1); break;
+            case controls2.up: this.MoveCursor(1, 0, -1); break;
+            case controls2.left: this.MoveCursor(1, -1, 0); break;
+            case controls2.right: this.MoveCursor(1, 1, 0); break;
         }
     },
-    ToggleSelection: function(dir) {
-        if(dir < 0 && this.selection === 0) { return; }
-        if(dir > 0 && this.selection === (TeamInfo.length - 1)) { return; }
-        this.elems[this.selection].Deselect();
-        this.selection += dir;
-        this.elems[this.selection].Select();
+    MoveCursor: function(player, dx, dy) {
+        const newx = this.sx + dx, newy = this.sy + dy;
+        if(newx < 0 || newx >= this.rowLength) { return; }
+        if(newy < 0 || newy >= Math.ceil(TeamInfo.length / this.rowLength)) { return; }
+        if(player === 0) {
+            this.sx = newx; this.sy = newy;
+            this.selText.ChangeText(TeamInfo[newy * this.rowLength + newx].name);
+            this.selText.Select();
+        } else {
+            this.sx2 = newx; this.sy2 = newy;
+            this.justChanged2 = true;
+            this.selText2.ChangeText(TeamInfo[newy * this.rowLength + newx].name);
+            this.selText2.Select();
+        }
     },
     Update: function() {
-        this.elems.forEach(e => e.Update());
+        this.selText.Update();
+        if(this.twoPlayer) { this.selText2.Update(); }
     },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
-        this.elems.forEach(e => e.Draw());
-        const team = TeamInfo[this.selection];
-        gfx.DrawSprite("helmets", 3, 3, 240, 80, "interface", 160);
-        gfx.DrawSprite("helmets", team.hx, team.hy, 240, 80, "interface", 160);
+        this.selText.Draw();
+        if(this.twoPlayer) {
+            this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, this.sx2, this.sy2, this.confirmed2));
+            this.selText2.Draw();
+        } else {
+            const teamIdx = this.sy * this.rowLength + this.sx;
+            const team = TeamInfo[teamIdx], cx = 345;
+            team.constellations.forEach((name, i) => {
+                /** @type {Constellation} */ const c = ConstellationInfo[name];
+                gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx + 96 * i, 144, "interface", 128, 0.66);
+                gfx.WriteEchoOptionText(name, cx + 96 * i, 200, "text", "#FFFFFF", "#BA66FF", 12);
+            });
+            gfx.DrawSprite("helmets", 3, 3, 70, 70, "interface", 160);
+            gfx.DrawSprite("helmets", team.hx, team.hy, 70, 70, "interface", 160);
+            this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, -1, -1, false));
+            gfx.WriteEchoPlayerText("Star Hitter: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
+            gfx.WriteEchoPlayerText("Star Pitcher: " + starPlayers[teamIdx].pitcher, cx - 25, 250, 500, "text", "#FFFFFF", "#6666AA", 12, "left");
+        }
     }
 };
 const CoinToss = {
@@ -153,6 +194,33 @@ const CoinToss = {
     }
 };
 
+class TeamOption {
+    constructor(teamIdx, rowLen, x, y, sx, sy) {
+        this.scale = 0.75;
+        this.teamIdx = teamIdx;
+        this.ix = teamIdx % rowLen;
+        this.iy = Math.floor(teamIdx / rowLen);
+        this.sx = sx; this.sy = sy;
+        this.x = x; this.y = y;
+    }
+    Draw(p1SelX, p1SelY, p1Confirmed, p2SelX, p2SelY, p2Confirmed) {
+        gfx.DrawCenteredSprite("teamlogos", this.sx, this.sy, this.x, this.y, "interface", 128, this.scale);
+        if(p1SelX === this.ix && p1SelY === this.iy) {
+            if(p1Confirmed) {
+                gfx.DrawCenteredSprite("teamselect", 0, 0, this.x, this.y, "interface", 128, this.scale);
+            } else {
+                gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
+            }
+        }
+        if(p2SelX === this.ix && p2SelY === this.iy) {
+            if(p2Confirmed) {
+                gfx.DrawCenteredSprite("teamselect", 0, 0, this.x, this.y, "interface", 128, this.scale);
+            } else {
+                gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
+            }
+        }
+    }
+}
 class TextOption {
     constructor(text, x, y, selected) {
         this.text = text;
@@ -173,6 +241,10 @@ class TextOption {
         this.bounceState = 0;
         this.shinePanel = 0;
         this.isSelected = true;
+    }
+    ChangeText(text) {
+        this.text = text;
+        this.numTiles = Math.ceil(gfx.WriteOptionText(this.text, -30, -30, "text", "#FFFFFF", 12) / 32);
     }
     GetFrames(i, numTiles) {
         if(i === 0) {

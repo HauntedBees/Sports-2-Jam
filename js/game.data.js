@@ -76,10 +76,18 @@ function Team(player, idx, isPlayerControlled) {
     };
 };
 const TeamInfo = [
-    { name: "New York Bulls", hx: 0, hy: 0, color: "#FF000066" },
-    { name: "San Jose Scorpions", hx: 1, hy: 0, color: "#0000FF66" },
-    { name: "Raleigh Twins", hx: 3, hy: 0, color: "#00FF0066" },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#FF00FF66" }
+    { name: "New York Bulls", hx: 0, hy: 0, color: "#FF000066", constellations: ["Taurus", "Libra", "Aquila"] },
+    { name: "San Jose Scorpions", hx: 1, hy: 0, color: "#0000FF66", constellations: ["Scorpius", "Aries", "Gemini"] },
+    { name: "Donk City Rams", hx: 2, hy: 0, color: "#0000FF66", constellations: ["Aries", "Scorpius", "Taurus"] },
+    { name: "Raleigh Twins", hx: 3, hy: 0, color: "#00FF0066", constellations: ["Gemini", "Aquarius", "Aries"] },
+    { name: "London Swimmers", hx: 0, hy: 1, color: "#FF00FF66", constellations: ["Pisces", "Libra", "Aquila"] },
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#FF00FF66", constellations: ["Aquarius", "Libra", "Aquila"] },
+    { name: "Toronto Scales", hx: 2, hy: 1, color: "#FF00FF66", constellations: ["Libra", "Aries", "Libra"] },
+    { name: "Tokyo Centaurs", hx: 3, hy: 1, color: "#FF00FF66", constellations: ["Sagittarius", "Libra", "Aquila"] },
+    { name: "Boston Goats", hx: 0, hy: 2, color: "#FF00FF66", constellations: ["Capricornus", "Libra", "Aquila"] },
+    { name: "Lexington Virgins", hx: 1, hy: 2, color: "#FF00FF66", constellations: ["Virgo", "Libra", "Aquila"] },
+    { name: "Dublin Lions", hx: 2, hy: 2, color: "#FF00FF66", constellations: ["Leo", "Libra", "Aquila"] },
+    { name: "Sicily Crabs", hx: 3, hy: 2, color: "#FF00FF66", constellations: ["Cancer", "Libra", "Aquila"] }
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },
@@ -281,8 +289,56 @@ const PlayerInfo = [
     { team: 9, name: "Cla Fyfever", stat1: 598, stat2: 0.166, stat3: 8.56, stat4: 78 },
     { team: 9, name: "Laurank Sanielki", stat1: 501, stat2: 0.344, stat3: 1.38, stat4: 82 },
     { team: 9, name: "Thorsteb Boisenees", stat1: 555, stat2: 0.808, stat3: 2.57, stat4: 69 },
-    { team: 9, name: "Emerodeo Thi", stat1: 658, stat2: 0.171, stat3: 9.18, stat4: 76 }
+    { team: 9, name: "Emerodeo Thi", stat1: 658, stat2: 0.171, stat3: 9.18, stat4: 76 },
+    { team: 10, name: "Allint Studa", stat1: 570, stat2: 0.799, stat3: 10.08, stat4: 82 },
+    { team: 10, name: "Tordan Pows", stat1: 423, stat2: 0.084, stat3: 1.33, stat4: 87 },
+    { team: 10, name: "Ephristy Lighan", stat1: 483, stat2: 0.515, stat3: 9.33, stat4: 89 },
+    { team: 10, name: "Sank Horf", stat1: 598, stat2: 0.461, stat3: 9.04, stat4: 69 },
+    { team: 10, name: "Hermai Sture", stat1: 484, stat2: 0.57, stat3: 10.2, stat4: 73 },
+    { team: 10, name: "Ajah Fyfer", stat1: 431, stat2: 0.821, stat3: 3.9, stat4: 87 },
+    { team: 10, name: "Obergel Budger", stat1: 633, stat2: 0.304, stat3: 1.01, stat4: 80 },
+    { team: 10, name: "Bubbott Podle", stat1: 526, stat2: 0.641, stat3: 5.98, stat4: 86 },
+    { team: 10, name: "Konrique Moreya", stat1: 597, stat2: 0.305, stat3: 3.48, stat4: 89 },
+    { team: 10, name: "Tampson Belki", stat1: 574, stat2: 0.314, stat3: 4.67, stat4: 72 },
+    { team: 10, name: "Frewett Wealy", stat1: 454, stat2: 0.017, stat3: 10.97, stat4: 77 },
+    { team: 10, name: "Morichorne Sodle", stat1: 500, stat2: 0.228, stat3: 7.07, stat4: 74 },
+    { team: 10, name: "Benarny Hingeortis", stat1: 504, stat2: 0.241, stat3: 7.37, stat4: 81 },
+    { team: 10, name: "Quiggs Cosravers", stat1: 459, stat2: 0.939, stat3: 7.01, stat4: 81 },
+    { team: 10, name: "Dillmain Jestis", stat1: 621, stat2: 0.402, stat3: 4.029, stat4: 86 },
+    { team: 10, name: "Boriggie Kov", stat1: 492, stat2: 0.107, stat3: 4.27, stat4: 77 },
+    { team: 10, name: "Vlaw Mainghar", stat1: 544, stat2: 0.53, stat3: 1.46, stat4: 83 },
+    { team: 10, name: "Mendon Brizah", stat1: 530, stat2: 0.892, stat3: 2.07, stat4: 88 },
+    { team: 10, name: "Bent Kikise", stat1: 488, stat2: 0.527, stat3: 7.62, stat4: 79 },
+    { team: 10, name: "Wilby Allinark", stat1: 441, stat2: 0.297, stat3: 9.28, stat4: 88 },
+    { team: 11, name: "Sherney Pendonson", stat1: 620, stat2: 0.2, stat3: 9.32, stat4: 79 },
+    { team: 11, name: "Hannie Simharren", stat1: 552, stat2: 0.415, stat3: 10.95, stat4: 73 },
+    { team: 11, name: "Barie Chhaubali", stat1: 438, stat2: 0.24, stat3: 9.23, stat4: 88 },
+    { team: 11, name: "Ev Woodacz", stat1: 529, stat2: 0.558, stat3: 2.15, stat4: 73 },
+    { team: 11, name: "Terwig Guan", stat1: 507, stat2: 0.086, stat3: 3.71, stat4: 72 },
+    { team: 11, name: "Demet Escourgili", stat1: 551, stat2: 0.933, stat3: 5.43, stat4: 82 },
+    { team: 11, name: "Walen Gubard", stat1: 642, stat2: 0.783, stat3: 9.66, stat4: 80 },
+    { team: 11, name: "Alairgi Scant", stat1: 522, stat2: 0.078, stat3: 8.45, stat4: 84 },
+    { team: 11, name: "Geo Waghtondi", stat1: 558, stat2: 0.742, stat3: 6.05, stat4: 75 },
+    { team: 11, name: "Buce Couson", stat1: 453, stat2: 0.295, stat3: 3.44, stat4: 83 },
+    { team: 11, name: "Then Faubb", stat1: 615, stat2: 0.117, stat3: 1.46, stat4: 77 },
+    { team: 11, name: "Orio Colvo", stat1: 643, stat2: 0.662, stat3: 5.03, stat4: 83 },
+    { team: 11, name: "Antonrongel Somino", stat1: 625, stat2: 0.576, stat3: 1.21, stat4: 84 },
+    { team: 11, name: "Zacie Whet", stat1: 469, stat2: 0.199, stat3: 10.62, stat4: 79 },
+    { team: 11, name: "Ske Weiman", stat1: 488, stat2: 0.456, stat3: 4.13, stat4: 85 },
+    { team: 11, name: "Edmang Khez", stat1: 544, stat2: 0.503, stat3: 10.07, stat4: 89 },
+    { team: 11, name: "Tedie St. Marre", stat1: 636, stat2: 0.12, stat3: 1.63, stat4: 76 },
+    { team: 11, name: "Euglis Bringer", stat1: 625, stat2: 0.292, stat3: 10.379, stat4: 69 },
+    { team: 11, name: "Dry Shuk", stat1: 632, stat2: 0.48, stat3: 7.54, stat4: 86 },
+    { team: 11, name: "Yaakee McGon", stat1: 630, stat2: 0.906, stat3: 5.12, stat4: 85 }
 ];
+/** @type {{batter: string, pitcher: string}[]} */
+const starPlayers = [];
+for(let i = 0; i < TeamInfo.length; i++) {
+    const teamPlayers = PlayerInfo.filter(e => e.team === i);
+    const bestBatter = teamPlayers.reduce((a, b) => (a.stat1 > b.stat1 ? a : b)).name;
+    const bestPitcher = teamPlayers.reduce((a, b) => (a.stat4 > b.stat4 ? a : b)).name;
+    starPlayers.push({ batter: bestBatter, pitcher: bestPitcher });
+}
 const PitchNames = [
     "Fastball",
     "Standard Pitch",
