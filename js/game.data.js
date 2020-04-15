@@ -5,7 +5,7 @@ class GameData {
         this.team1.isUp = true;
         this.team2 = new Team(2, team2idx, isTeam2PlayerControlled);
         this.team2.isUp = false;
-        this.constellation = "Aries";
+        this.constellation = "Cygnus";
         this.inning = new InningData();
     }
     SwitchTeams() {
@@ -76,18 +76,18 @@ function Team(player, idx, isPlayerControlled) {
     };
 };
 const TeamInfo = [
-    { name: "New York Bulls", hx: 0, hy: 0, color: "#FF000066", constellations: ["Taurus", "Libra", "Aquila"] },
-    { name: "San Jose Scorpions", hx: 1, hy: 0, color: "#0000FF66", constellations: ["Scorpius", "Aries", "Gemini"] },
-    { name: "Donk City Rams", hx: 2, hy: 0, color: "#0000FF66", constellations: ["Aries", "Scorpius", "Taurus"] },
-    { name: "Raleigh Twins", hx: 3, hy: 0, color: "#00FF0066", constellations: ["Gemini", "Aquarius", "Aries"] },
-    { name: "London Swimmers", hx: 0, hy: 1, color: "#FF00FF66", constellations: ["Pisces", "Libra", "Aquila"] },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#FF00FF66", constellations: ["Aquarius", "Libra", "Aquila"] },
-    { name: "Toronto Scales", hx: 2, hy: 1, color: "#FF00FF66", constellations: ["Libra", "Aries", "Libra"] },
-    { name: "Tokyo Centaurs", hx: 3, hy: 1, color: "#FF00FF66", constellations: ["Sagittarius", "Libra", "Aquila"] },
-    { name: "Boston Goats", hx: 0, hy: 2, color: "#FF00FF66", constellations: ["Capricornus", "Libra", "Aquila"] },
-    { name: "Lexington Virgins", hx: 1, hy: 2, color: "#FF00FF66", constellations: ["Virgo", "Libra", "Aquila"] },
-    { name: "Dublin Lions", hx: 2, hy: 2, color: "#FF00FF66", constellations: ["Leo", "Libra", "Aquila"] },
-    { name: "Sicily Crabs", hx: 3, hy: 2, color: "#FF00FF66", constellations: ["Cancer", "Libra", "Aquila"] }
+    { name: "New York Bulls", hx: 0, hy: 0, color: "#FF000066", constellations: ["Ursa Major", "Taurus", ""] }, // MD
+    { name: "San Jose Scorpions", hx: 1, hy: 0, color: "#0000FF66", constellations: ["Scorpius", "Perseus", ""] }, // LG
+    { name: "Donk City Rams", hx: 2, hy: 0, color: "#0000FF66", constellations: ["Cetus", "Boötes", "Aries"] }, // SM
+    { name: "Raleigh Twins", hx: 3, hy: 0, color: "#00FF0066", constellations: ["Gemini", "Cygnus", ""] }, // LG
+    { name: "London Swimmers", hx: 0, hy: 1, color: "#FF00FF66", constellations: ["Pisces", "", ""] }, // LG
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#FF00FF66", constellations: ["Aquarius", "", ""] }, // LG
+    { name: "Toronto Scales", hx: 2, hy: 1, color: "#FF00FF66", constellations: ["Centaurus", "", "Libra"] }, // SM
+    { name: "Tokyo Centaurs", hx: 3, hy: 1, color: "#FF00FF66", constellations: ["Sagittarius", "", ""] }, // LG
+    { name: "Boston Goats", hx: 0, hy: 2, color: "#FF00FF66", constellations: ["Hercules", "Capricornus", ""] }, // MD
+    { name: "Lexington Virgins", hx: 1, hy: 2, color: "#FF00FF66", constellations: ["Virgo", "", ""] }, // LG
+    { name: "Dublin Lions", hx: 2, hy: 2, color: "#FF00FF66", constellations: ["Lepus", "Leo", ""] }, // MD
+    { name: "Sicily Crabs", hx: 3, hy: 2, color: "#FF00FF66", constellations: ["Pegasus", "", "Cancer"] } // SM
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },

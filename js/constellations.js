@@ -238,6 +238,187 @@ const ConstellationInfo = {
     ], [
         [0, 1], [1, 2], [2, 3], // body
         [2, 4], [1, 5] // claws
+    ]),
+    "Ursa Major": new Constellation(1, 3, 0, 0, 1, 1, [
+        new Star(8, 55, 2),
+        new Star(100, 20, 2),
+        new Star(160, 40, 2),
+        new Star(237, 60, 1),
+        new Star(263, 123, 2),
+        new Star(380, 110, 2),
+        new Star(388, 28, 2),
+        new Star(555, 5, 1),
+        new Star(680, 8, 1),
+        new Star(525, 75, 2),
+        new Star(530, 150, 1),
+        new Star(579, 186, 2),
+        new Star(673, 230, 2),
+        new Star(666, 245, 2),
+        new Star(253, 209, 2),
+        new Star(330, 280, 2),
+        new Star(466, 323, 2),
+        new Star(450, 343, 3)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3], // tail and lower body
+        [6, 7], [7, 8], [8, 9], [9, 10], [10, 5], // upper body
+        [10, 11], [11, 12], [11, 13], // front legs
+        [4, 14], [14, 15], [15, 16], [15, 17] // back legs
+    ]),
+    "Cetus": new Constellation(2, 3, 0, 0, 1, 1, [
+        new Star(105, 171, 2),
+        new Star(141, 198, 1),
+        new Star(229, 193, 1),
+        new Star(250, 340, 1),
+        new Star(255, 375, 1),
+        new Star(302, 362, 1),
+        new Star(442, 267, 2),
+        new Star(628, 169, 3),
+        new Star(492, 127, 2),
+        new Star(432, 136, 2),
+        new Star(372, 219, 2),
+        new Star(292, 315, 1),
+        new Star(623, 11, 2),
+        new Star(40, 202, 2),
+        new Star(7, 137, 1),
+        new Star(41, 90, 2),
+        new Star(106, 76, 2),
+        new Star(107, 127, 2),
+        new Star(148, 40, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 12], // neck and lower body
+        [7, 8], [8, 9], [9, 10], [10, 11], [11, 3], // upper body
+        [0, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 0], [16, 18] // head
+    ]),
+    "Centaurus": new Constellation(3, 3, 0, 0, 1, 1, [
+        new Star(104, 39, 3),
+        new Star(174, 96, 1),
+        new Star(177, 106, 1),
+        new Star(165, 145, 1),
+        new Star(184, 175, 2),
+        new Star(360, 162, 3),
+        new Star(391, 177, 1),
+        new Star(436, 183, 2),
+        new Star(505, 241, 1),
+        new Star(486, 370, 1),
+        new Star(243, 246, 3),
+        new Star(231, 358, 4),
+        new Star(166, 390, 4),
+        new Star(63, 147, 3),
+        new Star(6, 175, 2),
+        new Star(214, 51, 1),
+        new Star(233, 6, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], // main body
+        [4, 10], [10, 11], [11, 12], // front leg
+        [2, 13], [13, 14], [1, 15], [15, 16] // arms
+    ]),
+    "Hercules": new Constellation(0, 4, 100, 0, 1, 1, [
+        new Star(15, 112, 1),
+        new Star(6, 200, 1),
+        new Star(72, 204 , 2),
+        new Star(128, 200, 3),
+        new Star(193, 270, 3),
+        new Star(190, 280, 1),
+        new Star(198, 295, 1),
+        new Star(225, 383, 2),
+        new Star(92, 376, 2),
+        new Star(345, 6, 2),
+        new Star(330, 48, 3),
+        new Star(218, 148, 3),
+        new Star(252, 196, 2),
+        new Star(353, 260, 1),
+        new Star(348, 315, 3),
+        new Star(337, 356, 2),
+        new Star(353, 383, 2),
+        new Star(352, 204, 3)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], // legs
+        [3, 11], [11, 12], [12, 4], // body
+        [11, 10], [10, 9], [12, 13], [13, 14], [14, 15], [15, 16], [13, 17] // arms
+    ]),
+    "Lepus": new Constellation(1, 4, 0, 0, 1, 1, [
+        new Star(4, 30, 2),
+        new Star(70, 17, 3),
+        new Star(130, 43, 3),
+        new Star(207, 136, 3),
+        new Star(224, 219, 4),
+        new Star(115, 250, 3),
+        new Star(78, 202, 3),
+        new Star(338, 125, 3),
+        new Star(357, 285, 3),
+        new Star(310, 30, 2),
+        new Star(312, 5, 1),
+        new Star(350, 30, 2),
+        new Star(360, 2, 1)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3], [3, 7], [7, 8], [8, 4], // body
+        [7, 9], [9, 10], [7, 11], [11, 12] // ears
+    ]),
+    "Pegasus": new Constellation(2, 4, 0, 0, 1, 1, [
+        new Star(11, 78, 3),
+        new Star(130, 11, 2),
+        new Star(288, 100, 2),
+        new Star(310, 130, 1 ),
+        new Star(392, 194, 3),
+        new Star(710, 233, 3),
+        new Star(637, 500, 3),
+        new Star(359, 445, 2),
+        new Star(305, 373, 2),
+        new Star(290, 350, 1),
+        new Star(120, 376, 2),
+        new Star(22, 285, 2),
+        new Star(270, 475, 2),
+        new Star(132, 530, 1)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], // neck
+        [4, 5], [5, 6], [6, 7], [7, 4], // body
+        [7, 8], [8, 9], [9, 10], [10, 11], // top leg
+        [7, 12], [12, 13] // bottom leg
+    ]),
+    "Perseus": new Constellation(3, 4, 0, 0, 1, 1, [
+        new Star(27, 203, 2),
+        new Star(6, 67, 3),
+        new Star(72, 25, 1),
+        new Star(150, 5, 3),
+        new Star(315, 5, 2),
+        new Star(380, 45, 4),
+        new Star(460, 70, 3),
+        new Star(520, 84, 2),
+        new Star(235, 165, 3),
+        new Star(203, 195, 2),
+        new Star(220, 248, 1)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], // body
+        [5, 8], [8, 9], [9, 10] // arm
+    ]),
+    "Boötes": new Constellation(4, 0, 0, 100, 1, 1, [
+        new Star(123, 166, 4),
+        new Star(320, 127, 3),
+        new Star(491, 86, 1),
+        new Star(574, 207, 2),
+        new Star(482, 282, 3),
+        new Star(348, 207, 2),
+        new Star(88, 11, 1),
+        new Star(67, 246, 3),
+        new Star(10, 246, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0], // body
+        [6, 0], [0, 7], [7, 8] // leggies
+    ]),
+    "Cygnus": new Constellation(4, 1, 0, 0, 1, 1, [
+        new Star(7, 7, 2),
+        new Star(43, 41, 2),
+        new Star(176, 81, 3),
+        new Star(268, 213, 4),
+        new Star(381, 317, 3),
+        new Star(435, 437, 2),
+        new Star(433, 573, 1),
+        new Star(167, 273, 3),
+        new Star(370, 117, 1),
+        new Star(505, 6, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], // wings
+        [7, 3], [3, 8], [8, 9] // body
     ])
 };
 /*

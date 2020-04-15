@@ -13,7 +13,7 @@ const BaseStar = {
         this.cameras = [
             new Camera(null, [], true), // player 1 camera
             new Camera(null, [], true), // player 2 camera
-            new MiniMapCamera(null)  // minimap camera
+            new MiniMapCamera(null)     // minimap camera
         ];
         this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
