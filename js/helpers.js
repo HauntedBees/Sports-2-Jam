@@ -1,5 +1,6 @@
 const fpsAnim = 1000 / 60;
 const fpsUpdate = 80;
+const RandRange = (a, b) => a + Math.floor((b - a) * Math.random());
 const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,
@@ -24,6 +25,17 @@ const AnimationHelpers = {
 		}
 	}
 };
+function GetNumberNotInList(length, ...list) {
+	let attempts = 5;
+	while(attempts-- > 0) {
+		const rand = Math.floor(Math.random() * length);
+		if(list.indexOf(rand) < 0) { return rand; }
+	}
+	for(let i = 0; i < length; i++) { // randomness didn't work, just iterate through
+		if(list.indexOf(i) < 0) { return i; }
+	}
+	return -1;
+}
 
 // TO DEPRECATE:
 function getMousePos(event, src_elem) {

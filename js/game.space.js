@@ -106,7 +106,7 @@ class FieldRunHandler extends Handler {
     }
     /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam */
     GetStarsAndPlayersFromConstellation(constellationName, runningTeam, fieldTeam) {
-        /** @type {Constellation} */ const c = ConstellationInfo[constellationName];
+        const c = ConstellationInfo[constellationName];
         const o = c.offset, s = c.scale;
         const powerMult = 5;//20 / c.stars.length;
         this.stars = [];
@@ -117,6 +117,10 @@ class FieldRunHandler extends Handler {
             runnerStars.push({ x: x, y: y });
             this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * powerMult));
             this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + i) % 20], x, y, i));
+        });
+        BaseStar.outfielders.forEach((e, i) => {
+            const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
+            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + c.stars.length + i) % 20], x, y));
         });
         this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], 10, 240, runnerStars);
         BaseStar.data.inning.playersOnBase.forEach(e => {
@@ -173,7 +177,7 @@ class FieldRunHandler extends Handler {
         this.fieldHandler.KeyPress(key);
     }
     Update() {
-        if(AnimationHelpers.IsAnimating()) { return; }
+        if(AnimationHelpers.IsAnimating() || game.paused) { return; }
         this.world.Step(1 / 60, 10, 10);	
         this.world.ClearForces();
         if(++this.hundredTimer > 100) { this.hundredTimer = 0; }

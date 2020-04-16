@@ -1,24 +1,35 @@
 const BaseStar = {
     /** @type GameData */ data: null, 
     /** @type CPUplayer */ cpu: null, 
-    /** @type Camera[] */ cameras: [],
+    /** @type Camera[] */ cameras: [
+        new Camera(null, [], true), // player 1 camera
+        new Camera(null, [], true), // player 2 camera
+        new MiniMapCamera(null)     // minimap camera
+    ],
     fast: true, 
     /** @type Handler */ subhandler: null,
+    /** @type {{ x: number; y: number}[]} outfielders */
+    outfielders: [],
     freeMovement: true, 
     b2Helper: null,
-    Init: function() {
-        const p1Team = Math.floor(Math.random() * TeamInfo.length);
-        this.data = new GameData(p1Team, (p1Team + 1) % TeamInfo.length, false);
+    Init: function(source) {
+        if(source === "series") {
+            this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false);
+        } else {
+            const p1Team = Math.floor(Math.random() * TeamInfo.length);
+            this.data = new GameData(p1Team, (p1Team + 1) % TeamInfo.length, false);
+        }
         this.cpu = new CPUplayer();
-        this.cameras = [
+        /*this.cameras = [
             new Camera(null, [], true), // player 1 camera
             new Camera(null, [], true), // player 2 camera
             new MiniMapCamera(null)     // minimap camera
-        ];
+        ];*/
         this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "p2background", 0, 0);
-        this.SwitchHandler(AtBatHandler);
+        this.SwitchHandler(FieldPickHandler);
+        //this.SwitchHandler(AtBatHandler);
     },
     KeyPress: function(key) { this.subhandler.KeyPress(key); },
     Update: function() { this.subhandler.Update(); },
@@ -42,11 +53,20 @@ const BaseStar = {
         this.subhandler = new handler(...args);
         this.freeMovement = this.subhandler.freeMovement;
         this.freeMovement2 = this.subhandler.freeMovement2;
+    },
+    FieldSetupComplete: function(constellation, outfielders) {
+        this.data.SetConstellation(constellation);
+        this.outfielders = outfielders;
+        this.SwitchHandler(AtBatHandler);
     }
+};
+const outerGameData = {
+    team1Idx: 0, team2Idx: 0,
+    seriesLineup: [], seriesRound: 0
 };
 const game = {
     /** @type BaseHandler */ currentHandler: null,
-    animIdx: 0, updateIdx: 0, 
+    animIdx: 0, updateIdx: 0, paused: false, 
     Start: function() {
         game.currentHandler = Title;
         const canvasLayers = ["background", "background2", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
@@ -64,7 +84,8 @@ const game = {
         }
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
         gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", 
-                                     "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations"], function() {
+                                     "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations",
+                                     "worldmap", "worldcover", "bigsprites"], function() {
             document.addEventListener("keypress", input.keyPress);
             document.addEventListener("keydown", input.keyDown);
             document.addEventListener("keyup", input.keyUp);

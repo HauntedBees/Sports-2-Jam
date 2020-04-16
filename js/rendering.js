@@ -45,6 +45,37 @@ const gfx = {
         gfx.teamSheets[team] = canvas;
     },
 
+    TintSheet: /**
+     * @param {string} sheetName @param {string} tint */
+    function(sheetName, tint) {
+        const sheet = gfx.spritesheets[sheetName];
+        const canvas = document.createElement("canvas");
+        canvas.width = sheet.width;
+        canvas.height = sheet.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(sheet, 0, 0, sheet.width, sheet.height);
+        ctx.globalCompositeOperation = "source-atop";
+        ctx.fillStyle = tint;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        gfx.spritesheets[sheetName + "tint"] = canvas;
+    },
+
+    FlipSheet:
+    /** @param {string} sheetName */
+    function(sheetName) {
+        const newname = sheetName + "flip";
+        if(gfx.spritesheets[newname] !== undefined) { return; }
+        const sheet = gfx.spritesheets[sheetName];
+        const canvas = document.createElement("canvas");
+        canvas.width = sheet.width;
+        canvas.height = sheet.height;
+        const ctx = canvas.getContext("2d");
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(sheet, 0, 0, sheet.width, sheet.height);
+        gfx.spritesheets[newname] = canvas;
+    },
+
     DrawLine: /**
      * @param {number} x1 @param {number} y1
      * @param {number} x2 @param {number} y2
@@ -62,6 +93,16 @@ const gfx = {
             ctx.lineTo(x2, y2);
         }
         ctx.stroke();
+    },
+
+    DrawEarth: function(layer, x, y, dx, scale) {
+        const ctx = gfx.ctx[layer];
+        dx *= scale;
+        gfx.DrawSpriteToCameras("UI", "worldcover", 0, 1, x, y, layer, 200, scale, true);
+        ctx.globalCompositeOperation = "source-in";
+        gfx.DrawSpriteToCameras("UI", "worldmap", 0, 0, x - (dx % (225 * scale)), y, layer, 450, scale, true);
+        ctx.globalCompositeOperation = "source-over";
+        gfx.DrawSpriteToCameras("UI", "worldcover", 0, 0, x, y, layer, 200, scale, true);
     },
 
     DrawLineToCameras: /**
@@ -93,12 +134,12 @@ const gfx = {
      * @param {string} sheetpath
      * @param {number} sx @param {number} sy
      * @param {number} x @param {number} y
-     * @param {string} layer @param {number} [size] @param {number} [scale] */
-    function(type, sheetpath, sx, sy, x, y, layer, size) {
+     * @param {string} layer @param {number} [size] @param {number} [scale] @param {boolean} [force] */
+    function(type, sheetpath, sx, sy, x, y, layer, size, scale, force) {
         BaseStar.cameras.forEach(camera => {
             const point = camera.GetPos({ x: x, y: y }, type);
-            if(point.ignore) { return; }
-            gfx.DrawSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size || 32, camera.zoom);
+            if(point.ignore && !force) { return; }
+            gfx.DrawSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size || 32, (scale || 1) * camera.zoom);
         });
     },
     DrawCenteredSpriteToCameras: /**

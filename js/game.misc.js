@@ -62,9 +62,14 @@ const TeamSelection = {
     sx: 0, sy: 0, confirmed: false, selText: null,
     sx2: 1, sy2: 0, confirmed2: false, selText2: null,
     twoPlayer: false, 
+    earthX: 0, earthY: 0,
+    exDir: 0, eyDir: 0,
     Init: function() {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteOptionText("Choose your Team", 320, 32, "background", "#FFFFFF", 24);
+        this.earthX = TeamInfo[0].mapx;
+        this.earthY = TeamInfo[0].mapcy;
+        this.exDir = 0; this.eyDir = 0;
         this.twoPlayer = false; // TODO: FUCKER
         if(this.twoPlayer) {
             this.sx = 0; this.sy = 0; this.confirmed = false;
@@ -87,6 +92,7 @@ const TeamSelection = {
             case controls.confirm:
                 meSpeak.speak(TeamInfo[this.selection].name, { variant: "croak", pitch: 15 });
                 game.Transition(CoinToss, [this.selection, Math.abs(this.selection - 1)]);
+                this.Confirm();
                 break;
             case controls.down: this.MoveCursor(0, 0, 1); break;
             case controls.up: this.MoveCursor(0, 0, -1); break;
@@ -99,24 +105,58 @@ const TeamSelection = {
             case controls2.right: this.MoveCursor(1, 1, 0); break;
         }
     },
+    Confirm: function() {
+        outerGameData.team1Idx = this.sy * this.rowLength + this.sx;
+        if(this.twoPlayer) {
+            // TODO: player 2
+        } else {
+            outerGameData.seriesRound = 0;
+            outerGameData.seriesLineup = [3];
+            for(let i = 0; i < 4; i++) { // 5
+                outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
+            }
+            game.Transition(BaseStar, ["series"]);
+            //game.Transition(SeriesIndicator, []);
+        }
+    },
     MoveCursor: function(player, dx, dy) {
         const newx = this.sx + dx, newy = this.sy + dy;
         if(newx < 0 || newx >= this.rowLength) { return; }
         if(newy < 0 || newy >= Math.ceil(TeamInfo.length / this.rowLength)) { return; }
+        const before = this.sy * this.rowLength + this.sx;
+        const after = newy * this.rowLength + newx;
         if(player === 0) {
             this.sx = newx; this.sy = newy;
-            this.selText.ChangeText(TeamInfo[newy * this.rowLength + newx].name);
+            this.selText.ChangeText(TeamInfo[after].name);
             this.selText.Select();
-        } else {
+            this.UpdateMap(before, after);
+        } else if(this.twoPlayer) {
             this.sx2 = newx; this.sy2 = newy;
             this.justChanged2 = true;
             this.selText2.ChangeText(TeamInfo[newy * this.rowLength + newx].name);
             this.selText2.Select();
         }
     },
+    UpdateMap: function(before, after) {
+        const oldTeam = TeamInfo[before], newTeam = TeamInfo[after];
+        this.exDir = (newTeam.mapx - oldTeam.mapx) / 3;
+        this.eyDir = (newTeam.mapcy - oldTeam.mapcy) / 3;
+    },
     Update: function() {
         this.selText.Update();
-        if(this.twoPlayer) { this.selText2.Update(); }
+        if(this.twoPlayer) {
+            this.selText2.Update(); 
+        } else if(this.exDir !== 0) {
+            this.earthX += this.exDir;
+            this.earthY += this.eyDir;
+            const teamInfo = TeamInfo[this.sy * this.rowLength + this.sx];
+            const teamX = teamInfo.mapx;
+            if((this.exDir > 0 && this.earthX > teamX) || (this.exDir < 0 && this.earthX < teamX)) {
+                this.exDir = 0;
+                this.earthX = teamX;
+                this.earthY = teamInfo.mapcy;
+            }
+        }
     },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
@@ -125,20 +165,68 @@ const TeamSelection = {
             this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, this.sx2, this.sy2, this.confirmed2));
             this.selText2.Draw();
         } else {
+            gfx.DrawEarth("interface", 215, 120, this.earthX, 0.5);
+            gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 265, 120 + this.earthY, "interface", 32, 1);
             const teamIdx = this.sy * this.rowLength + this.sx;
-            const team = TeamInfo[teamIdx], cx = 345;
+            const team = TeamInfo[teamIdx], cx = 385;
             team.constellations.forEach((name, i) => {
-                /** @type {Constellation} */ const c = ConstellationInfo[name];
+                const c = ConstellationInfo[name];
+                if(c === undefined) { return; }
                 gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx + 96 * i, 144, "interface", 128, 0.66);
                 gfx.WriteEchoOptionText(name, cx + 96 * i, 200, "text", "#FFFFFF", "#BA66FF", 12);
             });
-            gfx.DrawSprite("helmets", 3, 3, 70, 70, "interface", 160);
-            gfx.DrawSprite("helmets", team.hx, team.hy, 70, 70, "interface", 160);
+            gfx.DrawSprite("helmets", 3, 3, 30, 80, "interface", 160);
+            gfx.DrawSprite("helmets", team.hx, team.hy, 30, 80, "interface", 160);
             this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, -1, -1, false));
             gfx.WriteEchoPlayerText("Star Hitter: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
             gfx.WriteEchoPlayerText("Star Pitcher: " + starPlayers[teamIdx].pitcher, cx - 25, 250, 500, "text", "#FFFFFF", "#6666AA", 12, "left");
         }
     }
+};
+const SeriesIndicator = {
+    elems: [], selection: 0, 
+    Init: function(s) {
+        gfx.FlipSheet("helmets");
+        gfx.TintSheet("helmetsflip", "#00000099")
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
+        gfx.WriteOptionText(`Match ${outerGameData.seriesRound + 1}`, 320, 32, "background", "#FFFFFF", 24);
+        
+        const helmety = 200, bottomy = 340;
+        const playerTeam = TeamInfo[outerGameData.team1Idx];
+        const opponentTeam = TeamInfo[outerGameData.seriesLineup[outerGameData.seriesRound]];
+
+        //meSpeak.speak(`Match ${outerGameData.seriesRound + 1}: ${playerTeam.name} versus ${opponentTeam.name}`, { variant: "croak", pitch: 15 });
+
+        gfx.WriteOptionText(`${playerTeam.name} v. ${opponentTeam.name}`, 320, 64, "background", "#FFFFFF", 20);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, 190, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", playerTeam.hx, playerTeam.hy, 190, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 0, 3, 450, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 3 - opponentTeam.hx, opponentTeam.hy, 450, helmety, "interface", 160, 1);
+        
+        gfx.DrawLineToCameras(120, bottomy, 120 + 100 * (outerGameData.seriesLineup.length - 1), bottomy, "#FF0000", "interface");
+        for(let i = 0; i < outerGameData.seriesLineup.length; i++) {
+            const smallTeam = TeamInfo[outerGameData.seriesLineup[i]];
+            const smallx = 120 + 100 * i;
+            const sheet = i < outerGameData.seriesRound ? "helmetsfliptint" : "helmetsflip";
+            let scale = i === outerGameData.seriesRound ? 0.6 : 0.5;
+            gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 0, 3, smallx, bottomy, "interface", 160, scale);
+            gfx.DrawCenteredSpriteToCameras("helmet", sheet, 3 - smallTeam.hx, smallTeam.hy, smallx, bottomy, "interface", 160, scale);
+        }
+        const playerHelmetX = 120 + 100 * outerGameData.seriesRound + 10;
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", playerTeam.hx, playerTeam.hy, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
+    },
+    KeyPress: function(key) {
+        switch(key) {
+            case controls.pause: 
+            case controls.confirm:
+                meSpeak.stop();
+                game.Transition(BaseStar, ["series"]);
+                break;
+        }
+    },
+    Update: function() { },
+    AnimUpdate: function() { }
 };
 const CoinToss = {
     elems: [], 
