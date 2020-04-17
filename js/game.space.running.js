@@ -27,6 +27,9 @@ class RunHandler extends SecondaryHandler {
         }
         this.runner.MoveToStar(nextidx);
     }
+    TargetClosestBase() {
+        this.runner.JumpOffBall(this.onBaseRunners.map(e => e.targetStar));
+    }
     SwitchRunner() {
         if(this.onBaseRunners.length === 0) { return; }
         const newRunner = this.onBaseRunners.shift();
@@ -40,6 +43,7 @@ class RunHandler extends SecondaryHandler {
             case this.myControls.confirm: return this.Confirm();
             case this.myControls.left: return this.AimForNextStar(-1);
             case this.myControls.right: return this.AimForNextStar(1);
+            case this.myControls.up: return this.TargetClosestBase();
             case this.myControls.cancel: return this.SwitchRunner();
         }
     }

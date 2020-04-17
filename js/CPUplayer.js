@@ -34,10 +34,10 @@ class CPUplayer {
 
     // Running
     SetUpRun() { 
-        this.someChance = 0.0005;
+        this.someChance = 1;//0.0005;
     }
     HandleRun() {
-        if(this.runner.runner.ball !== null) {
+        if(this.runner.runner.ball !== null) { // runner is on ball
             if(Math.random() < this.someChance) {
                 this.runner.Confirm();
                 this.someChance = 0.01;
@@ -53,6 +53,18 @@ class CPUplayer {
 
     // Fielding
     SetUpField() { }
+    HandleField() {
+        if(this.fielder.ballFielderIdx < 0) { return; }
+        this.fielder.ballFielderIdx = 0;
+        this.fielder.targetFielderIdx = 0;
+        this.fielder.ThrowBall();
+        /*this.fielder.TargetRunnerIncludeHolder();
+        if(this.fielder.ballFielderIdx !== this.fielder.targetFielderIdx) {
+            this.fielder.ThrowBall();
+        } else if(this.fielder.ballFielderIdx === this.fielder.targetFielderIdx && this.fielder.fielders[this.fielder.ballFielderIdx].pitcher) {
+            this.fielder.ThrowBall();
+        }*/
+    }
 
     // Pitching
     SetUpPitch() {
@@ -73,7 +85,7 @@ class CPUplayer {
     TrySwing() {
         let doHit = false;
         if(this.pitcher.ballPos < 20) {
-            doHit = Math.random() < 0.0001;
+            doHit = Math.random() < 0.1;//0.0001;
         } else {
             doHit = Math.random() < this.someChance;
         }

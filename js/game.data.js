@@ -2,9 +2,9 @@ class GameData {
     /** @param {number} team1idx @param {number} team2idx @param {boolean} isTeam2PlayerControlled */
     constructor(team1idx, team2idx, isTeam2PlayerControlled) {
         this.team1 = new Team(1, team1idx, true);
-        this.team1.isUp = true;
         this.team2 = new Team(2, team2idx, isTeam2PlayerControlled);
-        this.team2.isUp = false;
+        this.team1.isUp = true;//true;
+        this.team2.isUp = !this.team1.isUp;//false;
         this.constellation = "Cygnus";
         this.inning = new InningData();
     }
@@ -72,6 +72,10 @@ function Team(player, idx, isPlayerControlled) {
     this.isPlayerControlled = isPlayerControlled;
     this.isUp = false;
     this.score = 0;
+    this.GetLayerPrefix = function() {
+        if(player === 1) { return ""; }
+        return isPlayerControlled ? "p2" : null;
+    };
     this.GetControls = function() {
         if(player === 1) { return controls; }
         return isPlayerControlled ? controls2 : {};

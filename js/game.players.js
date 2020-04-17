@@ -23,6 +23,8 @@ class Player {
     }
 }
 class Fielder extends Player {
+    pitcher = false;
+    base = -1;
     constructor(teamname, playerInfo, x, y, type, radius) {
         super(teamname, playerInfo, x, y, type, radius);
         this.x = x - 10 + Math.floor(11 * Math.random());
@@ -66,17 +68,28 @@ class Fielder extends Player {
             }
         };
     }
+    Move(x, y) {
+        this.x += x;
+        this.y += y;
     }
 }
 class Outfielder extends Fielder {
     constructor(team, playerInfo, x, y) {
-        super(team, playerInfo, x, y, "outfielder", 25); 
+        super(team, playerInfo, x, y, "outfielder", 25);
     }
+    SetPitcher() { this.pitcher = true; }
 }
 class Infielder extends Fielder {
     constructor(team, playerInfo, x, y, base) {
         super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
+        this.homex = this.x;
+        this.homey = this.y;
+    }
+    Move(x, y) {
+        const distanceFromBase = Dist(this.x + x, this.y + y, this.homex, this.homey);
+        if(distanceFromBase > 75) { return; }
+        super.Move(x, y);
     }
 }
 class RunnerShell {
@@ -89,7 +102,7 @@ class RunnerShell {
         this.baseIdx = runner.targetStar;
     }
 }
-class Runner extends Player {
+class Runner extends Player { // TODO: distinguish between runner on base and runner who is running
     constructor(teamname, playerInfo, x, y, stars) {
         super(teamname, playerInfo, x, y, "runner", 15);
         this.dashed = false;
@@ -105,8 +118,10 @@ class Runner extends Player {
         this.SetBall = function (ball) { this.ball = ball; };
         this.JumpOffBall = /** @param {number[]} occupiedBases */
         function (occupiedBases) {
-            delete this.ball.GetUserData().runner;
-            this.ball = null;
+            if(this.ball !== null) {
+                delete this.ball.GetUserData().runner;
+                this.ball = null;
+            }
             let lowestDistance = -1;
             this.stargets.forEach((star, i) => {
                 const tx = star.x, ty = star.y;

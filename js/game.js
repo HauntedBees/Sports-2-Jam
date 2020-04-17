@@ -6,12 +6,14 @@ const BaseStar = {
         new Camera(null, [], true)  // player 2 camera
         //, new MiniMapCamera(null)     // minimap camera
     ],
-    fast: true, 
+    fast: true, fullMult: 1.5, 
     /** @type Handler */ subhandler: null,
-    /** @type {{ x: number; y: number}[]} outfielders */
+    /** @type {{ x: number; y: number}[]} */
     outfielders: [],
+    /** @type {{ x: number; y: number, w: number; h: number}} */
+    fieldBounds: null,
     freeMovement: true, 
-    b2Helper: null,
+    /** @type b2Helpers */ b2Helper: null,
     Init: function(source) {
         if(source === "series") {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false);
@@ -54,9 +56,10 @@ const BaseStar = {
         this.freeMovement = this.subhandler.freeMovement;
         this.freeMovement2 = this.subhandler.freeMovement2;
     },
-    FieldSetupComplete: function(constellation, outfielders) {
+    FieldSetupComplete: function(constellation, outfielders, fieldBoundaries) {
         this.data.SetConstellation(constellation);
         this.outfielders = outfielders;
+        this.fieldBounds = fieldBoundaries;
         this.SwitchHandler(AtBatHandler);
     }
 };

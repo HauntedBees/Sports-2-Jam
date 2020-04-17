@@ -52,7 +52,7 @@ class FieldPickHandler extends Handler {
         if(this.state === 0) {
             this.state = 1;
             const c = ConstellationInfo[this.team.GetConstellations()[this.constsel]];
-            this.totalOutfielders = 20 - c.stars.length;
+            this.totalOutfielders = 20 - c.stars.length - 1;
             const scaleInfo = this.DrawConstellation(c, 320, 365);
             this.scale = scaleInfo.scale;
             this.maxY = scaleInfo.maxy;
@@ -77,7 +77,12 @@ class FieldPickHandler extends Handler {
             BaseStar.FieldSetupComplete(this.team.GetConstellations()[this.constsel], this.outfielders.map(o => ({
                 x: (o.x - x0) / me.scale,
                 y: (o.y - y0) / me.scale
-            })));
+            })), {
+                x: (this.leftx - x0) / this.scale,
+                y: (this.topy - y0) / this.scale,
+                w: (this.rightx - this.leftx) / this.scale,
+                h: (this.bottomy - this.topy) / this.scale
+            });
         }
     }
     MoveOutfielder(dx, dy) {
@@ -160,7 +165,7 @@ class FieldPickHandler extends Handler {
         const c = ConstellationInfo[constellations[this.constsel]];
         const textY = 265;
         gfx.WriteEchoOptionText(`Stars: ${c.stars.length}`, 160, textY, "text", "#FFFFFF", "#BA66FF", 16);
-        gfx.WriteEchoOptionText(`Outfielders: ${20 - c.stars.length}`, 320, textY, "text", "#FFFFFF", "#BA66FF", 16);
+        gfx.WriteEchoOptionText(`Outfielders: ${20 - c.stars.length - 1}`, 320, textY, "text", "#FFFFFF", "#BA66FF", 16);
         gfx.WriteEchoOptionText(`Gravity: ${c.stars.reduce((a, b) => a + b.power, 0)}`, 480, textY, "text", "#FFFFFF", "#BA66FF", 16);
         this.DrawConstellation(c, 320, 380);
     }

@@ -8,6 +8,7 @@ class FieldHandler extends SecondaryHandler {
         super(team);
         this.fullHandler = fieldRunHandler;
         this.fielders = fielders;
+        this.pitcher = fieldRunHandler.pitcher;
     }
     CatchBall(fielder, ball, runner) {
         const ballInfo = ball.GetUserData();
@@ -26,20 +27,61 @@ class FieldHandler extends SecondaryHandler {
             });
         } else { // runner is still one with the ball
             const me = this.fullHandler;
+            console.log("WUG");
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
+    }
+    BonkyOut(slamDunk) {
+        const me = this.fullHandler;
+        AnimationHelpers.StartScrollText((slamDunk ? "SLAM DUNK!  " : "") + "OUT!", function() { me.CatchOut(); });
     }
     MoveFielders(dx, dy) {
         const speed = 5;
         this.fielders.forEach(f => {
-            f.x += speed * dx;
-            f.y += speed * dy;
+            f.Move(speed * dx, speed * dy);
         });
     }
     AimForNextFielder(dir) {
         const len = this.fielders.length;
         let nextIdx = (this.targetFielderIdx + dir + len) % len;
         this.targetFielderIdx = nextIdx;
+    }
+    TargetRunner() {
+        let minDist = -1;
+        const runner = this.fullHandler.runner;
+        this.fielders.forEach((f, i) => {
+            const d = Dist(runner.x, runner.y, f.x, f.y);
+            if((minDist < 0 || d < minDist) && i !== this.ballFielderIdx) {
+                minDist = d;
+                this.targetFielderIdx = i;
+            }
+        });
+    }
+    TargetRunnerIncludeHolder() {
+        let minDist = -1;
+        const runner = this.fullHandler.runner;
+        this.fielders.forEach((f, i) => {
+            const d = Dist(runner.x, runner.y, f.x, f.y);
+            if((minDist < 0 || d < minDist)) {
+                minDist = d;
+                this.targetFielderIdx = i;
+            }
+        });
+    }
+    TargetPitcher() {
+        // TODO: create the pitcher
+    }
+    ThrowBall() {
+        if(this.targetFielderIdx === this.ballFielderIdx) {
+            if(this.dunked) { return; } // can't dunk twice in one round!
+            this.slamDunkIdx = this.ballFielderIdx;
+            this.dunked = true;
+        } else {
+            this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);
+            this.fullHandler.SwitchFielderFreeMovement(true);
+            this.ballFielderIdx = -1;
+            this.targetFielderIdx = -1;
+        }
     }
     KeyPress(key) {
         let dx = 0, dy = 0, confirm = false;
@@ -54,30 +96,31 @@ class FieldHandler extends SecondaryHandler {
         if(this.ballFielderIdx < 0) { // moving
             if(dx !== 0 || dy !== 0) { this.MoveFielders(dx, dy); }
         } else { // throwing ball
-            if(dx !== 0 || dy !== 0) { this.AimForNextFielder(dx); }
-            if(confirm) {
-                if(this.targetFielderIdx === this.ballFielderIdx) {
-                    if(this.dunked) { return; } // can't dunk twice in one round!
-                    this.slamDunkIdx = this.ballFielderIdx;
-                    this.dunked = true;
-                } else {
-                    this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);
-                    this.fullHandler.SwitchFielderFreeMovement(true);
-                    this.ballFielderIdx = -1;
-                    this.targetFielderIdx = -1;
-                }
-            }
+            if(dy === -1) { this.TargetRunner(); }
+            else if(dy === 1) { this.TargetPitcher(); }
+            else if(dx !== 0) { this.AimForNextFielder(dx); }
+            if(confirm) { this.ThrowBall(); }
         }
     }
     Update() {
-        this.fielders.forEach(e => { 
-            e.Update();
-            e.SyncCollider();
-        });
+        const ball = this.fullHandler.balls[0];
+        const ballPos = vecm2p(ball.GetWorldCenter());
+        const someoneHasBall = this.fielders.some(e => e.ball !== null);
+        if(!someoneHasBall) {
+            this.fielders.forEach(f => {
+                const d = dist(f, ballPos);
+                const mult = 0.5;
+                const angle = Math.atan2(ballPos.y - f.y, ballPos.x - f.x);
+                f.Move(mult * Math.cos(angle), mult * Math.sin(angle));
+                f.Update();
+                f.SyncCollider();
+            });
+        }
         this.animCounter += 0.1;
         if(this.animCounter > 100) {
             this.animCounter = 0;
         }
+        if(!this.team.isPlayerControlled) { BaseStar.cpu.HandleField(); }
     }
     AnimUpdate() {
         this.DrawInfoUI();

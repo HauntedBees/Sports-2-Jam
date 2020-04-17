@@ -1,6 +1,6 @@
 class FieldRunHandler extends Handler {
-    state = 0; debug = 1; // 0 = no debug, 1 = only local, 2 = local + b2Debug
-    stars = []; balls = [];
+    state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
+    stars = []; balls = []; hundredTimer = 0;
     constellationName = "";
     particles = []; slamdunks = [];
     /** @type Fielder[] */ fielders = [];
@@ -20,6 +20,7 @@ class FieldRunHandler extends Handler {
         this.particles = [];
         this.slamdunks = [];
         this.GetStarsAndPlayersFromConstellation(constellation, runningTeam, fieldTeam);
+        this.CreateBoundaries();
         this.SwingBat(ballDetails);
         const l = new b2ContactListener();
         const me = this;
@@ -76,13 +77,10 @@ class FieldRunHandler extends Handler {
         } else if(Either(i1, i2, "baseball", "runner")) {
             const ballData = i1 === "baseball" ? b1u : b2u;
             if(ballData.thrown) {
-                console.log("THAT'S A BONKY, BUDDY!");
-            } else {
-                console.log("that's fine");
+                this.fieldHandler.BonkyOut(false);
             }
         } else if(Either(i1, i2, "slammer", "runner")) {
-            //const runner = i1 === "slammer" ? b2u.player : b1u.player;
-            console.log("THAT'S A BONKY, BUDDY!");
+            this.fieldHandler.BonkyOut(true);
         }
     } 
     ExitCollision(c) {
@@ -106,23 +104,39 @@ class FieldRunHandler extends Handler {
         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
         this.world.SetDebugDraw(debugDraw); 
     }
+    CreateBoundaries() {
+        const scale = BaseStar.fullMult;
+        const bounds = BaseStar.fieldBounds;
+        const boundx = bounds.x * scale, boundy = bounds.y * scale;
+        const boundw = bounds.w * scale, boundh = bounds.h * scale;
+        BaseStar.b2Helper.GetBarrier(boundx, boundy - 20, boundw, 20);
+        BaseStar.b2Helper.GetBarrier(boundx, boundy + boundh, boundw, 20);
+        BaseStar.b2Helper.GetBarrier(boundx - 20, boundy, 20, boundh);
+        BaseStar.b2Helper.GetBarrier(boundx + boundw, boundy, 20, boundh);
+        this.debugBounds = [boundx, boundy, boundx + boundw, boundy + boundh];
+    }
     /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam */
     GetStarsAndPlayersFromConstellation(constellationName, runningTeam, fieldTeam) {
         const c = ConstellationInfo[constellationName];
-        const o = c.offset, s = c.scale;
-        const powerMult = 5;//20 / c.stars.length;
+        const o = c.offset, s = PMult(c.scale, BaseStar.fullMult);
+        o.x += 200;
+        const powerMult = 100 / c.stars.length;
         this.stars = [];
-        
         const runnerStars = [];
+        const bounds = BaseStar.fieldBounds;
+        const pitcherx = o.x + (bounds.x + 40) * s.x, pitchery = o.y + (bounds.y + bounds.h / 2) * s.y;
+        this.pitcher = new Outfielder(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherx, pitchery);
+        this.pitcher.SetPitcher();
+        this.fielders.push(this.pitcher);
         c.stars.forEach((e, i) => {
             const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
             runnerStars.push({ x: x, y: y });
-            this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * powerMult));
-            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + i) % 20], x, y, i));
+            this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * e.power * powerMult, e.power));
+            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], x, y, i));
         });
         BaseStar.outfielders.forEach((e, i) => {
             const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
-            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + c.stars.length + i) % 20], x, y));
+            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], x, y));
         });
         this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], 10, 240, runnerStars);
         BaseStar.data.inning.playersOnBase.forEach(e => {
@@ -133,7 +147,9 @@ class FieldRunHandler extends Handler {
         });
     }
     SwingBat(d) {
-        const startPos = { x: 0, y: 240 + d.pos * 8 };
+        const bounds = BaseStar.fieldBounds;
+        const startPos = { x: bounds.x + 10, y: bounds.y + bounds.h / 2 + d.pos * 8 };
+        this.runner.x = startPos.x; this.runner.y = startPos.y;
         const angle = 4 * (2 * d.dir + d.offset); // approx. [-13.2, 13.2]; *4 = [-52.8, 52.8]
         const y = 2 * d.power * Math.sin(angle / toRadians); // TODO: "toRadians" is very ambiguous/poorly named
         const x = 2 * d.power * Math.cos(angle / toRadians);
@@ -184,18 +200,19 @@ class FieldRunHandler extends Handler {
         this.world.ClearForces();
         if(++this.hundredTimer > 100) { this.hundredTimer = 0; }
         if(this.fieldHandler.slamDunkIdx >= 0) {
-            const dunkerPos = this.fieldHandler.fielders[this.fieldHandler.slamDunkIdx];
-            const numDunkers = 20;
+            const dunker = this.fieldHandler.fielders[this.fieldHandler.slamDunkIdx];
+            const numDunkers = dunker.pitcher ? 40 : 20;
             for(let i = 0; i < numDunkers; i++) {
                 const radian = Math.PI / (numDunkers / 2) * i, len = 4, v = 10;
-                const dunker = BaseStar.b2Helper.GetCircle(dunkerPos.x + len * Math.cos(radian), dunkerPos.y + len * Math.sin(radian), 10, true, { identity: "slammer" }, true);
-                dunker.SetLinearVelocity(new b2Vec2(v * Math.cos(radian), v * Math.sin(radian)));
+                const b2dunky = BaseStar.b2Helper.GetCircle(dunker.x + len * Math.cos(radian), dunker.y + len * Math.sin(radian), 10, true, { identity: "slammer" }, true);
+                b2dunky.SetLinearVelocity(new b2Vec2(v * Math.cos(radian), v * Math.sin(radian)));
                 this.slamdunks.push({
                     frame: 0, animIdx: Math.floor(Math.random() * 10), 
-                    body: dunker
+                    body: b2dunky
                 });
             }
-            this.fieldHandler.dunkSpan = 50;
+            this.dunkyTargeting = dunker.pitcher;
+            this.fieldHandler.dunkSpan = dunker.pitcher ? 9999 : 50;
             this.fieldHandler.slamDunkIdx = -1;
         }
         if(--this.fieldHandler.dunkSpan <= 0 && this.slamdunks.length > 0) {
@@ -205,13 +222,29 @@ class FieldRunHandler extends Handler {
             });
             this.slamdunks = [];
         }
+
+        if(this.dunkyTargeting) { this.ApplyDunkies(); }
         this.ApplyBallGravityForces();
         this.runHandler.Update();
         this.fieldHandler.Update();
-        if(this.runner.atBase && this.runner.targetStar === this.fieldHandler.ballFielderIdx) {
+        if(this.fieldHandler.ballFielderIdx >= 0 && this.runner.atBase && this.runner.targetStar === this.fielders[this.fieldHandler.ballFielderIdx].base) {
             const me = this;
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
+    }
+    ApplyDunkies() {
+        this.slamdunks.forEach(dunky => {
+            const dunko = dunky.body;
+            const dPos = dunko.GetWorldCenter();
+            const rPos = this.runner.collider.GetWorldCenter();
+            const playerDis = new b2Vec2(0, 0);
+            playerDis.Add(dPos);
+            playerDis.Subtract(rPos);
+            const force = 20 / Math.pow(playerDis.Length(), 2);
+            playerDis.NegativeSelf();
+            playerDis.Multiply(force);
+            dunko.ApplyForce(playerDis, dunko.GetWorldCenter());
+        });
     }
     ApplyBallGravityForces() {
         this.balls.forEach(ball => {
@@ -237,16 +270,15 @@ class FieldRunHandler extends Handler {
                     starDist.Add(ballPos);
                     starDist.Subtract(starPos);
                     const force = (starData.gravityPower * ball.GetMass()) / Math.pow(starDist.Length(), 2);
-                    if (starDist.Length() < starData.radius * starData.gravityRange) {
-                        starDist.NegativeSelf();
-                        starDist.Multiply(force);
-                        if(ballData.thrown) { starDist.Multiply(0.5); } // gravity is weaker when ball is thrown from fielder to fielder
-                        ball.ApplyForce(starDist, ball.GetWorldCenter());
-                        ball.beeForces.push({
-                            x: m2p(ballPos.x), y: m2p(ballPos.y),
-                            dx: m2p(starDist.x), dy: m2p(starDist.y)
-                        });
-                    }
+                    starDist.NegativeSelf();
+                    starDist.Multiply(force);
+                    if (starDist.Length() > starData.radius * starData.gravityRange) { starDist.Multiply(0.05); } // if ball is far away, weaken the force
+                    if(ballData.thrown) { starDist.Multiply(0.05); } // gravity is weaker when ball is thrown from fielder to fielder
+                    ball.ApplyForce(starDist, ball.GetWorldCenter());
+                    ball.beeForces.push({
+                        x: m2p(ballPos.x), y: m2p(ballPos.y),
+                        dx: m2p(starDist.x), dy: m2p(starDist.y)
+                    });
                 }
             } else if(ballData.nextForce !== undefined) {
                 ball.SetLinearVelocity(ballData.nextForce);
@@ -288,7 +320,7 @@ class FieldRunHandler extends Handler {
                 particle.frame = (++particle.frame % 2);
                 particle.timer = Math.ceil(Math.random() * 6);
             }
-            gfx.DrawSpriteToCameras("debug", "sprites", particle.frame, 1, particle.x, particle.y, "interface");
+            gfx.DrawSpriteToCameras("sparkle", "sprites", particle.frame, 1, particle.x, particle.y, "interface");
         });
         this.slamdunks.forEach(slammer => {
             const pos = slammer.body.GetWorldCenter();
@@ -376,7 +408,4 @@ class FieldRunHandler extends Handler {
         });
         ctx.restore();
     }
-}
-function Either(a, b, condition1, condition2) {
-    return (a === condition1 && b === condition2) || (a === condition2 && b === condition1);
 }

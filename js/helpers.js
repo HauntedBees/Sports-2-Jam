@@ -1,6 +1,8 @@
-const fpsAnim = 1000 / 60;
-const fpsUpdate = 80;
+const fpsAnim = 1000 / 60, fpsUpdate = 80;
 const RandRange = (a, b) => a + Math.floor((b - a) * Math.random());
+const Either = (a, b, condition1, condition2) => (a === condition1 && b === condition2) || (a === condition2 && b === condition1);
+const PMult = (p, m) => ({ x: p.x * m, y: p.y * m });
+const PAdd = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
 const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,
@@ -10,15 +12,18 @@ const AnimationHelpers = {
 			text: text, callback: callback,
 			x: 640 + len / 2, y: 300, 
 			length: len, endX: (-len / 2) };
+		if(this.animIdx > 0) { clearInterval(this.animIdx); }
 		this.animIdx = setInterval(this.AnimateScrollText, fpsAnim);
 	},
 	AnimateScrollText: function() {
 		const data = AnimationHelpers.animData;
+		if(data === null) { return; }
 		data.x -= 20; // 10
 		gfx.ClearLayer("specialanim");
 		if(data.x <= data.endX) {
 			clearInterval(AnimationHelpers.animIdx);
 			AnimationHelpers.animIdx = 0;
+			AnimationHelpers.animData = null;
 			data.callback();
 		} else {
 			gfx.WriteBorderedText(data.text, data.x, data.y, "specialanim", "#FFFFFF", "#FF0000", 196, 5);
@@ -35,24 +40,4 @@ function GetNumberNotInList(length, ...list) {
 		if(list.indexOf(i) < 0) { return i; }
 	}
 	return -1;
-}
-
-// TO DEPRECATE:
-function getMousePos(event, src_elem) {
-	let totalOffsetX = 0, totalOffsetY = 0;
-	let x_pos = 0, y_pos = 0;
-	let currElement = src_elem;
-
-	if (event.offsetX !== undefined && event.offsetY !== undefined) { // IE, Chrome
-		x_pos = event.offsetX;
-		y_pos = event.offsetY;
-	} else { // FireFox
-		do {
-			totalOffsetX += currElement.offsetLeft - currElement.scrollLeft;
-			totalOffsetY += currElement.offsetTop - currElement.scrollTop;
-		} while(currElement = currElement.offsetParent);
-		x_pos = event.pageX - totalOffsetX - document.body.scrollLeft; 
-		y_pos = event.pageY - totalOffsetY - document.body.scrollTop;
-	}
-	return new b2Vec2(x_pos, y_pos);
 }
