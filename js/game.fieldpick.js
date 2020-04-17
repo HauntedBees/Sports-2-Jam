@@ -9,6 +9,9 @@ class FieldPickHandler extends Handler {
         super();
         this.team = BaseStar.data.GetFieldTeam();
         this.myControls = this.team.GetControls();
+        if(!this.team.isPlayerControlled) {
+            BaseStar.cpu.PickConstellationAndPlaceOutfielders(this);
+        }
     }
     CleanUp() { gfx.ClearSome(["interface", "text"]); }
     KeyPress(key) {
@@ -67,8 +70,10 @@ class FieldPickHandler extends Handler {
             this.topy = -h;
             this.bottomy = h;
             this.AddOutfielder(true);
+            return false;
         } else if(this.state === 1) {
             this.AddOutfielder(false);
+            return false;
         } else {
             const x0 = -500 * this.scale;
             const y0 = -(this.maxY * this.scale) / 2;
@@ -83,6 +88,7 @@ class FieldPickHandler extends Handler {
                 w: (this.rightx - this.leftx) / this.scale,
                 h: (this.bottomy - this.topy) / this.scale
             });
+            return true;
         }
     }
     MoveOutfielder(dx, dy) {

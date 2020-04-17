@@ -4,7 +4,6 @@ const BaseStar = {
     /** @type Camera[] */ cameras: [
         new Camera(null, [], true), // player 1 camera
         new Camera(null, [], true)  // player 2 camera
-        //, new MiniMapCamera(null)     // minimap camera
     ],
     fast: true, fullMult: 1.5, 
     /** @type Handler */ subhandler: null,

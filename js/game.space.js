@@ -240,7 +240,7 @@ class FieldRunHandler extends Handler {
             const playerDis = new b2Vec2(0, 0);
             playerDis.Add(dPos);
             playerDis.Subtract(rPos);
-            const force = 20 / Math.pow(playerDis.Length(), 2);
+            const force = 4 / playerDis.Length();
             playerDis.NegativeSelf();
             playerDis.Multiply(force);
             dunko.ApplyForce(playerDis, dunko.GetWorldCenter());

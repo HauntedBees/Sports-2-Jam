@@ -6,6 +6,30 @@ class CPUplayer {
     /** @type {RunHandler} */ runner = null;
     /** @type {FieldHandler} */ fielder = null;
 
+    /** @param {FieldPickHandler} fp */
+    PickConstellationAndPlaceOutfielders(fp) {
+        let counter = 5;
+        let wub = setInterval(function() {
+            if(fp.state === 0) {
+                if(--counter > 0) { return; }
+                counter = 10;
+                const cs = fp.team.GetConstellations();
+                let constsel = Math.floor(Math.random() * 3);
+                while(cs[constsel] === "") {
+                    constsel = (constsel + 1) % 3;
+                }
+                fp.constsel = constsel;
+                fp.Confirm();
+            } else if(fp.state === 1) {
+                fp.Confirm();
+            } else if(fp.state === 2) {
+                if(--counter > 0) { return; }
+                clearInterval(wub);
+                fp.Confirm();
+            }
+        }, 300);
+    }
+
     /** @param {BatHandler} bh @param {PitchHandler} ph
      *  @param {boolean} isBatterCPU @param {boolean} isPitcherCPU */
     InitPitchBat(bh, ph, isBatterCPU, isPitcherCPU) {
