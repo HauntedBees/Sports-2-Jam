@@ -11,6 +11,7 @@ class FieldRunHandler extends Handler {
         const runningTeam = p1IsRunner ? BaseStar.data.team1 : BaseStar.data.team2;
         const fieldTeam = p1IsRunner ? BaseStar.data.team2 : BaseStar.data.team1;
         this.constellationName = constellation;
+        this.minimap = new MiniMap(this);
 
         this.world = new b2World(new b2Vec2(0, 0), true);
         BaseStar.b2Helper = new b2Helpers(this.world);
@@ -45,6 +46,7 @@ class FieldRunHandler extends Handler {
         BaseStar.cpu.InitFieldRun(this.runHandler, this.fieldHandler, !runningTeam.isPlayerControlled, !fieldTeam.isPlayerControlled);
     }
     CleanUp() {
+        this.minimap.CleanUp();
         const w = this.world;
         this.particles = [];
         this.slamdunks.forEach(e => w.DestroyBody(e.body));
@@ -313,6 +315,8 @@ class FieldRunHandler extends Handler {
         });
         this.fieldHandler.AnimUpdate();
         this.runHandler.AnimUpdate();
+        gfx.DrawHUDRectToCameras(155, 1, 484, 100, "#FFFFFF", "#000000", "overlay");
+        this.minimap.Draw();
     }
     DebugDraw() { // TODO: this ain't gonna last long
         if(this.debug === 0) { return; }
@@ -322,6 +326,10 @@ class FieldRunHandler extends Handler {
             gfx.ClearLayer("debug");
         }
         const ctx = gfx.ctx["debug"];
+        gfx.DrawLineToCameras(this.debugBounds[0], this.debugBounds[1], this.debugBounds[2], this.debugBounds[1], "#FFFF00", "debug");
+        gfx.DrawLineToCameras(this.debugBounds[0], this.debugBounds[3], this.debugBounds[2], this.debugBounds[3], "#FFFF00", "debug");
+        gfx.DrawLineToCameras(this.debugBounds[0], this.debugBounds[1], this.debugBounds[0], this.debugBounds[3], "#FFFF00", "debug");
+        gfx.DrawLineToCameras(this.debugBounds[2], this.debugBounds[1], this.debugBounds[2], this.debugBounds[3], "#FFFF00", "debug");
         const baseStroke = "#666666";
         ctx.save();
         ctx.lineWidth = 1;

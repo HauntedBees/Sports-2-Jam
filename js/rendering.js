@@ -80,11 +80,12 @@ const gfx = {
      * @param {number} x1 @param {number} y1
      * @param {number} x2 @param {number} y2
      * @param {string} color @param {any} layer
-     * @param {number} [cx] @param {number} [cy] */
-    function(x1, y1, x2, y2, color, layer, cx, cy) {
+     * @param {number} [cx] @param {number} [cy]
+     * @param {number} [lineWidth] */
+    function(x1, y1, x2, y2, color, layer, cx, cy, lineWidth) {
         const ctx = gfx.ctx[layer];
         ctx.strokeStyle = color || "#DDDDDDFF";
-        ctx.lineWidth = 3;
+        ctx.lineWidth = lineWidth || 3;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         if(cx !== undefined) {
@@ -105,10 +106,26 @@ const gfx = {
         gfx.DrawSpriteToCameras("UI", "worldcover", 0, 0, x, y, layer, 200, scale, true);
     },
 
+    DrawHUDRectToCameras: /**
+    * @param {number} x @param {number} y
+    * @param {number} w @param {number} h
+    * @param {string} borderColor @param {string} color
+    * @param {string} layer */
+    function(x, y, w, h, borderColor, color, layer) {
+        BaseStar.cameras.forEach(camera => {
+            const ctx = gfx.ctx[camera.prefix + (camera.forcedLayer || layer)];
+            ctx.strokeStyle = borderColor;
+            ctx.fillStyle = color;
+            ctx.lineWidth = 2;
+            ctx.fillRect(x, y, w, h);
+            ctx.strokeRect(x, y, w, h);
+        });
+    },
+
     DrawLineToCameras: /**
     * @param {number} x1 @param {number} y1
     * @param {number} x2 @param {number} y2
-    * @param {string} color @param {any} layer
+    * @param {string} color @param {string} layer
     * @param {number} [cx] @param {number} [cy] */
     function(x1, y1, x2, y2, color, layer, cx, cy) {
         BaseStar.cameras.forEach(camera => {

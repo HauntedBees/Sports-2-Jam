@@ -57,6 +57,7 @@ class RunHandler extends SecondaryHandler {
         if(!this.team.isPlayerControlled) { BaseStar.cpu.HandleRun(); }
     }
     AnimUpdate() {
+        this.DrawInfoUI();
         this.runner.Draw();
         this.onBaseRunners.forEach(e => e.Draw());
         if(this.runner.targetStar >= 0) {
@@ -74,6 +75,36 @@ class RunHandler extends SecondaryHandler {
             } else {
                 gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 8, 1, currStar.x + 8, currStar.y - 24, "overlay", 32, 2 * scale);
                 gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 10, 2, this.runner.x, this.runner.y - 24, "overlay", 32, scale);
+            }
+        }
+    }
+    DrawInfoUI() {
+        const prefix = this.team.GetLayerPrefix();
+        if(prefix === null) { return; }
+        const layer = prefix + "text";
+        if(this.runner.ball !== null) {
+            const cx = 320, cy = 45;
+            gfx.DrawCenteredSprite("sprites", 11, 2, cx, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Jump Off Ball", cx + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+        } else {
+            const cx = 185, cx2 = 440, cy = 30;
+            gfx.DrawCenteredSprite("sprites", 14, 1, cx, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 13, 1, cx + 32, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Cycle Targets", cx + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            
+            gfx.DrawCenteredSprite("sprites", 12, 1, cx + 16, cy + 32, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Target Closest", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+
+            if(this.runner.atBase && this.onBaseRunners.every(e => e.atBase)) {
+                gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Finish", cx2 + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            } else if(!this.runner.dashed) {
+                gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Dash", cx2 + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            }
+            if(this.onBaseRunners.length > 0) {
+                gfx.DrawCenteredSprite("sprites", 12, 2, cx2, cy + 32, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Switch Runner", cx2 + 32, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             }
         }
     }

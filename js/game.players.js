@@ -17,6 +17,9 @@ class Player {
         this.Draw = function () {
             gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
         };
+        this.GetMiniMapDrawDetails = function() {
+            return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.5];
+        };
     }
 }
 class Fielder extends Player {
@@ -55,6 +58,14 @@ class Fielder extends Player {
                 this.ball.SetPosition({ x: p2m(this.x), y: p2m(this.y - 10) });
             }
         };
+        this.GetMiniMapDrawDetails = function() {
+            if(this.ball === null) {
+                return [this.team, this.pitcher ? 3: 6, this.pitcher ? 2 : 1, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.33 : 0.25];
+            } else {
+                return [this.team, 4, 2, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.6 : 0.5];
+            }
+        };
+    }
     }
 }
 class Outfielder extends Fielder {
@@ -157,6 +168,13 @@ class Runner extends Player {
             }
             else {
                 gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
+            }
+        };
+        this.GetMiniMapDrawDetails = function() {
+            if(running) {
+                return [this.team, animFrame, 2, 64, { x: this.x, y: this.y }, false, 0.5];
+            } else {
+                return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.4];
             }
         };
     }

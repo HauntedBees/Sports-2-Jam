@@ -3,8 +3,8 @@ const BaseStar = {
     /** @type CPUplayer */ cpu: null, 
     /** @type Camera[] */ cameras: [
         new Camera(null, [], true), // player 1 camera
-        new Camera(null, [], true), // player 2 camera
-        new MiniMapCamera(null)     // minimap camera
+        new Camera(null, [], true)  // player 2 camera
+        //, new MiniMapCamera(null)     // minimap camera
     ],
     fast: true, 
     /** @type Handler */ subhandler: null,
@@ -34,7 +34,7 @@ const BaseStar = {
     KeyPress: function(key) { this.subhandler.KeyPress(key); },
     Update: function() { this.subhandler.Update(); },
     AnimUpdate: function() {
-        gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay"]);
+        gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay", "text"]);
         this.subhandler.AnimUpdate();
     },
     ChangePlaces: function() {
