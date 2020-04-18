@@ -1,3 +1,21 @@
+function GetDebugFunkoPop() {
+    const fph = new FieldPickHandler();
+    const cs = fph.team.GetConstellations();
+    fph.constsel = Math.floor(Math.random() * 3);
+    let i = 0;
+    while(cs[fph.constsel] === "" && ++i < 5) {
+        fph.constsel = (fph.constsel + 1) % 3;
+        console.log("redo");
+    }
+    fph.Confirm();
+    const x0 = -500 * fph.scale, y0 = -(fph.maxY * fph.scale) / 2;
+    BaseStar.FieldSetupComplete(cs[fph.constsel], [], {
+        x: (fph.leftx - x0) / fph.scale,
+        y: (fph.topy - y0) / fph.scale,
+        w: (fph.rightx - fph.leftx) / fph.scale,
+        h: (fph.bottomy - fph.topy) / fph.scale
+    });
+}
 class FieldPickHandler extends Handler {
     state = 0; // 0 = selecting constellation, 1 = placing outfielders, 2 = confirm
     constsel = 0; totalOutfielders = 0;
@@ -77,7 +95,6 @@ class FieldPickHandler extends Handler {
         } else {
             const x0 = -500 * this.scale;
             const y0 = -(this.maxY * this.scale) / 2;
-            
             const me = this;
             BaseStar.FieldSetupComplete(this.team.GetConstellations()[this.constsel], this.outfielders.map(o => ({
                 x: (o.x - x0) / me.scale,
@@ -120,11 +137,19 @@ class FieldPickHandler extends Handler {
     DrawOutfielderSection() {
         gfx.WriteOptionText(this.team.name, 320, 32, "text", "#FFFFFF", 24);
         if(this.state === 1) {
-            gfx.WriteOptionText("Place your Outfielders", 320, 64, "text", "#FFFFFF", 24);
+            if(this.team.isPlayerControlled) {
+                gfx.WriteOptionText("Place your Outfielders", 320, 64, "text", "#FFFFFF", 24);
+            } else {
+                gfx.WriteOptionText("are placing their Outfielders", 320, 64, "text", "#FFFFFF", 24);
+            }
             gfx.WriteEchoOptionText(`Remaining Outfielders: ${this.totalOutfielders - this.outfielders.length}`, 320, 180, "text", "#FFFFFF", "#BA66FF", 16);
         } else {
-            gfx.WriteOptionText("Is this OK?", 320, 64, "text", "#FFFFFF", 24);
-            gfx.WriteOptionText("Press CONFIRM button or CANCEL button.", 320, 180, "text", "#FFFFFF", 24);
+            if(this.team.isPlayerControlled) {
+                gfx.WriteOptionText("Is this OK?", 320, 64, "text", "#FFFFFF", 24);
+                gfx.WriteOptionText("Press CONFIRM button or CANCEL button.", 320, 180, "text", "#FFFFFF", 24);
+            } else {
+                gfx.WriteOptionText("are finalizing their choices", 320, 64, "text", "#FFFFFF", 24);
+            }
         }
 
         const c = ConstellationInfo[this.team.GetConstellations()[this.constsel]];
@@ -154,7 +179,11 @@ class FieldPickHandler extends Handler {
     }
     DrawConstellationSelection() {
         gfx.WriteOptionText(this.team.name, 320, 32, "text", "#FFFFFF", 24);
-        gfx.WriteOptionText("Select a Constellation", 320, 64, "text", "#FFFFFF", 24);
+        if(this.team.isPlayerControlled) {
+            gfx.WriteOptionText("Select a Constellation", 320, 64, "text", "#FFFFFF", 24);
+        } else {
+            gfx.WriteOptionText("are selecting a Constellation", 320, 64, "text", "#FFFFFF", 24);
+        }
         const constellations = this.team.GetConstellations();
         const cx = 180, cy = 160, csel = this.constsel;
         constellations.forEach((name, i) => {

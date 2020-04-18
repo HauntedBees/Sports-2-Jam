@@ -1,10 +1,10 @@
 class GameData {
     /** @param {number} team1idx @param {number} team2idx @param {boolean} isTeam2PlayerControlled */
-    constructor(team1idx, team2idx, isTeam2PlayerControlled) {
+    constructor(team1idx, team2idx, isTeam2PlayerControlled, p1BatsFirst) {
         this.team1 = new Team(1, team1idx, true);
         this.team2 = new Team(2, team2idx, isTeam2PlayerControlled);
-        this.team1.isUp = true;//true;
-        this.team2.isUp = !this.team1.isUp;//false;
+        this.team1.isUp = p1BatsFirst;
+        this.team2.isUp = !p1BatsFirst;
         this.constellation = "Cygnus";
         this.inning = new InningData();
     }

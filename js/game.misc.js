@@ -1,84 +1,113 @@
 const Title = {
-    pressedStart: false, elems: [], selection: 0, 
-    Init: function() {
-        this.pressedStart = false;
-        this.selection = 0;
-        this.elems = [new TextOption("Press Start", 5, 11.5, true)];
+    state: 0, elems: [], selection: 0, 
+    Init: function(state) {
+        gfx.FlipSheet("helmets");
+        if(state !== undefined) {
+            this.selection = state;
+            this.ShowChoices();
+        } else {
+            this.elems = [new TextOption("Press Start", 5, 11.5, true)];
+            this.selection = 0;
+            this.state = 0;
+        }
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "title", 640, 480, "background", 0, 0);
     },
     KeyPress: function(key) {
         switch(key) {
             case controls.pause: 
-            case controls.confirm:
-                if(this.pressedStart) {
-                    this.ConfirmSelection();
-                } else {
-                    //meSpeak.speak("Let's play some Base Star!", { variant: "croak", pitch: 15 });
-                    this.ShowChoices();
+            case controls.confirm: return this.Confirm();
+            case controls.down: return this.ToggleSelection(1);
+            case controls.up: return this.ToggleSelection(-1);
+            case controls.cancel: return this.Cancel();
+        }
+    },
+    Confirm: function() {
+        switch(this.state) {
+            case 0: 
+                SpeakHandler.Speak("Let's play some Base Sol!");
+                return this.ShowChoices();
+            case 1: return this.ConfirmSelection();
+            case 2:
+                switch(this.selection) {
+                    case 0: return game.Transition(TeamSelection, [2]);
+                    case 1: return console.log("online host");
+                    case 2: return console.log("online join");
                 }
-                break;
-            case controls.down: this.ToggleSelection(1); break;
-            case controls.up: this.ToggleSelection(-1); break;
+        }
+    },
+    Cancel: function() {
+        if(this.state === 2) {
+            this.selection = 1;
+            this.ShowChoices();
         }
     },
     ShowChoices: function() {
-        game.Transition(TeamSelection, []);
-        //game.Transition(BaseStar, []);
-        return;
-        // TODO: probably some fucking animation
-        this.pressedStart = true;
+        this.state = 1;
         this.elems = [
-            new TextOption("Single-Player", 5, 10.5),
-            new TextOption("Online Multiplayer", 5, 11.5),
-            new TextOption("Local Multiplayer", 5, 12.5)
+            new TextOption("1P Series", 5, 10.5),
+            new TextOption("2P Match", 5, 11.5),
+            new TextOption("Options", 5, 12.5)
         ];
-        this.elems[0].Select();
-
+        this.elems[this.selection].Select();
+    },
+    ShowMultiplayerChoices: function() {
+        this.state = 2;
+        this.selection = 0;
+        this.elems = [
+            new TextOption("Local Play", 5, 10.5),
+            new TextOption("Host Match", 5, 11.5),
+            new TextOption("Join Match", 5, 12.5)
+        ];
+        this.elems[this.selection].Select();
     },
     ConfirmSelection: function() {
-        if(this.selection !== 0) { return; }
-        game.Transition(TeamSelection, [1, false]);
-        //game.Transition(CoinToss, [1, false]);
+        switch(this.selection) {
+            case 0: return game.Transition(TeamSelection, [1]);
+            case 1: return this.ShowMultiplayerChoices();
+        }
     },
     ToggleSelection: function(dir) {
-        if(!this.pressedStart) { return; }
+        if(this.state === 0) { return; }
         if(dir < 0 && this.selection === 0) { return; }
         if(dir > 0 && this.selection === 2) { return; }
         this.elems[this.selection].Deselect();
         this.selection += dir;
         this.elems[this.selection].Select();
     },
+    animIter: 0, animFrame: 0, rotFrame: 0, 
     Update: function() {
         this.elems.forEach(e => e.Update());
+        if(++this.animIter === 2) {
+            this.animFrame++;
+            this.animIter = 0;
+        }
+        this.rotFrame -= 5;
     },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
         this.elems.forEach(e => e.Draw());
+        gfx.DrawRotatedSprite("sprites", this.rotFrame, this.animFrame % 2, 7, 500, 100, "interface", 64, 1);
     }
 };
 const TeamSelection = {
     rowLength: 6, 
     /** @type {TeamOption[]} */ teams: [],
-    sx: 0, sy: 0, confirmed: false, selText: null,
-    sx2: 1, sy2: 0, confirmed2: false, selText2: null,
+    sx: 0, sy: 0, confirmed: false,
+    sx2: 1, sy2: 0, confirmed2: false,
     twoPlayer: false, 
     earthX: 0, earthY: 0,
     exDir: 0, eyDir: 0,
-    Init: function() {
+    Init: function(numPlayers) {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
-        gfx.WriteOptionText("Choose your Team", 320, 32, "background", "#FFFFFF", 24);
         this.earthX = TeamInfo[0].mapx;
         this.earthY = TeamInfo[0].mapcy;
         this.exDir = 0; this.eyDir = 0;
-        this.twoPlayer = false; // TODO: FUCKER
+        this.twoPlayer = numPlayers === 2;
         if(this.twoPlayer) {
             this.sx = 0; this.sy = 0; this.confirmed = false;
-            this.selText = new TextOption(TeamInfo[0].name, 14, 2.25, true);
             this.sx2 = 1; this.sy2 = 0; this.confirmed2 = false;
-            this.selText2 = new TextOption(TeamInfo[0].name, 13, 2.25, true);
         } else {
             this.sx = 0; this.sy = 0; this.confirmed = false;
-            this.selText = new TextOption(TeamInfo[0].name, 13.25, 2.25, true);
         }
         this.teams = [];
         for(let i = 0; i < TeamInfo.length; i++) {
@@ -88,35 +117,48 @@ const TeamSelection = {
     },
     KeyPress: function(key) {
         switch(key) {
+            case controls.cancel: return this.Cancel(0);
             case controls.pause: 
-            case controls.confirm:
-                meSpeak.speak(TeamInfo[this.selection].name, { variant: "croak", pitch: 15 });
-                game.Transition(CoinToss, [this.selection, Math.abs(this.selection - 1)]);
-                this.Confirm();
-                break;
+            case controls.confirm: return this.Confirm();
             case controls.down: this.MoveCursor(0, 0, 1); break;
             case controls.up: this.MoveCursor(0, 0, -1); break;
             case controls.left: this.MoveCursor(0, -1, 0); break;
             case controls.right: this.MoveCursor(0, 1, 0); break;
             // TODO: the rest of p2 logic
+            case controls2.cancel: return this.Cancel(1);
             case controls2.down: this.MoveCursor(1, 0, 1); break;
             case controls2.up: this.MoveCursor(1, 0, -1); break;
             case controls2.left: this.MoveCursor(1, -1, 0); break;
             case controls2.right: this.MoveCursor(1, 1, 0); break;
         }
     },
+    Cancel: function(player) {
+        if(player === 0) {
+            if(this.confirmed) {
+                this.confirmed = false;
+            } else {
+                game.Transition(Title, [this.twoPlayer ? 1 : 0]);
+            }
+        } else if(this.confirmed2) {
+            this.confirmed2 = false;
+        }
+    },
     Confirm: function() {
         outerGameData.team1Idx = this.sy * this.rowLength + this.sx;
-        if(this.twoPlayer) {
-            // TODO: player 2
-        } else {
-            outerGameData.seriesRound = 0;
-            outerGameData.seriesLineup = [3];
-            for(let i = 0; i < 4; i++) { // 5
-                outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
+        if(this.confirmed) {
+            if(this.twoPlayer) {
+                // TODO: player 2
+            } else {
+                outerGameData.seriesRound = 0;
+                outerGameData.seriesLineup = [3]; // [];
+                for(let i = 0; i < 4; i++) { // 5
+                    outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
+                }
+                game.Transition(SeriesIndicator);
             }
-            game.Transition(BaseStar, ["series"]);
-            //game.Transition(SeriesIndicator, []);
+        } else {
+            SpeakHandler.Speak(TeamInfo[this.sy * this.rowLength + this.sx].name);
+            this.confirmed = true;
         }
     },
     MoveCursor: function(player, dx, dy) {
@@ -126,15 +168,13 @@ const TeamSelection = {
         const before = this.sy * this.rowLength + this.sx;
         const after = newy * this.rowLength + newx;
         if(player === 0) {
+            if(this.confirmed) { return; }
             this.sx = newx; this.sy = newy;
-            this.selText.ChangeText(TeamInfo[after].name);
-            this.selText.Select();
             this.UpdateMap(before, after);
         } else if(this.twoPlayer) {
+            if(this.confirmed2) { return; }
             this.sx2 = newx; this.sy2 = newy;
             this.justChanged2 = true;
-            this.selText2.ChangeText(TeamInfo[newy * this.rowLength + newx].name);
-            this.selText2.Select();
         }
     },
     UpdateMap: function(before, after) {
@@ -143,9 +183,8 @@ const TeamSelection = {
         this.eyDir = (newTeam.mapcy - oldTeam.mapcy) / 3;
     },
     Update: function() {
-        this.selText.Update();
         if(this.twoPlayer) {
-            this.selText2.Update(); 
+
         } else if(this.exDir !== 0) {
             this.earthX += this.exDir;
             this.earthY += this.eyDir;
@@ -160,10 +199,15 @@ const TeamSelection = {
     },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
-        this.selText.Draw();
+        if(this.twoPlayer) {
+            gfx.WriteOptionText("Choose your Teams", 320, 32, "text", "#FFFFFF", 24);
+        } else if(this.confirmed) {
+            gfx.WriteOptionText("Confirm Team Selection?", 320, 32, "text", "#FFFFFF", 24);
+        } else {
+            gfx.WriteOptionText("Choose your Team", 320, 32, "text", "#FFFFFF", 24);
+        }
         if(this.twoPlayer) {
             this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, this.sx2, this.sy2, this.confirmed2));
-            this.selText2.Draw();
         } else {
             gfx.DrawEarth("interface", 215, 120, this.earthX, 0.5);
             gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 265, 120 + this.earthY, "interface", 32, 1);
@@ -175,6 +219,7 @@ const TeamSelection = {
                 gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx + 96 * i, 144, "interface", 128, 0.66);
                 gfx.WriteEchoOptionText(name, cx + 96 * i, 200, "text", "#FFFFFF", "#BA66FF", 12);
             });
+            gfx.WriteEchoOptionText(team.name, cx + 96, 92, "text", "#FFFFFF", "#BA66FF", 18);
             gfx.DrawSprite("helmets", 3, 3, 30, 80, "interface", 160);
             gfx.DrawSprite("helmets", team.hx, team.hy, 30, 80, "interface", 160);
             this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, -1, -1, false));
@@ -184,9 +229,10 @@ const TeamSelection = {
     }
 };
 const SeriesIndicator = {
-    elems: [], selection: 0, 
-    Init: function(s) {
-        gfx.FlipSheet("helmets");
+    exDir: 0, eyDir: 0, 
+    earthX: 0, earthY: 0,
+    opponentTeam: null,
+    Init: function() {
         gfx.TintSheet("helmetsflip", "#00000099")
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteOptionText(`Match ${outerGameData.seriesRound + 1}`, 320, 32, "background", "#FFFFFF", 24);
@@ -194,8 +240,15 @@ const SeriesIndicator = {
         const helmety = 200, bottomy = 340;
         const playerTeam = TeamInfo[outerGameData.team1Idx];
         const opponentTeam = TeamInfo[outerGameData.seriesLineup[outerGameData.seriesRound]];
+        const lastTeam = outerGameData.seriesRound === 0 ? playerTeam : TeamInfo[outerGameData.seriesLineup[outerGameData.seriesRound - 1]];
+        this.opponentTeam = opponentTeam;
 
-        //meSpeak.speak(`Match ${outerGameData.seriesRound + 1}: ${playerTeam.name} versus ${opponentTeam.name}`, { variant: "croak", pitch: 15 });
+        this.exDir = (opponentTeam.mapx - lastTeam.mapx) / 20;
+        this.eyDir = (opponentTeam.mapcy - lastTeam.mapcy) / 20;
+        this.earthX = lastTeam.mapx;
+        this.earthY = lastTeam.mapcy;
+
+        SpeakHandler.Speak(`Match ${outerGameData.seriesRound + 1}: ${playerTeam.name} versus ${opponentTeam.name}`);
 
         gfx.WriteOptionText(`${playerTeam.name} v. ${opponentTeam.name}`, 320, 64, "background", "#FFFFFF", 20);
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, 190, helmety, "interface", 160, 1);
@@ -220,26 +273,41 @@ const SeriesIndicator = {
         switch(key) {
             case controls.pause: 
             case controls.confirm:
-                meSpeak.stop();
-                game.Transition(BaseStar, ["series"]);
+                SpeakHandler.Stop();
+                game.Transition(CoinToss);
                 break;
         }
     },
-    Update: function() { },
-    AnimUpdate: function() { }
+    Update: function() {
+        if(this.exDir !== 0) {
+            this.earthX += this.exDir;
+            this.earthY += this.eyDir;
+            const teamInfo = this.opponentTeam;
+            const teamX = teamInfo.mapx;
+            if((this.exDir > 0 && this.earthX > teamX) || (this.exDir < 0 && this.earthX < teamX)) {
+                this.exDir = 0;
+                this.earthX = teamX;
+                this.earthY = teamInfo.mapcy;
+            }
+        }
+    },
+    AnimUpdate: function() {
+        gfx.ClearLayer("overlay");
+        gfx.DrawEarth("overlay", 270, 120, this.earthX, 0.5);
+        gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 320, 120 + this.earthY, "overlay", 32, 1);
+    }
 };
 const CoinToss = {
-    elems: [], 
-    coinFrame: 0, state: 0, 
+    coinFrame: 0, state: 0, p1BatsFirst: false,  
     calledHeads: false, callingTeam: 0, opposingTeam: 0, 
-    Init: function(callingTeam, opposingTeam) {
+    Init: function() {
         this.coinFrame = 0;
         this.state = 0;
         this.calledHeads = false;
-        this.callingTeam = callingTeam;
-        this.opposingTeam = opposingTeam;
+        this.callingTeam = outerGameData.team1Idx;
+        this.opposingTeam = outerGameData.seriesLineup[outerGameData.seriesRound];
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
-        gfx.WriteEchoOptionText(TeamInfo[callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText("Captain - Call the Coin Toss!", 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
 
         gfx.WriteEchoOptionText("Player One", 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
@@ -255,7 +323,7 @@ const CoinToss = {
     Flip: function(calledHeads) {
         if(this.state === 1) { return; }
         if(this.state === 2) {
-            game.Transition(BaseStar, [this.callingTeam]);
+            game.Transition(BaseStar, ["series", this.p1BatsFirst]); // TODO: what about when not series??
             return;
         }
         this.calledHeads = calledHeads;
@@ -272,7 +340,9 @@ const CoinToss = {
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
-        gfx.WriteEchoOptionText(`${((this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads)) ? TeamInfo[this.callingTeam].name : TeamInfo[this.opposingTeam].name} bat first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
+        this.p1BatsFirst = (this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads);
+        const battingTeam = this.p1BatsFirst ? this.callingTeam : this.opposingTeam;
+        gfx.WriteEchoOptionText(`${TeamInfo[battingTeam].name} bat first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
     },
     Update: function() { },
     AnimUpdate: function() {

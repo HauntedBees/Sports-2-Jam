@@ -13,24 +13,20 @@ const BaseStar = {
     fieldBounds: null,
     freeMovement: true, 
     /** @type b2Helpers */ b2Helper: null,
-    Init: function(source) {
+    Init: function(source, p1BatsFirst) {
         if(source === "series") {
-            this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false);
+            this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false, p1BatsFirst);
         } else {
             const p1Team = Math.floor(Math.random() * TeamInfo.length);
-            this.data = new GameData(p1Team, (p1Team + 1) % TeamInfo.length, false);
+            this.data = new GameData(p1Team, (p1Team + 1) % TeamInfo.length, false, p1BatsFirst);
         }
         this.cpu = new CPUplayer();
-        /*this.cameras = [
-            new Camera(null, [], true), // player 1 camera
-            new Camera(null, [], true), // player 2 camera
-            new MiniMapCamera(null)     // minimap camera
-        ];*/
         this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "p2background", 0, 0);
+        
         this.SwitchHandler(FieldPickHandler);
-        //this.SwitchHandler(AtBatHandler);
+        //GetDebugFunkoPop(); this.SwitchHandler(AtBatHandler);
     },
     KeyPress: function(key) { this.subhandler.KeyPress(key); },
     Update: function() { this.subhandler.Update(); },
@@ -116,7 +112,11 @@ const game = {
             clearInterval(game.updateIdx);
             game.updateIdx = setInterval(game.Update, fpsAnim);
         }
-        game.currentHandler.Init(...args);
+        if(args === undefined) {
+            game.currentHandler.Init();
+        } else {
+            game.currentHandler.Init(...args);
+        }
     }
 };
 const BaseHandler = {
@@ -125,7 +125,6 @@ const BaseHandler = {
     Update: function() {},
     AnimUpdate: function() {}
 };
-
 class Handler {
     freeMovement = false;
     freeMovement2 = false;
@@ -136,10 +135,8 @@ class Handler {
     CleanUp() {}
 }
 class SecondaryHandler extends Handler {
-    /** @type {Object} */
-    myControls = null;
-    /** @type {Team} */
-    team = null;
+    /** @type {Object} */ myControls = null;
+    /** @type {Team} */ team = null;
     /** @param {Team} team */
     constructor(team) {
         super();

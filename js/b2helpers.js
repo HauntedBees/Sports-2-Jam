@@ -1,4 +1,5 @@
 const toRadians = 180 / Math.PI;
+const angleToRadians = Math.PI / 180;
 const PIXELS_TO_METERS = 30.0;
 const p2m = pixels => pixels / PIXELS_TO_METERS;
 const m2p = meters => meters * PIXELS_TO_METERS;

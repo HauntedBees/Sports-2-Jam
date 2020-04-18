@@ -105,12 +105,10 @@ class MiniMap {
             }
             this.DoSprite("sprites", 7, slammer.frame, 32, pos, true, 0.2);
         });
-        this.space.balls.forEach(ball => {
-            const pos = ball.GetWorldCenter();
-            const linearVelocity = ball.GetLinearVelocity();
-            const sx = this.space.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
-            this.DoSprite("sprites", sx, 2, 32, pos, true, 0.5);
-        });
+        let pos = this.space.ball.GetWorldCenter();
+        const linearVelocity = this.space.ball.GetLinearVelocity();
+        const sx = this.space.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
+        this.DoSprite("sprites", sx, 2, 32, pos, true, 0.5);
         let hasBall = this.space.runner.ball !== null;
         this.DoSprite(...this.space.runner.GetMiniMapDrawDetails());
         const me = this;
@@ -118,8 +116,6 @@ class MiniMap {
             me.DoSprite(...f.GetMiniMapDrawDetails());
             hasBall = hasBall || (f.ball !== null);
         });
-        const ball = this.space.balls[0];
-        let pos = ball.GetWorldCenter();
         if(hasBall) { pos = { x: pos.x, y: pos.y - 1 }; }
         this.t += 0.1;
         this.DoSprite("sprites", 4, 1, 32, pos, true, 0.5 + 0.1 * Math.sin(this.t));

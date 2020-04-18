@@ -1,12 +1,12 @@
 class RunHandler extends SecondaryHandler {
     animCounter = Math.floor(Math.random() * 100);
-    /** @param {Team} team @param {FieldRunHandler} fieldRunHandler @param {Runner} runner @param {Runner[]} onBaseRunners @param {any[]} balls */
-    constructor(team, fieldRunHandler, runner, onBaseRunners, balls) {
+    /** @param {Team} team @param {FieldRunHandler} fieldRunHandler @param {Runner} runner @param {Runner[]} onBaseRunners @param {any} ball */
+    constructor(team, fieldRunHandler, runner, onBaseRunners, ball) {
         super(team);
         this.fullHandler = fieldRunHandler;
         this.runner = runner;
         this.onBaseRunners = onBaseRunners;
-        this.balls = balls;
+        this.ball = ball;
     }
     Confirm() {
         if(this.runner.ball !== null) {

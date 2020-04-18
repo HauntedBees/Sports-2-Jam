@@ -30,6 +30,7 @@ const gfx = {
         }
     },
 
+    // deprecate for TintSheet
     CreateTeamSheet: /**
      * @param {string} team @param {string} tint */
     function(team, tint) {
@@ -44,7 +45,6 @@ const gfx = {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         gfx.teamSheets[team] = canvas;
     },
-
     TintSheet: /**
      * @param {string} sheetName @param {string} tint */
     function(sheetName, tint) {
@@ -59,7 +59,6 @@ const gfx = {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         gfx.spritesheets[sheetName + "tint"] = canvas;
     },
-
     FlipSheet:
     /** @param {string} sheetName */
     function(sheetName) {
@@ -171,6 +170,31 @@ const gfx = {
             if(point.ignore) { return; }
             gfx.DrawCenteredSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size, (scale || 1) * camera.zoom);
         });
+    },
+    
+    DrawRotatedSpriteToCameras: /** @param {string} type @param {string} sheetpath @param {number} angle @param {number} sx
+    * @param {number} sy @param {number} x @param {number} y @param {string} layer @param {number} size @param {number} [scale] */
+    function(type, sheetpath, angle, sx, sy, x, y, layer, size, scale) {
+        BaseStar.cameras.forEach(camera => {
+            const point = camera.GetPos({ x: x, y: y }, type);
+            if(point.ignore) { return; }
+            gfx.DrawRotatedSprite(sheetpath, angle, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size, (scale || 1) * camera.zoom);
+        });
+    },
+    DrawRotatedSprite: /** @param {string} sheetpath @param {number} angle @param {number} sx @param {number} sy
+    * @param {number} x @param {number} y @param {string} layer @param {number} size @param {number} [scale] */
+    function(sheetpath, angle, sx, sy, x, y, layer, size, scale) {
+        scale = scale || 1;
+        const delta = (size / 2) * scale;
+        const ctx = gfx.ctx[layer];
+        ctx.translate(x,y);
+        const rads = angle * angleToRadians;
+        ctx.rotate(rads);
+        ctx.translate(-x,-y);
+        gfx.DrawSprite(sheetpath, sx, sy, x - delta, y - 2 * delta, layer, size, scale);
+        ctx.translate(x, y);
+        ctx.rotate(-rads);
+        ctx.translate(-x,-y);
     },
 
 

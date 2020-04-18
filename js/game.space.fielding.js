@@ -103,12 +103,12 @@ class FieldHandler extends SecondaryHandler {
         }
     }
     Update() {
-        const ball = this.fullHandler.balls[0];
-        const ballPos = vecm2p(ball.GetWorldCenter());
+        this.fielders.forEach(e => e.Update());
+        const ballPos = vecm2p(this.fullHandler.ball.GetWorldCenter());
         const someoneHasBall = this.fielders.some(e => e.ball !== null);
         if(!someoneHasBall) {
             this.fielders.forEach(f => {
-                const d = dist(f, ballPos);
+                //const d = dist(f, ballPos);
                 const mult = 0.5;
                 const angle = Math.atan2(ballPos.y - f.y, ballPos.x - f.x);
                 f.Move(mult * Math.cos(angle), mult * Math.sin(angle));

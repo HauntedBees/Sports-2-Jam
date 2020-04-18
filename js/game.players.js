@@ -85,6 +85,17 @@ class Infielder extends Fielder {
         this.base = base;
         this.homex = this.x;
         this.homey = this.y;
+        this.animCounter = 0;
+        this.animFrame = 0;
+        this.Update = function () {
+            if(++this.animCounter === 6) {
+                this.animCounter = 0;
+                this.animFrame++;
+            }
+        };
+        this.Draw = function () {
+            gfx.DrawCenteredSpriteToCameras("player", this.team, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
+        };
     }
     Move(x, y) {
         const distanceFromBase = Dist(this.x + x, this.y + y, this.homex, this.homey);
