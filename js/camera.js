@@ -120,6 +120,9 @@ class MiniMap {
         this.t += 0.1;
         this.DoSprite("sprites", 4, 1, 32, pos, true, 0.5 + 0.1 * Math.sin(this.t));
 
+        this.space.onBasePlayers.forEach(f => {
+            me.DoSprite(...f.GetMiniMapDrawDetails());
+        });
         /*const db = this.space.debugBounds;
         const ul = { x: db[0], y: db[1] }, ur = { x: db[0], y: db[3] }, bl = { x: db[2], y: db[1] }, br = { x: db[2], y: db[3] };
         this.DoLine(ul, ur, false); this.DoLine(ul, bl, false); this.DoLine(ur, br, false); this.DoLine(bl, br, false);*/
