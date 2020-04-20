@@ -1,4 +1,4 @@
-# Zenn Halsey Basestar '93
+# Zenn Halsey Basesol '93
 ## wut
 A sports 2 game for the [Sports 2 Game Jam](https://itch.io/jam/sports-2). It's vaguely like baseball, but also it's 2-ier. Work in Progress.
 ## license
