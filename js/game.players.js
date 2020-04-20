@@ -27,8 +27,8 @@ class Fielder extends Player {
     base = -1;
     constructor(teamname, playerInfo, x, y, type, radius) {
         super(teamname, playerInfo, x, y, type, radius);
-        this.x = x - 10 + Math.floor(11 * Math.random());
-        this.y = y - 10 + Math.floor(11 * Math.random());
+        //this.x = x - 10 + Math.floor(11 * Math.random());
+        //this.y = y - 10 + Math.floor(11 * Math.random());
         this.CatchBall = function (ball) {
             this.ball = ball;
             console.log("CAUGHT");
@@ -80,13 +80,20 @@ class Outfielder extends Fielder {
     SetPitcher() { this.pitcher = true; }
 }
 class Infielder extends Fielder {
-    constructor(team, playerInfo, x, y, base) {
+    /**
+     * @param {string} team
+     * @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo
+     * @param {number} x @param {number} y @param {number} base
+     * @param {FieldRunHandler} mainHandler
+     */
+    constructor(team, playerInfo, x, y, base, mainHandler) {
         super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
         this.homex = this.x;
         this.homey = this.y;
         this.animCounter = 0;
         this.animFrame = 0;
+        this.mainHandler = mainHandler;
         this.Update = function () {
             if(++this.animCounter === 6) {
                 this.animCounter = 0;
@@ -94,13 +101,16 @@ class Infielder extends Fielder {
             }
         };
         this.Draw = function () {
-            gfx.DrawCenteredSpriteToCameras("player", this.team, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
+            const ballPos = vecm2p(this.mainHandler.ball.GetWorldCenter());
+            const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x);
+            gfx.DrawRotatedSpriteToCameras("player", this.team, angle, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
+            //gfx.DrawCenteredSpriteToCameras("player", this.team, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
         };
     }
     Move(x, y) {
-        const distanceFromBase = Dist(this.x + x, this.y + y, this.homex, this.homey);
-        if(distanceFromBase > 75) { return; }
-        super.Move(x, y);
+        //const distanceFromBase = Dist(this.x + x, this.y + y, this.homex, this.homey);
+        //if(distanceFromBase > 75) { return; }
+        //super.Move(x, y);
     }
 }
 class RunnerShell {

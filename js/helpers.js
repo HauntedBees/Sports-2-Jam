@@ -1,5 +1,7 @@
 const fpsAnim = 1000 / 60, fpsUpdate = 80;
-const RandRange = (a, b) => a + Math.floor((b - a) * Math.random());
+//const fpsAnim = 1000 / 60, fpsUpdate = 800;
+const RandRange = (a, b) => (a + Math.floor((b - a) * Math.random()));
+const RandFloat = (a, b) => a + (b - a) * Math.random();
 const Either = (a, b, condition1, condition2) => (a === condition1 && b === condition2) || (a === condition2 && b === condition1);
 const PMult = (p, m) => ({ x: p.x * m, y: p.y * m });
 const PAdd = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });

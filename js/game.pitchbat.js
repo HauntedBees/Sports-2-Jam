@@ -69,6 +69,7 @@ class AtBatHandler extends Handler {
                     };
                     this.pitchHandler.BallHit(d.ballx, d.bally, 2 * this.batHandler.dir + offset * dir, this.batHandler.power);
                 } else {
+                    this.batHandler.missed = true;
                     console.log("you missed dipshit");
                 }
             }

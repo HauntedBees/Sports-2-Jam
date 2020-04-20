@@ -3,7 +3,7 @@ class BatHandler extends SecondaryHandler {
     state = 0; // 0 = direction, 1 = power, 2 = moving, 3 = swinging
     dir = 0; power = 0; // for setting swing (dir between -5 and 5, power between 0 and 12)
     dx = 0; // position
-    swingState = 0; // for swinging
+    swingState = 0; swingAnimState = 0; missed = false; // for swinging
     dirCursorCounter = 0; dirCursorFlicker = 0; swingCounter = 0; // animation buddies
     AwaitBall() { this.state = 3; }
     KeyPress(key) {
@@ -41,6 +41,12 @@ class BatHandler extends SecondaryHandler {
             if(this.swingState < 5 && ++this.swingCounter > 3) {
                 this.swingCounter = 0;
                 this.swingState++;
+                if(this.swingAnimState < 4) {
+                    this.swingAnimState++;
+                }
+            }
+            if(this.missed && this.swingAnimState === 4) {
+                this.swingAnimState++;
             }
         }
         if(this.state === 3 && !this.team.isPlayerControlled) {
@@ -48,23 +54,24 @@ class BatHandler extends SecondaryHandler {
         }
     }
     AnimUpdate() {
-        const batHandlerX = 240, batHandlerY = 360;
+        const batHandlerX = 320, batHandlerY = 360;
+        gfx.DrawRectSprite(this.team.name + "_batter", this.swingAnimState, 0, 220 + this.dx, 100, "interface", 145, 335, 0.75);
         if(this.team.isPlayerControlled) {
-            gfx.DrawMapCharacter(batHandlerX, batHandlerY, { x: 0, y: 0 }, "batmeter", 128, 128, "interface", 0, 0);
+            gfx.DrawRectSprite("batmeter", 0, 0, batHandlerX, 424, "interface", 128, 128, 1, true);
             const offset = Math.round(35 * Math.sin(this.dirCursorCounter));
-            gfx.DrawSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + 48 + offset, batHandlerY + 73, "interface");
+            gfx.DrawCenteredSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + offset, batHandlerY + 89, "interface", 32, 1);
             if(this.power > 0) {
+                const powerX = batHandlerX - 4;
                 const pow = Math.max(0, Math.floor(this.power) - 1);
                 if(pow > 6) {
-                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), batHandlerX + 60, batHandlerY + 14, "interface");
+                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), powerX, batHandlerY + 14, "interface");
                 }
                 if(pow < 10) {
-                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), batHandlerX + 60, batHandlerY + 46, "interface");
+                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), powerX, batHandlerY + 46, "interface");
                 } else {
-                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, batHandlerX + 60, batHandlerY + 46, "interface");
+                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, powerX, batHandlerY + 46, "interface");
                 }
             }
         }
-        gfx.DrawSprite(this.team.name, this.swingState, 0, 250 + this.dx, 300, "interface", 64);
     }
 }

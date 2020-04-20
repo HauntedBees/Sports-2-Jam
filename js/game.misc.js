@@ -1,7 +1,10 @@
 const Title = {
     state: 0, elems: [], selection: 0, 
+    animFrame: 0, animCounter: 0,
     Init: function(state) {
         gfx.FlipSheet("helmets");
+        this.animFrame = 0;
+        this.animCounter = 0;
         if(state !== undefined) {
             this.selection = state;
             this.ShowChoices();
@@ -11,6 +14,8 @@ const Title = {
             this.state = 0;
         }
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "title", 640, 480, "background", 0, 0);
+        gfx.WriteEchoPlayerText("Licensed by Haunted Bees Productions", 5, 455, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
+        gfx.WriteEchoPlayerText("© 2992 Digital Artisinal", 5, 475, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
     },
     KeyPress: function(key) {
         switch(key) {
@@ -74,19 +79,17 @@ const Title = {
         this.selection += dir;
         this.elems[this.selection].Select();
     },
-    animIter: 0, animFrame: 0, rotFrame: 0, 
     Update: function() {
         this.elems.forEach(e => e.Update());
-        if(++this.animIter === 2) {
+        if(++this.animCounter >= 4) {
+            this.animCounter = 0;
             this.animFrame++;
-            this.animIter = 0;
         }
-        this.rotFrame -= 5;
     },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
         this.elems.forEach(e => e.Draw());
-        gfx.DrawRotatedSprite("sprites", this.rotFrame, this.animFrame % 2, 7, 500, 100, "interface", 64, 1);
+        gfx.DrawRectSprite("zennhalsey", (this.animFrame % 3), 0, 330, 115, "interface", 235, 297, 1.25);
     }
 };
 const TeamSelection = {
@@ -165,23 +168,27 @@ const TeamSelection = {
         const newx = this.sx + dx, newy = this.sy + dy;
         if(newx < 0 || newx >= this.rowLength) { return; }
         if(newy < 0 || newy >= Math.ceil(TeamInfo.length / this.rowLength)) { return; }
-        const before = this.sy * this.rowLength + this.sx;
-        const after = newy * this.rowLength + newx;
+        const targetTeam = newy * this.rowLength + newx;
         if(player === 0) {
             if(this.confirmed) { return; }
             this.sx = newx; this.sy = newy;
-            this.UpdateMap(before, after);
+            this.UpdateMap(targetTeam);
         } else if(this.twoPlayer) {
             if(this.confirmed2) { return; }
             this.sx2 = newx; this.sy2 = newy;
             this.justChanged2 = true;
         }
     },
-    UpdateMap: function(before, after) {
+    UpdateMap: function(targetTeam) {
+        const newTeam = TeamInfo[targetTeam];
+        this.exDir = (newTeam.mapx - this.earthX) / 3;
+        this.eyDir = (newTeam.mapcy - this.earthY) / 3;
+    },
+    /*UpdateMap: function(before, after) {
         const oldTeam = TeamInfo[before], newTeam = TeamInfo[after];
         this.exDir = (newTeam.mapx - oldTeam.mapx) / 3;
         this.eyDir = (newTeam.mapcy - oldTeam.mapcy) / 3;
-    },
+    },*/
     Update: function() {
         if(this.twoPlayer) {
 
@@ -331,7 +338,7 @@ const CoinToss = {
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Called ${calledHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
-        const spinTime = 1500 + Math.ceil(Math.random() * 1500);
+        const spinTime = 5 + Math.ceil(Math.random() * 5);//1500 + Math.ceil(Math.random() * 1500);
         setTimeout(function() { CoinToss.Landed(); }, spinTime);
     },
     Landed: function() {

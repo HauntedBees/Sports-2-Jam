@@ -46,8 +46,8 @@ const gfx = {
         gfx.teamSheets[team] = canvas;
     },
     TintSheet: /**
-     * @param {string} sheetName @param {string} tint */
-    function(sheetName, tint) {
+     * @param {string} sheetName @param {string} tint @param {string} [name] */
+    function(sheetName, tint, name) {
         const sheet = gfx.spritesheets[sheetName];
         const canvas = document.createElement("canvas");
         canvas.width = sheet.width;
@@ -57,7 +57,8 @@ const gfx = {
         ctx.globalCompositeOperation = "source-atop";
         ctx.fillStyle = tint;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        gfx.spritesheets[sheetName + "tint"] = canvas;
+        name = name || sheetName + "tint";
+        gfx.spritesheets[name] = canvas;
     },
     FlipSheet:
     /** @param {string} sheetName */
@@ -171,7 +172,7 @@ const gfx = {
             gfx.DrawCenteredSprite(sheetpath, sx, sy, point.x, point.y, camera.prefix + (camera.forcedLayer || layer), size, (scale || 1) * camera.zoom);
         });
     },
-    
+
     DrawRotatedSpriteToCameras: /** @param {string} type @param {string} sheetpath @param {number} angle @param {number} sx
     * @param {number} sy @param {number} x @param {number} y @param {string} layer @param {number} size @param {number} [scale] */
     function(type, sheetpath, angle, sx, sy, x, y, layer, size, scale) {
@@ -188,7 +189,7 @@ const gfx = {
         const delta = (size / 2) * scale;
         const ctx = gfx.ctx[layer];
         ctx.translate(x,y);
-        const rads = angle * angleToRadians;
+        const rads = angle;
         ctx.rotate(rads);
         ctx.translate(-x,-y);
         gfx.DrawSprite(sheetpath, sx, sy, x - delta, y - 2 * delta, layer, size, scale);
@@ -229,6 +230,18 @@ const gfx = {
         const startY = sy * size;
         gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, size, size, x, y, size * scale, size * scale);
     },
+
+    DrawRectSprite: /**
+    * @param {string} sheetpath @param {number} sx @param {number} sy
+    * @param {number} x @param {number} y @param {string} layer
+    * @param {number} width @param {number} height @param {number} [scale] @param {boolean} [centered] */
+   function(sheetpath, sx, sy, x, y, layer, width, height, scale, centered) {
+       scale = scale || 1;
+       const sheet = gfx.spritesheets[sheetpath];
+       const startX = sx * width;
+       const startY = sy * height;
+       gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, width, height, x - (centered ? (width / 2) : 0), y - (centered ? (height / 2) : 0), width * scale, height * scale);
+   },
 
     DrawMapCharacter: /**
      * @param {number} x @param {number} y

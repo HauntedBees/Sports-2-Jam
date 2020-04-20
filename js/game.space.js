@@ -119,27 +119,35 @@ class FieldRunHandler extends Handler {
         const c = ConstellationInfo[constellationName];
         const o = c.offset, s = PMult(c.scale, BaseStar.fullMult);
         o.x += 200;
+        const GetPoint = (x, y) => ({ x: o.x + x * s.x, y: o.x + y * s.y });
         const powerMult = 100 / c.stars.length;
         this.stars = [];
+        // TODO: everything should be saved in box2d coordinates
         const runnerStars = [];
         const bounds = BaseStar.fieldBounds;
-        const pitcherx = o.x + (bounds.x + 40) * s.x, pitchery = o.y + (bounds.y + bounds.h / 2) * s.y;
-        this.pitcher = new Outfielder(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherx, pitchery);
+        const pitcherPos = GetPoint(bounds.x + 40, bounds.y + bounds.h / 2);
+        //const pitcherx = o.x + (bounds.x + 40) * s.x, pitchery = o.y + (bounds.y + bounds.h / 2) * s.y;
+        this.pitcher = new Outfielder(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
         this.pitcher.SetPitcher();
         this.fielders.push(this.pitcher);
+        const mainHandler = this;
         c.stars.forEach((e, i) => {
-            const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
-            runnerStars.push({ x: x, y: y });
-            this.stars.push(BaseStar.b2Helper.GetStar(x, y, e.power * e.power * powerMult, e.power));
-            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], x, y, i));
+            const p = GetPoint(e.x + 16, e.y);
+            runnerStars.push(p);
+            this.stars.push(BaseStar.b2Helper.GetStar(p.x, p.y, e.power * e.power * powerMult, e.power));
+            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
         });
         BaseStar.outfielders.forEach((e, i) => {
-            const x = o.x + e.x * s.x, y = o.y + e.y * s.y;
-            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], x, y));
+            const p = GetPoint(e.x, e.y);
+            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
         });
-        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], 10, 240, runnerStars);
-        BaseStar.data.inning.playersOnBase.forEach(e => {
-            const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, runnerStars);
+        const runnerPos = GetPoint(bounds.x, bounds.y + bounds.h / 2); // TODO: dy based on where they were before
+        // why are runner and pitcher on diff levels???
+        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], runnerPos.x, runnerPos.y, runnerStars);
+        BaseStar.data.inning.playersOnBase.forEach(e => { // TODO: something is very wrong here
+            const p = GetPoint(e.x, e.y);
+            //const x = e.x, y = e.y; //o.x + e.x * s.x, y = o.y + e.y * s.y;
+            const b = new Runner(runningTeam.name, e.playerInfo, p.x, p.y, runnerStars);
             b.targetStar = e.baseIdx;
             b.atBase = true;
             this.onBasePlayers.push(b);

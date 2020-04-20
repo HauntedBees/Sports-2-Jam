@@ -356,10 +356,10 @@ for(let i = 0; i < TeamInfo.length; i++) {
     starPlayers.push({ batter: bestBatter, pitcher: bestPitcher });
 }
 const PitchNames = [
-    "Fastball",
-    "Standard Pitch",
-    "Curveball L",
-    "Curveball R"
+    "Light",
+    "Standard",
+    "Unity",
+    "Deceit"
 ];
 
 /*
