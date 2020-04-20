@@ -65,6 +65,8 @@ function InningData() {
 function Team(player, idx, isPlayerControlled) {
     const teamInfo = TeamInfo[idx];
     gfx.CreateTeamSheet(teamInfo.name, teamInfo.color);
+    gfx.TintSheet("pitcher", teamInfo.color, teamInfo.name + "_pitcher");
+    gfx.TintSheet("batter", teamInfo.color, teamInfo.name + "_batter");
     this.name = teamInfo.name;
     this.players = PlayerInfo.filter(e => e.team === idx);
     const splitName = teamInfo.name.split(" ");
@@ -82,19 +84,26 @@ function Team(player, idx, isPlayerControlled) {
     };
     this.GetConstellations = function() { return teamInfo.constellations; }
 };
-const TeamInfo = [
-    { name: "New York Centaurs", hx: 3, hy: 1, color: "#FF00FF66", mapx: 69, mapcy: 60, constellations: ["Sagittarius", "", ""] },
-    { name: "Sicily Bulls", hx: 0, hy: 0, color: "#FF000066", mapx: 6, mapcy: 62, constellations: ["Ursa Major", "Taurus", ""] },
-    { name: "Atlantis Swimmers", hx: 0, hy: 1, color: "#FF00FF66", mapx: 38, mapcy: 56, constellations: ["Pisces", "", ""] },
-    { name: "Beijing Rams", hx: 2, hy: 0, color: "#0000FF66", mapx: 169, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] },
-    { name: "Grenoble Scorpions", hx: 1, hy: 0, color: "#0000FF66", mapx: 7, mapcy: 66, constellations: ["Scorpius", "Perseus", ""] },
-    { name: "Raleigh Twins", hx: 3, hy: 0, color: "#00FF0066", mapx: 0, mapcy: 0, constellations: ["Gemini", "Cygnus", ""] },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#FF00FF66", mapx: 0, mapcy: 0, constellations: ["Aquarius", "", ""] },
-    { name: "Toronto Scales", hx: 2, hy: 1, color: "#FF00FF66", mapx: 0, mapcy: 0, constellations: ["Centaurus", "", "Libra"] },
-    { name: "Boston Goats", hx: 0, hy: 2, color: "#FF00FF66", mapx: 0, mapcy: 0, constellations: ["Hercules", "Capricornus", ""] },
-    { name: "Lexington Virgins", hx: 1, hy: 2, color: "#FF00FF66", mapx: 0, mapcy: 0, constellations: ["Virgo", "", ""] },
-    { name: "Dublin Lions", hx: 2, hy: 2, color: "#FF00FF66", mapx: 0, mapcy: 0, constellations: ["Lepus", "Leo", ""] },
-    { name: "Wellington Crabs", hx: 3, hy: 2, color: "#FF00FF66", mapx: 132, mapcy: 12, constellations: ["Pegasus", "", "Cancer"] }
+const TeamInfo = [ // TODO: let the scrolling go the other way (i.e. from Greenland to Burundi, don't pan all the way to the right)
+    // Asia: Korea, Japan
+    // North America: USA, Greenland?
+    // Europe: Italy
+    // South America: Peru
+    // Africa: Burundi
+    // Australia: ????
+    // Also: Atlantis
+    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 49, mapcy: 72, constellations: ["Sagittarius", "", ""] },
+    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 223, mapcy: 38, constellations: ["Ursa Major", "Taurus", ""] },
+    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 38, mapcy: 56, constellations: ["Pisces", "", ""] },
+        { name: "Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 169, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] }, // AWAITING VERONICA
+    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 17, mapcy: 64, constellations: ["Scorpius", "Perseus", ""] },
+    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 151, mapcy: 58, constellations: ["Gemini", "Cygnus", ""] },
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 92, mapcy: 60, constellations: ["Aquarius", "", ""] }, 
+    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 161, mapcy: 62, constellations: ["Pegasus", "", "Cancer"] },
+        { name: "Scales", hx: 2, hy: 1, color: "#48005866", mapx: 0, mapcy: 0, constellations: ["Centaurus", "", "Libra"] }, // AWAITING CATRINA
+    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 64, mapcy: 38, constellations: ["Hercules", "Capricornus", ""] },
+            { name: "Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 0, mapcy: 0, constellations: ["Virgo", "", ""] }, // NAME PENDING
+            { name: "Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 0, mapcy: 0, constellations: ["Lepus", "Leo", ""] } // NAME PENDING
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },
