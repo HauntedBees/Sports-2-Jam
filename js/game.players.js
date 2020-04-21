@@ -2,7 +2,6 @@ class Player {
     constructor(teamname, playerInfo, x, y, type, radius) {
         this.team = teamname;
         this.playerInfo = playerInfo;
-        //this.name = name;
         this.homex = x;
         this.x = x;
         this.homey = y;
@@ -27,8 +26,6 @@ class Fielder extends Player {
     base = -1;
     constructor(teamname, playerInfo, x, y, type, radius) {
         super(teamname, playerInfo, x, y, type, radius);
-        //this.x = x - 10 + Math.floor(11 * Math.random());
-        //this.y = y - 10 + Math.floor(11 * Math.random());
         this.CatchBall = function (ball) {
             this.ball = ball;
             console.log("CAUGHT");
@@ -104,14 +101,9 @@ class Infielder extends Fielder {
             const ballPos = vecm2p(this.mainHandler.ball.GetWorldCenter());
             const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x);
             gfx.DrawRotatedSpriteToCameras("player", this.team, angle, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
-            //gfx.DrawCenteredSpriteToCameras("player", this.team, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
         };
     }
-    Move(x, y) {
-        //const distanceFromBase = Dist(this.x + x, this.y + y, this.homex, this.homey);
-        //if(distanceFromBase > 75) { return; }
-        //super.Move(x, y);
-    }
+    Move(x, y) { }
 }
 class RunnerShell {
     /** @param {Runner} runner */

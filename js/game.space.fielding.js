@@ -27,7 +27,6 @@ class FieldHandler extends SecondaryHandler {
             });
         } else { // runner is still one with the ball
             const me = this.fullHandler;
-            console.log("WUG");
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
     }

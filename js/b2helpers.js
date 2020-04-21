@@ -3,6 +3,7 @@ const angleToRadians = Math.PI / 180;
 const PIXELS_TO_METERS = 30.0;
 const p2m = pixels => pixels / PIXELS_TO_METERS;
 const m2p = meters => meters * PIXELS_TO_METERS;
+const vecp2m = pixelpoint => ({ x: p2m(pixelpoint.x), y: p2m(pixelpoint.y) });
 const vecm2p = meterpoint => ({ x: m2p(meterpoint.x), y: m2p(meterpoint.y) });
 const dist = (a, b) => {
     const dx = b.x - a.x, dy = b.y - a.y;
@@ -21,23 +22,20 @@ const b2Vec2 = Box2D.Common.Math.b2Vec2,
 function b2Helpers(world) {    
     this.world = world;
     this.GetStar = function(x, y, power, displayPower) {
-        const gravityPower = power; //this.RandomForce();
-        const gravityRange = 2;//0.5; //this.RandomRange() / 40;
+        const gravityPower = power;
+        const gravityRange = 2;
         return this.GetCircle(x, y, 10, false, {
             gravityPower: gravityPower,
             radius: 10,
             gravityRange: gravityRange,
-            powerIdx: displayPower, //Math.floor(5 * (gravityPower / 20)),
+            powerIdx: displayPower,
             identity: "star"
         }, false);
     };
     this.GetBaseball = function(position, velocity, runner) {
         const ball = this.GetCircle(position.x, position.y, 7, true, {
-            //doMoveBox: false, movingBox: this.GetBox(position.x, position.y, 0.6, 0.6, false, true), 
-            //doParticleBox: false, particleBox: this.GetBox(position.x, position.y, 0.6, 0.6, false, true), 
-            //boxTimer: 0, particleTimer: 0,
-            generateParticles: true, stopped: false, runner: runner,
-            identity: "baseball"
+            generateParticles: true, stopped: false,
+            runner: runner, identity: "baseball"
         }, false);
         if(runner !== undefined) { runner.SetBall(ball); }
         ball.SetLinearVelocity(velocity);
@@ -45,8 +43,6 @@ function b2Helpers(world) {
         return ball;
     };
 
-    this.RandomForce = () => (Math.ceil(20 * Math.random()));     // [1, 20]
-    this.RandomRange = () => (5 + Math.ceil(20 * Math.random())); // [5, 25]
     this.GetPlayerCollider = function(x, y, radius, player, playerType) {
         x = p2m(x); y = p2m(y);
         radius = p2m(radius);
@@ -78,7 +74,7 @@ function b2Helpers(world) {
         const fixDef = new b2FixtureDef;
         fixDef.density = 1.0;
         fixDef.friction = 1.0;
-        fixDef.restitution = 0.1;
+        fixDef.restitution = 0.6;
         fixDef.shape = new b2CircleShape(radius);
         fixDef.isSensor = isSensor || false;
         if(userData !== undefined) { fixDef.userData = userData; }

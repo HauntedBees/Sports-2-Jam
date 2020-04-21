@@ -184,11 +184,6 @@ const TeamSelection = {
         this.exDir = (newTeam.mapx - this.earthX) / 3;
         this.eyDir = (newTeam.mapcy - this.earthY) / 3;
     },
-    /*UpdateMap: function(before, after) {
-        const oldTeam = TeamInfo[before], newTeam = TeamInfo[after];
-        this.exDir = (newTeam.mapx - oldTeam.mapx) / 3;
-        this.eyDir = (newTeam.mapcy - oldTeam.mapcy) / 3;
-    },*/
     Update: function() {
         if(this.twoPlayer) {
 
