@@ -1,8 +1,8 @@
 class FieldRunHandler extends Handler {
     state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; ball = null; hundredTimer = 0;
-    constellationName = "";
-    particles = []; slamdunks = [];
+    gravMult = 1;
+    slamdunks = []; runner = null;
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
     constructor(ballDetails, constellation) {
@@ -258,13 +258,13 @@ class FieldRunHandler extends Handler {
         const ballPos = this.ball.GetWorldCenter();
         this.ball.beeForces = [];
         if((this.hundredTimer % 3) === 0 && ballData.generateParticles) {
-            this.particles.push({
+            BaseStar.particles.push({
                 x: m2p(ballPos.x) - 24 + Math.floor(Math.random() * 17),
                 y: m2p(ballPos.y) - 24 + Math.floor(Math.random() * 17),
                 frame: Math.floor(Math.random() * 1), 
                 timer: Math.ceil(Math.random() * 6), 
             });
-            if(this.particles.length > 2000) { this.particles.shift(); }
+            if(BaseStar.particles.length > 1000) { BaseStar.particles.shift(); } // TODO: weak CPU mode
         }
         if(ballData.held) {
             this.ball.SetActive(false);
@@ -320,7 +320,7 @@ class FieldRunHandler extends Handler {
     }
     AnimUpdate() {
         this.DebugDraw();
-        this.particles.forEach(particle => {
+        BaseStar.particles.forEach(particle => {
             if(--particle.timer <= 0) {
                 particle.frame = (++particle.frame % 2);
                 particle.timer = Math.ceil(Math.random() * 6);

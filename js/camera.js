@@ -134,9 +134,15 @@ class MiniMap {
         const linearVelocity = this.space.ball.GetLinearVelocity();
         const sx = this.space.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
         this.DoSprite("sprites", sx, 2, 32, pos, true, 0.5);
-        let hasBall = this.space.runner.ball !== null;
-        this.DoSprite(...this.space.runner.GetMiniMapDrawDetails());
+
         const me = this;
+
+        let hasBall = this.space.runner.ball !== null;
+        this.DoSprite(...this.space.runHandler.runner.GetMiniMapDrawDetails());
+        this.space.runHandler.onBaseRunners.forEach(f => {
+            me.DoSprite(...f.GetMiniMapDrawDetails());
+        });
+
         this.space.fielders.forEach(f => {
             me.DoSprite(...f.GetMiniMapDrawDetails());
             hasBall = hasBall || (f.ball !== null);
@@ -145,8 +151,8 @@ class MiniMap {
         this.t += 0.1;
         this.DoSprite("sprites", 4, 1, 32, pos, true, 0.5 + 0.1 * Math.sin(this.t));
 
-        this.space.onBasePlayers.forEach(f => {
-            me.DoSprite(...f.GetMiniMapDrawDetails());
+        BaseStar.particles.forEach(p => {
+            me.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
         });
     }
     DoLine(a, b, isBox2D) {

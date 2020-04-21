@@ -5,10 +5,12 @@ const BaseStar = {
         new Camera(null, [], true), // player 1 camera
         new Camera(null, [], true)  // player 2 camera
     ],
-    fast: true, fullMult: 1.5, 
+    fast: true, fullMult: 3, 
     /** @type Handler */ subhandler: null,
     /** @type {{ x: number; y: number}[]} */
     outfielders: [],
+    /** @type {{ x: number; y: number; frame: number; timer: number; }[]} */
+    particles: [],
     /** @type {{ x: number; y: number, w: number; h: number}} */
     fieldBounds: null,
     freeMovement: true, 
