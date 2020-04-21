@@ -29,9 +29,7 @@ class Camera {
             this.focusObj = { x: this.cx, y: this.cy };
             this.zoom = 1;
         } else {
-            this.isB2 = false;
             this.focusObj = focus;
-            this.focusObjB2 = null;
         }
     }
     Update() {

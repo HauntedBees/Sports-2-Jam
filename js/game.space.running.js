@@ -71,14 +71,14 @@ class RunHandler extends SecondaryHandler {
             const prevStar = stars[(targ - 1 + len) % len];
             const nextStar = stars[(targ + 1) % len];
             const scale = 1 + Math.sin(this.animCounter) / 4;
-            gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 8, 2, prevStar.x + 8, prevStar.y - 24, "overlay", 32, scale);
-            gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 9, 2, nextStar.x + 8, nextStar.y - 24, "overlay", 32, scale);
+            gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 8, 2, prevStar.x + 8, prevStar.y - 24, "overlay", 32, scale);
+            gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 9, 2, nextStar.x + 8, nextStar.y - 24, "overlay", 32, scale);
             if(this.runner.atBase) {
-                gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 9, 0, currStar.x + 8, currStar.y - 24, "overlay", 32, scale);
-                gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 10, 2, currStar.x + 8, this.runner.y - 48, "overlay", 32, scale);
+                gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 9, 0, currStar.x + 8, currStar.y - 24, "overlay", 32, scale);
+                gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 10, 2, currStar.x + 8, this.runner.y - 48, "overlay", 32, scale);
             } else {
-                gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 8, 1, currStar.x + 8, currStar.y - 24, "overlay", 32, 2 * scale);
-                gfx.DrawCenteredSpriteToCameras("r_UI", "sprites", 10, 2, this.runner.x, this.runner.y - 24, "overlay", 32, scale);
+                gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 8, 1, currStar.x + 8, currStar.y - 24, "overlay", 32, 2 * scale);
+                gfx.DrawCenteredSpriteToCameras("r_UI_clamp", "sprites", 10, 2, this.runner.x, this.runner.y - 24, "overlay", 32, scale);
             }
         }
     }
