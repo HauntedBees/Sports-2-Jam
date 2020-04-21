@@ -1,7 +1,9 @@
 class Camera {
-    /** @param {{ x: number; y: number; }} focus @param {string[]} ignores @param {boolean} visible */
+    /** @param {any} focus @param {string[]} ignores @param {boolean} visible */
     constructor(focus, ignores, visible) {
         this.cx = 320; this.cy = 240;
+        this.top = 120; this.bottom = 480;
+        this.left = 0; this.right = 640;
         this.offsetx = 0; this.offsety = 0;
         this.visible = visible;
         if(focus === null) {
@@ -10,37 +12,62 @@ class Camera {
             this.focusObj = focus;
         }
         this.zoom = 1;
+        this.betwixt = -1;
         this.forcedLayer = "";
         this.prefix = "";
         this.ignores = ignores;
     }
-    /** @param {any} focus @param {boolean} [isB2] */
-    SwitchFocus(focus, isB2) {
-        // TODO: some sort of smoother transition
-        if(isB2) {
-            this.isB2 = true;
-            this.focusObjB2 = focus;
-            this.focusObj = null;
+    /** @param {any} focus @param {boolean} skipBetwixting */
+    SwitchFocus(focus, skipBetwixting) {
+        if(!skipBetwixting) {
+            this.lastFocusObj = this.focusObj;
+            this.betwixt = 0;
+        } else {
+            this.betwixt = -1;
+        }
+        if(focus === null) {
+            this.focusObj = { x: this.cx, y: this.cy };
+            this.zoom = 1;
         } else {
             this.isB2 = false;
             this.focusObj = focus;
             this.focusObjB2 = null;
         }
     }
+    Update() {
+        if(this.betwixt < 0) { return; }
+        this.betwixt += 0.1;
+        if(this.betwixt >= 1) { this.betwixt = -1; }
+    }
     /** @param {{ x: number; y: number; }} posObj @param {string} type */
     GetPos(posObj, type) {
-        // TODO: allow clamping (if something is above the camera, but clamped, draw it anyway at the very top of the screen, perhaps with some indicator)
-        const myPos = this.isB2 ? vecm2p(this.focusObjB2.GetWorldCenter()) : this.focusObj;
+        let myPos = (typeof this.focusObj.GetWorldCenter === "function") ? vecm2p(this.focusObj.GetWorldCenter()) : this.focusObj;
+        if(this.betwixt >= 0) {
+            const oldPos = (typeof this.lastFocusObj.GetWorldCenter === "function") ? vecm2p(this.lastFocusObj.GetWorldCenter()) : this.lastFocusObj;
+            const newPos = (typeof this.focusObj.GetWorldCenter === "function") ? vecm2p(this.focusObj.GetWorldCenter()) : this.focusObj;
+            const delta = PSub(newPos, oldPos);
+            myPos = {
+                x: oldPos.x + delta.x * this.betwixt,
+                y: oldPos.y + delta.y * this.betwixt
+            };
+        }
+        const doClamp = type.indexOf("clamp") >= 0;
         if(myPos === null) { 
             return { x: posObj.x, y: posObj.y, ignore: !this.visible || this.ignores.some(e => type.includes(e)) };
         }
-        const newX = this.cx + this.zoom * (posObj.x - myPos.x) + this.offsetx;
-        const newY = this.cy + this.zoom * (posObj.y - myPos.y) + this.offsety;
-        const bounds = this.zoom < 0.5 ? 9999 : 64;// * this.zoom;
-        return {
-            x: newX, y: newY,
-            ignore: !this.visible || this.ignores.some(e => type.includes(e)) || (newX < -bounds || newY < -bounds || newX > (this.cx * 2 + bounds) || newY > (this.cy * 2 + bounds))
-        };
+        if(!this.visible || this.ignores.some(e => type.includes(e))) {
+            return { x: 0, y: 0, ignore: true }
+        }
+        let newX = this.cx + this.zoom * (posObj.x - myPos.x) + this.offsetx;
+        let newY = this.cy + this.zoom * (posObj.y - myPos.y) + this.offsety;
+        if(doClamp) {
+            const clampPadding = 16;
+            if(newX < this.left) { newX = this.left + clampPadding; }
+            else if(newX > this.right) { newX = this.right - clampPadding; }
+            if(newY < this.top) { newY = this.top + clampPadding; }
+            else if(newY > this.bottom) { newY = this.bottom - clampPadding; }
+        }
+        return { x: newX, y: newY, ignore: false };
     }
     /** @param {{ x: number; y: number; }} posObj @param {string} type */
     GetPosFromMeters(posObj, type) {
@@ -123,9 +150,6 @@ class MiniMap {
         this.space.onBasePlayers.forEach(f => {
             me.DoSprite(...f.GetMiniMapDrawDetails());
         });
-        /*const db = this.space.debugBounds;
-        const ul = { x: db[0], y: db[1] }, ur = { x: db[0], y: db[3] }, bl = { x: db[2], y: db[1] }, br = { x: db[2], y: db[3] };
-        this.DoLine(ul, ur, false); this.DoLine(ul, bl, false); this.DoLine(ur, br, false); this.DoLine(bl, br, false);*/
     }
     DoLine(a, b, isBox2D) {
         if(isBox2D) { a = vecm2p(a); b = vecm2p(b); }

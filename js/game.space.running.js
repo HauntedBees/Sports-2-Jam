@@ -35,7 +35,7 @@ class RunHandler extends SecondaryHandler {
         const newRunner = this.onBaseRunners.shift();
         this.onBaseRunners.push(this.runner);
         this.runner = newRunner;
-        BaseStar.cameras[0].SwitchFocus(this.runner);
+        BaseStar.cameras[0].SwitchFocus(this.runner, false);
     }
     KeyPress(key) {
         switch(key) {

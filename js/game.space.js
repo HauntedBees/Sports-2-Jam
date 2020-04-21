@@ -34,14 +34,14 @@ class FieldRunHandler extends Handler {
 
         if(p1IsRunner) {
             BaseStar.cameras[0].ignores = ["f_"];
-            BaseStar.cameras[0].SwitchFocus(this.runner);
+            BaseStar.cameras[0].SwitchFocus(this.runner, true);
             BaseStar.cameras[1].ignores = ["r_"];
             BaseStar.cameras[1].SwitchFocus(this.ball, true);
         } else {
             BaseStar.cameras[0].ignores = ["r_"];
             BaseStar.cameras[0].SwitchFocus(this.ball, true);
             BaseStar.cameras[1].ignores = ["f_"];
-            BaseStar.cameras[1].SwitchFocus(this.runner);
+            BaseStar.cameras[1].SwitchFocus(this.runner, true);
         }
         BaseStar.cpu.InitFieldRun(this.runHandler, this.fieldHandler, !runningTeam.isPlayerControlled, !fieldTeam.isPlayerControlled);
     }
@@ -55,9 +55,9 @@ class FieldRunHandler extends Handler {
         this.world = null;
         BaseStar.cpu.ClearFieldRun();
         gfx.ClearLayer("debug");
-        BaseStar.cameras[0].SwitchFocus(null);
+        BaseStar.cameras[0].SwitchFocus(null, true);
         BaseStar.cameras[0].ignores = [];
-        BaseStar.cameras[1].SwitchFocus(null);
+        BaseStar.cameras[1].SwitchFocus(null, true);
         BaseStar.cameras[1].ignores = [];
     }
     StartCollision(c) {
