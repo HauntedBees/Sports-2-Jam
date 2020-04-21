@@ -101,7 +101,7 @@ const gfx = {
         dx *= scale;
         gfx.DrawSpriteToCameras("UI", "worldcover", 0, 1, x, y, layer, 200, scale, true);
         ctx.globalCompositeOperation = "source-in";
-        gfx.DrawSpriteToCameras("UI", "worldmap", 0, 0, x - (dx % (225 * scale)), y, layer, 450, scale, true);
+        gfx.DrawSpriteToCameras("UI", "worldmap", 0, 0, x + (100 * scale) - dx, y, layer, 675, scale, true);
         ctx.globalCompositeOperation = "source-over";
         gfx.DrawSpriteToCameras("UI", "worldcover", 0, 0, x, y, layer, 200, scale, true);
     },

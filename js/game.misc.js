@@ -99,6 +99,7 @@ const TeamSelection = {
     sx2: 1, sy2: 0, confirmed2: false,
     twoPlayer: false, 
     earthX: 0, earthY: 0,
+    nextX: 0, nextY: 0,
     exDir: 0, eyDir: 0,
     Init: function(numPlayers) {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
@@ -180,8 +181,23 @@ const TeamSelection = {
         }
     },
     UpdateMap: function(targetTeam) {
+        if(this.earthX < 225) {
+            this.earthX += 225;
+        } else if(this.earthX >= 450) {
+            this.earthX -= 225;
+        }
         const newTeam = TeamInfo[targetTeam];
-        this.exDir = (newTeam.mapx - this.earthX) / 3;
+        let dx = newTeam.mapx - this.earthX;
+        const dx2 = (dx > 0) ? (newTeam.mapx - 225 - this.earthX) : (newTeam.mapx + 225 - this.earthX);
+        this.nextY = newTeam.mapcy;
+        this.nextX = newTeam.mapx;
+        console.log(`1: from ${this.earthX} to ${newTeam.mapx}: ${newTeam.mapx - this.earthX}`);
+        console.log(`2: from ${this.earthX} to ${newTeam.mapx}: ${dx2}`);
+        if(Math.abs(dx2) < Math.abs(dx)) {
+            this.nextX += 225 * (dx < 0 ? 1 : -1);
+            dx = dx2;
+        }
+        this.exDir = dx / 3;
         this.eyDir = (newTeam.mapcy - this.earthY) / 3;
     },
     Update: function() {
@@ -190,12 +206,15 @@ const TeamSelection = {
         } else if(this.exDir !== 0) {
             this.earthX += this.exDir;
             this.earthY += this.eyDir;
-            const teamInfo = TeamInfo[this.sy * this.rowLength + this.sx];
-            const teamX = teamInfo.mapx;
-            if((this.exDir > 0 && this.earthX > teamX) || (this.exDir < 0 && this.earthX < teamX)) {
+            if((this.exDir > 0 && this.earthX > this.nextX) || (this.exDir < 0 && this.earthX < this.nextX)) {
                 this.exDir = 0;
-                this.earthX = teamX;
-                this.earthY = teamInfo.mapcy;
+                this.earthX = this.nextX;
+                this.earthY = this.nextY;
+                if(this.earthX < 225) {
+                    this.earthX += 225;
+                } else if(this.earthX >= 450) {
+                    this.earthX -= 225;
+                }
             }
         }
     },
