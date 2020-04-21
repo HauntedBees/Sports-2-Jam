@@ -68,7 +68,9 @@ class FieldHandler extends SecondaryHandler {
         });
     }
     TargetPitcher() {
-        // TODO: create the pitcher
+        this.fielders.forEach((f, i) => {
+            if(f.pitcher) { this.targetFielderIdx = i; }
+        });
     }
     ThrowBall() {
         if(this.targetFielderIdx === this.ballFielderIdx) {

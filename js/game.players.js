@@ -40,7 +40,6 @@ class Fielder extends Player {
             }
             const dx = target.x - this.x, dy = target.y - this.y;
             const magnitude = Math.sqrt(dx * dx + dy * dy);
-            console.log(dx + ", " + dy + ", " + magnitude);
             const force = new b2Vec2(dx / magnitude, dy / magnitude);
             force.Multiply(20);
             const ballData = this.ball.GetUserData();
@@ -74,7 +73,12 @@ class Outfielder extends Fielder {
     constructor(team, playerInfo, x, y) {
         super(team, playerInfo, x, y, "outfielder", 25);
     }
-    SetPitcher() { this.pitcher = true; }
+}
+class Pitcher extends Outfielder {
+    constructor(team, playerInfo, x, y) {
+        super(team, playerInfo, x, y);
+        this.pitcher = true;
+    }
 }
 class Infielder extends Fielder {
     /**
@@ -109,15 +113,14 @@ class RunnerShell {
     /** @param {Runner} runner */
     constructor(runner) {
         this.playerInfo = runner.playerInfo;
-        //this.name = runner.name;
         this.x = runner.x;
         this.y = runner.y;
         this.baseIdx = runner.targetStar;
     }
 }
-class Runner extends Player { // TODO: distinguish between runner on base and runner who is running
-    constructor(teamname, playerInfo, x, y, stars) {
-        super(teamname, playerInfo, x, y, "runner", 15);
+class Runner extends Player {
+    constructor(teamname, playerInfo, x, y, onBase, stars) {
+        super(teamname, playerInfo, x, y, (onBase ? "runnerOnBase" : "runner"), 15);
         this.dashed = false;
         this.targetStar = -1;
         let nextx = 0, nexty = 0, stepVector = null;
@@ -125,8 +128,10 @@ class Runner extends Player { // TODO: distinguish between runner on base and ru
         this.atBase = false;
         let running = false;
         let dashTimer = 0;
+        this.onBase = onBase;
         this.stargets = stars;
         this.ball = null;
+        const speed = BaseStar.fullMult * 1;
         this.GetRunnerShell = (function() { return new RunnerShell(this); });
         this.SetBall = function (ball) { this.ball = ball; };
         this.JumpOffBall = /** @param {number[]} occupiedBases */
@@ -143,7 +148,7 @@ class Runner extends Player { // TODO: distinguish between runner on base and ru
                 if (occupiedBases.indexOf(i) < 0 && (magnitude < lowestDistance || lowestDistance < 0)) {
                     nextx = tx;
                     nexty = ty;
-                    stepVector = { x: dx / magnitude, y: dy / magnitude };
+                    stepVector = { x: speed * dx / magnitude, y: speed * dy / magnitude };
                     lowestDistance = magnitude;
                     this.targetStar = i;
                 }
@@ -164,7 +169,7 @@ class Runner extends Player { // TODO: distinguish between runner on base and ru
             nexty = star.y;
             const dx = nextx - this.x, dy = nexty - this.y;
             const magnitude = Math.sqrt(dx * dx + dy * dy);
-            stepVector = { x: dx / magnitude, y: dy / magnitude };
+            stepVector = { x: speed * dx / magnitude, y: speed * dy / magnitude };
             this.targetStar = idx;
             running = true;
             this.atBase = false;
@@ -187,20 +192,23 @@ class Runner extends Player { // TODO: distinguish between runner on base and ru
             const d = Dist(this.x, this.y, nextx, nexty);
             if (d < 2) {
                 running = false;
+                this.x = this.stargets[this.targetStar].x;
+                this.y = this.stargets[this.targetStar].y;
                 this.atBase = true;
             }
         };
         this.Draw = function () {
             if (running) {
                 gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, 2, this.x, this.y, "interface", 64, 0.5);
-            }
-            else {
+            } else {
                 gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
             }
         };
         this.GetMiniMapDrawDetails = function() {
             if(running) {
                 return [this.team, animFrame, 2, 64, { x: this.x, y: this.y }, false, 0.5];
+            } else if(this.onBase) {
+                return [this.team, 6, 1, 64, { x: this.x - 100, y: this.y - 100 }, false, 0.4];
             } else {
                 return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.4];
             }

@@ -5,22 +5,21 @@ class FieldRunHandler extends Handler {
     slamdunks = []; runner = null;
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
-    constructor(ballDetails, constellation) {
+    constructor(ballDetails, pitcherPos, constellation) {
         super();
         const p1IsRunner = BaseStar.data.team1.isUp;
         const runningTeam = p1IsRunner ? BaseStar.data.team1 : BaseStar.data.team2;
         const fieldTeam = p1IsRunner ? BaseStar.data.team2 : BaseStar.data.team1;
+
         this.constellationName = constellation;
         this.minimap = new MiniMap(this);
 
         this.world = new b2World(new b2Vec2(0, 0), true);
         BaseStar.b2Helper = new b2Helpers(this.world);
         this.InitDebug();
-        this.particles = [];
-        this.slamdunks = [];
-        this.GetStarsAndPlayersFromConstellation(constellation, runningTeam, fieldTeam);
+        this.GetStarsAndPlayersFromConstellationAndSwingBat(constellation, runningTeam, fieldTeam, pitcherPos, ballDetails);
         this.CreateBoundaries();
-        this.SwingBat(ballDetails);
+        
         const l = new b2ContactListener();
         const me = this;
         l.BeginContact = function(c) { me.StartCollision(c) };
@@ -48,7 +47,6 @@ class FieldRunHandler extends Handler {
     CleanUp() {
         this.minimap.CleanUp();
         const w = this.world;
-        this.particles = [];
         this.slamdunks.forEach(e => w.DestroyBody(e.body));
         w.DestroyBody(this.ball);
         this.stars.forEach(e => w.DestroyBody(e));
@@ -114,54 +112,47 @@ class FieldRunHandler extends Handler {
         BaseStar.b2Helper.GetBarrier(boundx + boundw, boundy, 20, boundh);
         this.debugBounds = [boundx, boundy, boundx + boundw, boundy + boundh];
     }
-    /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam */
-    GetStarsAndPlayersFromConstellation(constellationName, runningTeam, fieldTeam) {
+    /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam @param {number} pitcherDx @param {any} ballDetails */
+    GetStarsAndPlayersFromConstellationAndSwingBat(constellationName, runningTeam, fieldTeam, pitcherDx, ballDetails) {
         const c = ConstellationInfo[constellationName];
-        const o = c.offset, s = PMult(c.scale, BaseStar.fullMult);
-        o.x += 200;
-        const GetPoint = (x, y) => ({ x: o.x + x * s.x, y: o.x + y * s.y });
+        const o = PAdd(c.offset, { x: 200, y: 0 }), s = PMult(c.scale, BaseStar.fullMult);
+        const GetPoint = (x, y) => ({
+            x: o.x + x * s.x,
+            y: o.y + y * s.y
+        });
         const powerMult = 100 / c.stars.length;
         this.stars = [];
-        // TODO: everything should be saved in box2d coordinates
         const runnerStars = [];
         const bounds = BaseStar.fieldBounds;
-        const pitcherPos = GetPoint(bounds.x + 40, bounds.y + bounds.h / 2);
-        //const pitcherx = o.x + (bounds.x + 40) * s.x, pitchery = o.y + (bounds.y + bounds.h / 2) * s.y;
-        this.pitcher = new Outfielder(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
-        this.pitcher.SetPitcher();
+        const pitcherPos = GetPoint(bounds.x, bounds.y + bounds.h / 2 + pitcherDx * 25);
+        this.pitcher = new Pitcher(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
         this.fielders.push(this.pitcher);
         const mainHandler = this;
         c.stars.forEach((e, i) => {
             const p = GetPoint(e.x + 16, e.y);
             runnerStars.push(p);
-            this.stars.push(BaseStar.b2Helper.GetStar(p.x, p.y, e.power * e.power * powerMult, e.power));
-            this.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
+            mainHandler.stars.push(BaseStar.b2Helper.GetStar(p.x, p.y, e.power * e.power * powerMult, e.power));
+            mainHandler.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
         });
         BaseStar.outfielders.forEach((e, i) => {
             const p = GetPoint(e.x, e.y);
-            this.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
+            mainHandler.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
         });
-        const runnerPos = GetPoint(bounds.x, bounds.y + bounds.h / 2); // TODO: dy based on where they were before
-        // why are runner and pitcher on diff levels???
-        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], runnerPos.x, runnerPos.y, runnerStars);
-        BaseStar.data.inning.playersOnBase.forEach(e => { // TODO: something is very wrong here
-            const p = GetPoint(e.x, e.y);
-            //const x = e.x, y = e.y; //o.x + e.x * s.x, y = o.y + e.y * s.y;
-            const b = new Runner(runningTeam.name, e.playerInfo, p.x, p.y, runnerStars);
+        const runnerPos = GetPoint(bounds.x + 30, bounds.y + bounds.h / 2 + ballDetails.pos * 5);
+        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], runnerPos.x, runnerPos.y, false, runnerStars);
+        
+        const angle = 4 * (2 * ballDetails.dir + ballDetails.offset); // approx. [-13.2, 13.2]; *4 = [-52.8, 52.8]
+        const y = 2 * ballDetails.power * Math.sin(angle * angleToRadians);
+        const x = 2 * ballDetails.power * Math.cos(angle * angleToRadians);
+        const linearVelocity = new b2Vec2(x, y);
+        this.ball = BaseStar.b2Helper.GetBaseball(runnerPos, linearVelocity, this.runner);
+
+        BaseStar.data.inning.playersOnBase.forEach(e => {
+            const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, true, runnerStars);
             b.targetStar = e.baseIdx;
             b.atBase = true;
-            this.onBasePlayers.push(b);
+            mainHandler.onBasePlayers.push(b);
         });
-    }
-    SwingBat(d) {
-        const bounds = BaseStar.fieldBounds;
-        const startPos = { x: bounds.x + 10, y: bounds.y + bounds.h / 2 + d.pos * 8 };
-        this.runner.x = startPos.x; this.runner.y = startPos.y;
-        const angle = 4 * (2 * d.dir + d.offset); // approx. [-13.2, 13.2]; *4 = [-52.8, 52.8]
-        const y = 2 * d.power * Math.sin(angle / toRadians); // TODO: "toRadians" is very ambiguous/poorly named
-        const x = 2 * d.power * Math.cos(angle / toRadians);
-        const linearVelocity = new b2Vec2(x, y);
-        this.ball = BaseStar.b2Helper.GetBaseball(startPos, linearVelocity, this.runner);
     }
     SafeBall() {
         BaseStar.data.inning.strikes = 0;
@@ -171,20 +162,24 @@ class FieldRunHandler extends Handler {
             const me = this;
             AnimationHelpers.StartScrollText("TOUCHDOWN!", function() { me.Touchdown(); });
         } else {
-            BaseStar.SwitchHandler(AtBatHandler);
+            this.FinishBatting();
         }
     }
     Touchdown() {
         BaseStar.data.Touchdown();
-        BaseStar.SwitchHandler(AtBatHandler);
+        this.FinishBatting();
     }
     CatchOut() { // a fielder has caught the ball while the batter was still on it; all players not on bases are out
         BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.atBase).map(e => e.GetRunnerShell());
         if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
             AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
         } else {
-            BaseStar.SwitchHandler(AtBatHandler);
+            this.FinishBatting();
         }
+    }
+    FinishBatting() {
+        BaseStar.data.inning.IncrementBatter();
+        BaseStar.SwitchHandler(AtBatHandler);
     }
     SwitchFielderFreeMovement(newVal) {
         input.ClearAllKeys();
@@ -205,6 +200,7 @@ class FieldRunHandler extends Handler {
         if(AnimationHelpers.IsAnimating() || game.paused) { return; }
         this.world.Step(1 / 60, 10, 10);	
         this.world.ClearForces();
+        BaseStar.cameras.forEach(e => e.Update());
         if(++this.hundredTimer > 100) { this.hundredTimer = 0; }
         if(this.fieldHandler.slamDunkIdx >= 0) {
             const dunker = this.fieldHandler.fielders[this.fieldHandler.slamDunkIdx];
@@ -254,6 +250,7 @@ class FieldRunHandler extends Handler {
         });
     }
     ApplyBallGravityForces() {
+        this.gravMult += 0.0012;
         const ballData = this.ball.GetUserData();
         const ballPos = this.ball.GetWorldCenter();
         this.ball.beeForces = [];
@@ -275,7 +272,7 @@ class FieldRunHandler extends Handler {
                 const starDist = new b2Vec2(0, 0);
                 starDist.Add(ballPos);
                 starDist.Subtract(starPos);
-                const force = (starData.gravityPower * this.ball.GetMass()) / Math.pow(starDist.Length(), 2);
+                const force = this.gravMult * (starData.gravityPower * this.ball.GetMass()) / Math.pow(starDist.Length(), 2);
                 starDist.NegativeSelf();
                 starDist.Multiply(force);
                 if (starDist.Length() > starData.radius * starData.gravityRange) { starDist.Multiply(0.05); } // if ball is far away, weaken the force
@@ -355,7 +352,7 @@ class FieldRunHandler extends Handler {
         gfx.DrawHUDRectToCameras(155, 1, 484, 100, "#FFFFFF", "#000000", "overlay");
         this.minimap.Draw();
     }
-    DebugDraw() { // TODO: this ain't gonna last long
+    DebugDraw() {
         if(this.debug === 0) { return; }
         if(this.debug === 2) {
             this.world.DrawDebugData();

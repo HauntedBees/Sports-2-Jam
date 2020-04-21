@@ -55,21 +55,21 @@ class BatHandler extends SecondaryHandler {
     }
     AnimUpdate() {
         const batHandlerX = 320, batHandlerY = 360;
-        gfx.DrawRectSprite(this.team.name + "_batter", this.swingAnimState, 0, 220 + this.dx, 100, "interface", 145, 335, 0.75);
+        gfx.DrawRectSprite(this.team.name + "_batter", this.swingAnimState, 0, 220 + this.dx, 100, "text", 145, 335, 0.75);
         if(this.team.isPlayerControlled) {
-            gfx.DrawRectSprite("batmeter", 0, 0, batHandlerX, 424, "interface", 128, 128, 1, true);
+            gfx.DrawRectSprite("batmeter", 0, 0, batHandlerX, 424, "text", 128, 128, 1, true);
             const offset = Math.round(35 * Math.sin(this.dirCursorCounter));
-            gfx.DrawCenteredSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + offset, batHandlerY + 89, "interface", 32, 1);
+            gfx.DrawCenteredSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + offset, batHandlerY + 89, "text", 32, 1);
             if(this.power > 0) {
                 const powerX = batHandlerX - 4;
                 const pow = Math.max(0, Math.floor(this.power) - 1);
                 if(pow > 6) {
-                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), powerX, batHandlerY + 14, "interface");
+                    gfx.DrawSprite("sprites", 3 + ((pow - 6) % 5), 6 + Math.floor((pow - 6) / 5), powerX, batHandlerY + 14, "text");
                 }
                 if(pow < 10) {
-                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), powerX, batHandlerY + 46, "interface");
+                    gfx.DrawSprite("sprites", 3 + (pow % 5), 4 + Math.floor(pow / 5), powerX, batHandlerY + 46, "text");
                 } else {
-                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, powerX, batHandlerY + 46, "interface");
+                    gfx.DrawSprite("sprites", 4 + pow - 10, 7, powerX, batHandlerY + 46, "text");
                 }
             }
         }

@@ -84,26 +84,26 @@ function Team(player, idx, isPlayerControlled) {
     };
     this.GetConstellations = function() { return teamInfo.constellations; }
 };
-const TeamInfo = [ // TODO: let the scrolling go the other way (i.e. from Greenland to Burundi, don't pan all the way to the right)
-    // Asia: Korea, Japan
-    // North America: USA, Greenland?
-    // Europe: Italy
-    // South America: Peru
-    // Africa: Burundi
-    // Australia: ????
-    // Also: Atlantis
-    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 49, mapcy: 72, constellations: ["Sagittarius", "", ""] },
-    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 223, mapcy: 38, constellations: ["Ursa Major", "Taurus", ""] },
-    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 38, mapcy: 56, constellations: ["Pisces", "", ""] },
-        { name: "Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 169, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] }, // AWAITING VERONICA
-    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 17, mapcy: 64, constellations: ["Scorpius", "Perseus", ""] },
-    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 151, mapcy: 58, constellations: ["Gemini", "Cygnus", ""] },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 92, mapcy: 60, constellations: ["Aquarius", "", ""] }, 
-    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 161, mapcy: 62, constellations: ["Pegasus", "", "Cancer"] },
-        { name: "Scales", hx: 2, hy: 1, color: "#48005866", mapx: 0, mapcy: 0, constellations: ["Centaurus", "", "Libra"] }, // AWAITING CATRINA
-    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 64, mapcy: 38, constellations: ["Hercules", "Capricornus", ""] },
-            { name: "Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 0, mapcy: 0, constellations: ["Virgo", "", ""] }, // NAME PENDING
-            { name: "Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 0, mapcy: 0, constellations: ["Lepus", "Leo", ""] } // NAME PENDING
+const TeamInfo = [ // NOTE: KEEP MAPX BETWEEN 225 AND 450 
+    // 2*   Asia: Korea, Japan
+    // 2*   North America: USA, Greenland
+    // 1*   Australia: Australia
+    // 1*   Atlantis
+    // 1    Europe: Italy
+    // 1    South America: Peru
+    // 1    Africa: Burundi
+    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 398, mapcy: 72, constellations: ["Sagittarius", "", ""] },
+    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 347, mapcy: 38, constellations: ["Ursa Major", "Taurus", ""] },
+    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 388, mapcy: 56, constellations: ["Pisces", "", ""] },
+        { name: "Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 293, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] }, // AWAITING VERONICA
+    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 366, mapcy: 64, constellations: ["Scorpius", "Perseus", ""] },
+    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 274, mapcy: 58, constellations: ["Gemini", "Cygnus", ""] },
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 441, mapcy: 60, constellations: ["Aquarius", "", ""] }, 
+    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 285, mapcy: 62, constellations: ["Pegasus", "", "Cancer"] },
+    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 272, mapcy: 18, constellations: ["Centaurus", "", "Libra"] },
+    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 411, mapcy: 38, constellations: ["Hercules", "Capricornus", ""] },
+            { name: "Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 225, mapcy: 0, constellations: ["Virgo", "", ""] }, // NAME PENDING
+            { name: "Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 225, mapcy: 0, constellations: ["Lepus", "Leo", ""] } // NAME PENDING
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },
@@ -356,8 +356,8 @@ for(let i = 0; i < TeamInfo.length; i++) {
     starPlayers.push({ batter: bestBatter, pitcher: bestPitcher });
 }
 const PitchNames = [
-    "Light",
-    "Standard",
+    "Wave",
+    "Direct",
     "Unity",
     "Deceit"
 ];

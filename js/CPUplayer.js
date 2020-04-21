@@ -108,7 +108,8 @@ class CPUplayer {
     }
     TrySwing() {
         let doHit = false;
-        if(this.pitcher.ballPos < 20) {
+        if(this.pitcher.pitchAnimState < 3) { return; }
+        if(this.pitcher.pitch.GetPercent() < 0.2) {
             doHit = Math.random() < 0.1;//0.0001;
         } else {
             doHit = Math.random() < this.someChance;
