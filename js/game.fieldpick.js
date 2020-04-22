@@ -218,7 +218,7 @@ class FieldPickHandler extends Handler {
             gfx.DrawLineToCameras(csx + scale * star1.x, csy + scale * star1.y, csx + scale * star2.x, csy + scale * star2.y, "#0000FF", "interface");
         });
         c.stars.forEach(star => {
-            gfx.DrawCenteredSpriteToCameras("star", "sprites", star.power, 0, csx + star.x * scale, csy + star.y * scale, "interface", 32, starScale);
+            gfx.DrawCenteredSpriteToCameras("star", "sprites", star.power, 0, csx + star.x * scale, csy + star.y * scale, "interface", 32, starScale * 0.5);
         });
 
         return { scale: scale, maxy: maxy };
