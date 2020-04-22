@@ -186,7 +186,7 @@ class Runner extends Player {
             this.y += mult * stepVector.y;
 
             const d = Dist(this.x, this.y, nextx, nexty);
-            if (d < 2) {
+            if (d < (2 * mult * 1.2)) {
                 running = false;
                 this.x = this.stargets[this.targetStar].x;
                 this.y = this.stargets[this.targetStar].y;
