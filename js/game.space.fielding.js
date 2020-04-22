@@ -10,6 +10,7 @@ class FieldHandler extends SecondaryHandler {
         this.fielders = fielders;
         this.pitcher = fieldRunHandler.pitcher;
     }
+    /** @param {Fielder} fielder @param {{ GetUserData: () => any; }} ball @param {Runner} runner */
     CatchBall(fielder, ball, runner) {
         const ballInfo = ball.GetUserData();
         if(ballInfo.runner === undefined) { // catching ball, runner is not connected to ball
@@ -104,19 +105,17 @@ class FieldHandler extends SecondaryHandler {
         }
     }
     Update() {
-        this.fielders.forEach(e => e.Update());
         const ballPos = vecm2p(this.fullHandler.ball.GetWorldCenter());
         const someoneHasBall = this.fielders.some(e => e.ball !== null);
-        if(!someoneHasBall) {
-            this.fielders.forEach(f => {
-                //const d = dist(f, ballPos);
+        this.fielders.forEach(f => {
+            if(!someoneHasBall) {
                 const mult = 0.5;
                 const angle = Math.atan2(ballPos.y - f.y, ballPos.x - f.x);
                 f.Move(mult * Math.cos(angle), mult * Math.sin(angle));
-                f.Update();
                 f.SyncCollider();
-            });
-        }
+            }
+            f.Update();
+        });
         this.animCounter += 0.1;
         if(this.animCounter > 100) {
             this.animCounter = 0;

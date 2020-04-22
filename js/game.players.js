@@ -90,8 +90,6 @@ class Infielder extends Fielder {
     constructor(team, playerInfo, x, y, base, mainHandler) {
         super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
-        this.homex = this.x;
-        this.homey = this.y;
         this.animCounter = 0;
         this.animFrame = 0;
         this.mainHandler = mainHandler;
@@ -180,15 +178,11 @@ class Runner extends Player {
                 animCounter = 0;
             }
             if (!running) { return; }
-            if (dashTimer-- > 0) {
-                const mult = 1 + Math.floor(dashTimer / 8);
-                this.x += mult * stepVector.x;
-                this.y += mult * stepVector.y;
-            }
-            else {
-                this.x += stepVector.x;
-                this.y += stepVector.y;
-            }
+            
+            const mult = 1 + ((dashTimer -- > 0) ? Math.floor(dashTimer / 8) : 0);
+            this.x += mult * stepVector.x;
+            this.y += mult * stepVector.y;
+
             const d = Dist(this.x, this.y, nextx, nexty);
             if (d < 2) {
                 running = false;

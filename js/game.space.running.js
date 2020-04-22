@@ -11,13 +11,14 @@ class RunHandler extends SecondaryHandler {
     Confirm() {
         if(this.runner.ball !== null) {
             this.runner.JumpOffBall(this.onBaseRunners.map(e => e.targetStar));
-        } else if(this.runner.atBase && this.onBaseRunners.every(e => e.atBase)) {
+        } else if(this.IsSafe()) {
             const me = this.fullHandler;
             AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
         } else {
             this.runner.Dash();
         }
     }
+    IsSafe() { return this.runner.atBase && this.onBaseRunners.every(e => e.atBase); }
     AimForNextStar(dir) {
         if(this.runner.ball !== null) { return; }
         const len = this.runner.stargets.length;
@@ -99,7 +100,7 @@ class RunHandler extends SecondaryHandler {
             gfx.DrawCenteredSprite("sprites", 12, 1, cx + 16, cy + 32, layer, 32, 1);
             gfx.WriteEchoPlayerText("Target Closest", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
-            if(this.runner.atBase && this.onBaseRunners.every(e => e.atBase)) {
+            if(this.IsSafe()) {
                 gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy, layer, 32, 1);
                 gfx.WriteEchoPlayerText("Finish", cx2 + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             } else if(!this.runner.dashed) {
