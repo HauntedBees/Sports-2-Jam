@@ -100,7 +100,7 @@ class AtBatHandler extends Handler {
             let y = y1 * Math.cos(ax);
             const z = y1 * Math.sin(ax);
             // Step 3: transform
-            let scale = 1;
+            let scale = 0.5;
             const z2 = (z + 600) / 400;
             y *= z2;
             scale *= z2;
@@ -117,7 +117,12 @@ class AtBatHandler extends Handler {
         });
         this.constellation.stars.forEach(star => {
             const p = Transform(star);
-            const layer = p.scale > 1.6 ? "text" : "interface";
+            let layer = "interface";
+            if(p.x <= 380 || p.y > 240) {
+                if(p.scale > 1) { layer = "text"; }
+            } else {
+                if(p.scale > 0.4) { layer = "text"; }
+            }
             gfx.DrawCenteredSprite("sprites", star.power, 0, p.x, p.y, layer, 32, p.scale);
         });
 
@@ -137,7 +142,6 @@ class AtBatHandler extends Handler {
         if(BaseStar.data.inning.strikes === 1) {
             gfx.WriteEchoOptionText("STRUCK", 38, 410, "background2", "#FFFFFF", "#BA66FF", 12);
         }
-
         gfx.WriteEchoOptionText("INNING " + BaseStar.data.inning.inningNumber, 585, 392, "background2", "#FFFFFF", "#BA66FF", 12);
         const scoreX = 585, scoreY = 408, dx = 30;
         gfx.WriteEchoOptionText(BaseStar.data.team1.initial, scoreX - dx, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);

@@ -450,8 +450,8 @@ class TextOption {
         }
         gfx.DrawSpriteFromPoint("sprites", this.GetFrames(this.numTiles, this.numTiles), leftX + (this.numTiles - 1) * 32, ry, "interface");
         if(this.isSelected) {
-            gfx.DrawSprite("sprites", 2, 0, leftX - 24, ry, "interface");
-            gfx.DrawSprite("sprites", 2, 0, leftX + (this.numTiles - 1) * 32 + 24, ry, "interface");
+            gfx.DrawCenteredSprite("sprites", 2, 0, leftX - 8, ry + 15, "interface", 32, 0.5);
+            gfx.DrawCenteredSprite("sprites", 2, 0, leftX + (this.numTiles - 1) * 32 + 40, ry + 15, "interface", 32, 0.5);
         }
     }
     Update() {

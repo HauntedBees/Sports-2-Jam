@@ -94,15 +94,17 @@ class Infielder extends Fielder {
         this.animFrame = 0;
         this.mainHandler = mainHandler;
         this.Update = function () {
-            if(++this.animCounter === 6) {
+            if(this.ball !== null) {
+                this.animFrame = 0;
+            } else if(++this.animCounter === 4) {
                 this.animCounter = 0;
                 this.animFrame++;
             }
         };
         this.Draw = function () {
             const ballPos = vecm2p(this.mainHandler.ball.GetWorldCenter());
-            const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x);
-            gfx.DrawRotatedSpriteToCameras("player", this.team, angle, this.animFrame % 2, 7, this.x, this.y, "interface", 64, 0.5);
+            const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x) - 1.17;
+            gfx.DrawRotatedSpriteToCameras("player", this.team + "_big", angle, 1 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
         };
     }
     Move(x, y) { }

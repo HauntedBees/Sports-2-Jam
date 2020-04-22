@@ -95,10 +95,9 @@ class FieldPickHandler extends Handler {
         } else {
             const x0 = -500 * this.scale;
             const y0 = -(this.maxY * this.scale) / 2;
-            const me = this;
             BaseStar.FieldSetupComplete(this.team.GetConstellations()[this.constsel], this.outfielders.map(o => ({
-                x: (o.x - x0) / me.scale,
-                y: (o.y - y0) / me.scale
+                x: (o.x - x0) / this.scale,
+                y: (o.y - y0) / this.scale
             })), {
                 x: (this.leftx - x0) / this.scale,
                 y: (this.topy - y0) / this.scale,
