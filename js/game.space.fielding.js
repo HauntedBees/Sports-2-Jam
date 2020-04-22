@@ -17,6 +17,12 @@ class FieldHandler extends SecondaryHandler {
             this.fullHandler.SwitchFielderFreeMovement(false);
             fielder.CatchBall(ball);
             this.ballFielderIdx = this.fielders.findIndex(e => e === fielder);
+            // if the ball reaches the pitcher when all runners are at their bases, the round ends and they're automatically safe
+            if(this.fullHandler.runHandler.IsSafe() && (fielder.pitcher || this.fullHandler.runHandler.runner.targetStar === this.ballFielderIdx)) {
+                const me = this.fullHandler;
+                AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
+                return;
+            }
             let lowestDistance = -1;
             this.fielders.forEach((fielder, i) => {
                 const dx = fielder.x - runner.x, dy = fielder.y - runner.y;
