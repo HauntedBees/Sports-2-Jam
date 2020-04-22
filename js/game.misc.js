@@ -244,7 +244,7 @@ const TeamSelection = {
             gfx.DrawSprite("helmets", 3, 3, 30, 80, "interface", 160);
             gfx.DrawSprite("helmets", team.hx, team.hy, 30, 80, "interface", 160);
             this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, -1, -1, false));
-            gfx.WriteEchoPlayerText("Star Hitter: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
+            gfx.WriteEchoPlayerText("Star Becomer: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
             gfx.WriteEchoPlayerText("Star Pitcher: " + starPlayers[teamIdx].pitcher, cx - 25, 250, 500, "text", "#FFFFFF", "#6666AA", 12, "left");
         }
     }
