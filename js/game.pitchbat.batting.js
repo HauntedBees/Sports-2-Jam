@@ -56,6 +56,7 @@ class BatHandler extends SecondaryHandler {
     AnimUpdate() {
         const batHandlerX = 320, batHandlerY = 360;
         gfx.DrawRectSprite(this.team.name + "_batter", this.swingAnimState, 0, 220 + this.dx, 100, "interface", 145, 335, 0.75);
+        gfx.DrawRectSprite("batter", this.swingAnimState, 1, 220 + this.dx, 100, "interface", 145, 335, 0.75);
         if(this.team.isPlayerControlled) {
             gfx.DrawRectSprite("batmeter", 0, 0, batHandlerX, 424, "text", 128, 128, 1, true);
             const offset = Math.round(35 * Math.sin(this.dirCursorCounter));

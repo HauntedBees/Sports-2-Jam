@@ -93,16 +93,16 @@ const TeamInfo = [ // NOTE: KEEP MAPX BETWEEN 225 AND 450
     // 1    Europe: Italy
     // 1    South America: Peru
     // 1    Africa: Burundi
-    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 398, mapcy: 72, constellations: ["Sagittarius", "", ""] },
-    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 347, mapcy: 38, constellations: ["Ursa Major", "Taurus", ""] },
-    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 388, mapcy: 56, constellations: ["Pisces", "", ""] },
+    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 369, mapcy: 70, constellations: ["Sagittarius", "", ""] },
+    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 324, mapcy: 34, constellations: ["Ursa Major", "Taurus", ""] },
+    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 247, mapcy: 12, constellations: ["Centaurus", "", "Libra"] },
         { name: "Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 293, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] }, // AWAITING VERONICA
-    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 366, mapcy: 64, constellations: ["Scorpius", "Perseus", ""] },
-    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 274, mapcy: 58, constellations: ["Gemini", "Cygnus", ""] },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 441, mapcy: 60, constellations: ["Aquarius", "", ""] }, 
-    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 285, mapcy: 62, constellations: ["Pegasus", "", "Cancer"] },
-    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 272, mapcy: 18, constellations: ["Centaurus", "", "Libra"] },
-    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 411, mapcy: 38, constellations: ["Hercules", "Capricornus", ""] },
+    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 339, mapcy: 60, constellations: ["Scorpius", "Perseus", ""] },
+    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 254, mapcy: 56, constellations: ["Gemini", "Cygnus", ""] },
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 413, mapcy: 58, constellations: ["Aquarius", "", ""] }, 
+    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 363, mapcy: 54, constellations: ["Pisces", "", ""] },
+    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 248, mapcy: 60, constellations: ["Pegasus", "", "Cancer"] },
+    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 387, mapcy: 30, constellations: ["Hercules", "Capricornus", ""] },
             { name: "Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 225, mapcy: 0, constellations: ["Virgo", "", ""] }, // NAME PENDING
             { name: "Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 225, mapcy: 0, constellations: ["Lepus", "Leo", ""] } // NAME PENDING
 ];

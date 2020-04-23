@@ -129,6 +129,9 @@ class MiniMap {
     Draw() { // TODO: UI just for runner or fielders
         gfx.ClearLayer("minimap");
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "minimap", 0, 0);
+        BaseStar.particles.forEach(p => {
+            this.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
+        });
         this.space.stars.forEach(star => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
             this.DoSprite("sprites", data.powerIdx, 0, 32, pos, true, 0.2);
@@ -145,17 +148,13 @@ class MiniMap {
             }
             this.DoSprite("sprites", 7, slammer.frame, 32, pos, true, 0.2);
         });
+        
         let pos = this.space.ball.GetWorldCenter();
         const linearVelocity = this.space.ball.GetLinearVelocity();
         const sx = this.space.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
         this.DoSprite("sprites", sx, 2, 32, pos, true, 0.5);
 
         let hasBall = this.space.runner.ball !== null;
-        this.DoSprite(...this.space.runHandler.runner.GetMiniMapDrawDetails());
-        this.space.runHandler.onBaseRunners.forEach(f => {
-            this.DoSprite(...f.GetMiniMapDrawDetails());
-        });
-
         this.space.fielders.forEach(f => {
             this.DoSprite(...f.GetMiniMapDrawDetails());
             hasBall = hasBall || (f.ball !== null);
@@ -164,15 +163,20 @@ class MiniMap {
         this.t += 0.1;
         this.DoSprite("sprites", 4, 1, 32, pos, true, 0.5 + 0.1 * Math.sin(this.t));
 
-        BaseStar.particles.forEach(p => {
-            this.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
+        this.space.runHandler.onBaseRunners.forEach(f => {
+            this.DoSprite(...f.GetMiniMapDrawDetails());
         });
+        this.DoBaseballerSprite(...this.space.runHandler.runner.GetMiniMapDrawDetails());
     }
     DoLine(a, b, isBox2D) {
         if(isBox2D) { a = vecm2p(a); b = vecm2p(b); }
         a = PAdd(PMult(a, this.mult), this.offset);
         b = PAdd(PMult(b, this.mult), this.offset);
         gfx.DrawLine(a.x, a.y, b.x, b.y, "#0000FF", "minimap", undefined, undefined, 1);
+    }
+    DoBaseballerSprite(sheet, sx, sy, size, pos, isBox2D, scale) {
+        this.DoSprite(sheet, sx, sy, size, pos, isBox2D, scale);
+        this.DoSprite("baseballers", sx + 4, sy, size, pos, isBox2D, scale);
     }
     DoSprite(sheet, sx, sy, size, pos, isBox2D, scale) {
         if(isBox2D) { pos = vecm2p(pos); }

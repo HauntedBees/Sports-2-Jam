@@ -14,7 +14,8 @@ class Player {
         };
         this.Update = function () { };
         this.Draw = function () {
-            gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.5);
         };
         this.GetMiniMapDrawDetails = function() {
             return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.5];
@@ -70,8 +71,50 @@ class Fielder extends Player {
     }
 }
 class Outfielder extends Fielder {
+    force = { x: 0, y: 0 };
+    angle = 0;
     constructor(team, playerInfo, x, y) {
         super(team, playerInfo, x, y, "outfielder", 25);
+        let animFrame = 0, animCounter = 0, sy = 0;
+        let moving = false;
+        this.Update = function() {
+            if (++animCounter > 5) {
+                animFrame = (++animFrame % 4);
+                animCounter = 0;
+            }
+            this.force = PMult(this.force, 0.7);
+            if(Math.abs(this.force.x) < 0.1) { this.force.x = 0; }
+            if(Math.abs(this.force.y) < 0.1) { this.force.y = 0; }
+
+            let angle = Math.atan2(this.force.y, this.force.x) / angleToRadians + 23;
+            if(angle > 360) { angle -= 360; }
+            else if(angle < 0) { angle += 360; }
+            sy = Math.floor(angle / 45);
+
+            moving = this.force.x !== 0 || this.force.y !== 0;
+            if(moving) {
+                if(this.force.x !== 0 && this.force.y !== 0) {
+                    this.x += this.force.x * Math.SQRT1_2;
+                    this.y += this.force.y * Math.SQRT1_2;
+                } else {
+                    this.x += this.force.x;
+                    this.y += this.force.y;
+                }
+            }
+        }
+        this.Draw = function () {
+            if (moving) {
+                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, this.y, "interface", 64, 0.75);
+            } else {
+                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.75);
+            }
+        };
+    }
+    Move(x, y) {
+        this.force.x += x;
+        this.force.y += y;
     }
 }
 class Pitcher extends Outfielder {
@@ -90,8 +133,6 @@ class Infielder extends Fielder {
     constructor(team, playerInfo, x, y, base, mainHandler) {
         super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
-        this.animCounter = 0;
-        this.animFrame = 0;
         this.mainHandler = mainHandler;
         this.Update = function () {
             if(this.ball !== null) {
@@ -123,7 +164,7 @@ class Runner extends Player {
         super(teamname, playerInfo, x, y, (onBase ? "runnerOnBase" : "runner"), 15);
         this.dashed = false;
         this.targetStar = -1;
-        let nextx = 0, nexty = 0, stepVector = null;
+        let nextx = 0, nexty = 0, stepVector = { x: 0, y: 0 }, sy = 0;
         let animFrame = 0, animCounter = 0;
         this.atBase = false;
         let running = false;
@@ -152,6 +193,7 @@ class Runner extends Player {
                     lowestDistance = magnitude;
                     this.targetStar = i;
                 }
+                this.CalculateRunAngle();
             });
             running = true;
         };
@@ -174,6 +216,12 @@ class Runner extends Player {
             running = true;
             this.atBase = false;
         };
+        this.CalculateRunAngle = function() {
+            let angle = Math.atan2(stepVector.y, stepVector.x) / angleToRadians + 23;
+            if(angle > 360) { angle -= 360; }
+            else if(angle < 0) { angle += 360; }
+            sy = Math.floor(angle / 45);
+        };
         this.Update = function () {
             if (++animCounter > 5) {
                 animFrame = (++animFrame % 3);
@@ -195,18 +243,20 @@ class Runner extends Player {
         };
         this.Draw = function () {
             if (running) {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, 2, this.x, this.y, "interface", 64, 0.5);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, this.y, "interface", 64, 0.75);
             } else {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, 6, 1, this.x, this.y, "interface", 64, 0.5);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.75);
             }
         };
         this.GetMiniMapDrawDetails = function() {
             if(running) {
-                return [this.team, animFrame, 2, 64, { x: this.x, y: this.y }, false, 0.5];
+                return [this.team, animFrame, sy, 64, { x: this.x, y: this.y }, false, 0.4];
             } else if(this.onBase) {
-                return [this.team, 6, 1, 64, { x: this.x - 100, y: this.y - 100 }, false, 0.4];
+                return [this.team, 4, 8, 64, { x: this.x - 100, y: this.y - 100 }, false, 0.3];
             } else {
-                return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.4];
+                return [this.team, 4, 8, 64, { x: this.x, y: this.y }, false, 0.3];
             }
         };
     }

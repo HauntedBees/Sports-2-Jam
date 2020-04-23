@@ -214,6 +214,7 @@ class PitchHandler extends SecondaryHandler {
     }
     AnimUpdate() {
         gfx.DrawRectSprite(this.team.name + "_pitcher", this.pitchAnimState, 0, this.pitcherx, this.pitchery, "interface", 92, 240, 0.75);
+        gfx.DrawRectSprite("pitcher", this.pitchAnimState, 1, this.pitcherx, this.pitchery, "interface", 92, 240, 0.75);
         switch(this.pitchAnimState) {
             case 0:
                 gfx.DrawCenteredSprite("sprites", 7, 2, this.pitcherx + 55, this.pitchery + 81, "interface", 32, 0.5);

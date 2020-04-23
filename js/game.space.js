@@ -353,6 +353,11 @@ class FieldRunHandler extends Handler {
             gfx.DrawCenteredSpriteToCameras("dunk", "sprites", 7, slammer.frame, m2p(pos.x), m2p(pos.y), "interface", 32);
         });
 
+        const myConstellation = ConstellationInfo[this.constellationName];
+        myConstellation.connections.forEach(e => {
+            const star1 = this.stars[e[0]].GetWorldCenter(), star2 = this.stars[e[1]].GetWorldCenter();
+            gfx.DrawLineToCameras(m2p(star1.x), m2p(star1.y), m2p(star2.x), m2p(star2.y), "#0000FF99", "interface");
+        });
         this.fieldHandler.AnimUpdate();
         this.stars.forEach(star => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
@@ -365,11 +370,6 @@ class FieldRunHandler extends Handler {
         const sx = this.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
         gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
 
-        const myConstellation = ConstellationInfo[this.constellationName];
-        myConstellation.connections.forEach(e => {
-            const star1 = this.stars[e[0]].GetWorldCenter(), star2 = this.stars[e[1]].GetWorldCenter();
-            gfx.DrawLineToCameras(m2p(star1.x), m2p(star1.y), m2p(star2.x), m2p(star2.y), "#0000FF", "interface");
-        });
         gfx.DrawHUDRectToCameras(155, 1, 484, 100, "#FFFFFF", "#000000", "overlay");
         this.minimap.Draw();
     }
