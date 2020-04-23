@@ -27,31 +27,6 @@ class Fielder extends Player {
     base = -1;
     constructor(teamname, playerInfo, x, y, type, radius) {
         super(teamname, playerInfo, x, y, type, radius);
-        this.CatchBall = function (ball) {
-            this.ball = ball;
-            console.log("CAUGHT");
-            const ballData = this.ball.GetUserData();
-            ballData.held = true;
-            ballData.lastFielder = undefined;
-            ballData.generateParticles = false;
-        };
-        this.ThrowBall = function (target) {
-            if (this.ball === null) {
-                return;
-            }
-            const dx = target.x - this.x, dy = target.y - this.y;
-            const magnitude = Math.sqrt(dx * dx + dy * dy);
-            const force = new b2Vec2(dx / magnitude, dy / magnitude);
-            force.Multiply(20);
-            const ballData = this.ball.GetUserData();
-            ballData.lastFielder = this;
-            ballData.immunity = 10;
-            ballData.held = false;
-            ballData.thrown = true;
-            ballData.generateParticles = true;
-            ballData.nextForce = force;
-            this.ball = null;
-        };
         this.Update = function () {
             if (this.ball !== null) {
                 this.ball.SetPosition({ x: p2m(this.x), y: p2m(this.y - 10) });
@@ -64,6 +39,29 @@ class Fielder extends Player {
                 return [this.team, 4, 2, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.6 : 0.5];
             }
         };
+    }
+    CatchBall(ball) {
+        this.ball = ball;
+        console.log("CAUGHT");
+        const ballData = this.ball.GetUserData();
+        ballData.held = true;
+        ballData.lastFielder = undefined;
+        ballData.generateParticles = false;
+    }
+    ThrowBall(target) {
+        if (this.ball === null) { return; }
+        const dx = target.x - this.x, dy = target.y - this.y;
+        const magnitude = Math.sqrt(dx * dx + dy * dy);
+        const force = new b2Vec2(dx / magnitude, dy / magnitude);
+        force.Multiply(20);
+        const ballData = this.ball.GetUserData();
+        ballData.lastFielder = this;
+        ballData.immunity = 10;
+        ballData.held = false;
+        ballData.thrown = true;
+        ballData.generateParticles = true;
+        ballData.nextForce = force;
+        this.ball = null;
     }
     Move(x, y) {
         this.x += x;
@@ -124,6 +122,7 @@ class Pitcher extends Outfielder {
     }
 }
 class Infielder extends Fielder {
+    animCounter = 0; animFrame = 0;
     /**
      * @param {string} team
      * @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo
@@ -212,6 +211,7 @@ class Runner extends Player {
             const dx = nextx - this.x, dy = nexty - this.y;
             const magnitude = Math.sqrt(dx * dx + dy * dy);
             stepVector = { x: speed * dx / magnitude, y: speed * dy / magnitude };
+            this.CalculateRunAngle();
             this.targetStar = idx;
             running = true;
             this.atBase = false;
@@ -224,7 +224,7 @@ class Runner extends Player {
         };
         this.Update = function () {
             if (++animCounter > 5) {
-                animFrame = (++animFrame % 3);
+                animFrame = (++animFrame % 4);
                 animCounter = 0;
             }
             if (!running) { return; }

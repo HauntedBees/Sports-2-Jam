@@ -85,6 +85,7 @@ class FieldHandler extends SecondaryHandler {
             this.slamDunkIdx = this.ballFielderIdx;
             this.dunked = true;
         } else {
+            this.fullHandler.gravMult = Math.max(1.5, this.fullHandler.gravMult / 2);
             this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);
             this.fullHandler.SwitchFielderFreeMovement(true);
             this.ballFielderIdx = -1;
@@ -92,10 +93,11 @@ class FieldHandler extends SecondaryHandler {
         }
     }
     KeyPress(key) {
-        let dx = 0, dy = 0, confirm = false;
+        let dx = 0, dy = 0, confirm = false, cancel = false;
         switch(key) {
             case this.myControls.pause: 
             case this.myControls.confirm: confirm = true; break;
+            case this.myControls.cancel: cancel = true; break;
             case this.myControls.up: dy -= 1; break;
             case this.myControls.down: dy += 1; break;
             case this.myControls.left: dx -= 1; break;
@@ -104,10 +106,11 @@ class FieldHandler extends SecondaryHandler {
         if(this.ballFielderIdx < 0) { // moving
             if(dx !== 0 || dy !== 0) { this.MoveFielders(dx, dy); }
         } else { // throwing ball
-            if(dy === -1) { this.TargetRunner(); }
+            if(cancel) { this.targetFielderIdx = this.ballFielderIdx; }
+            else if(confirm) { this.ThrowBall(); }
+            else if(dy === -1) { this.TargetRunner(); }
             else if(dy === 1) { this.TargetPitcher(); }
             else if(dx !== 0) { this.AimForNextFielder(dx); }
-            if(confirm) { this.ThrowBall(); }
         }
     }
     Update() {
