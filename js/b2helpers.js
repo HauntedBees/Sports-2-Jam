@@ -30,7 +30,7 @@ function b2Helpers(world) {
             gravityRange: gravityRange,
             powerIdx: displayPower,
             identity: "star"
-        }, false);
+        }, true);
     };
     this.GetBaseball = function(position, velocity, runner) {
         const ball = this.GetCircle(position.x, position.y, 7, true, {
