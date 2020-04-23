@@ -40,6 +40,7 @@ Different radio players have slightly different control methods, but all players
 | D-Pad Up         | Target Wanderer or Catcher closest to Becomer |
 | D-Pad Down       | Target Pitcher                                |
 | Confirm Button   | Throw Sol or Slam                             |
+| Cancel Button    | Target Self                                   |
 
 #### On Field (Jumping Team)
 | Button           |  Action                           |
