@@ -96,6 +96,24 @@ const gfx = {
         });
     },
 
+
+    DrawClampedSpriteToCameras: /** @param {string} type @param {string} sheetpath @param {number} sx @param {number} sy @param {number} clampsx @param {number} clampsy @param {number} x @param {number} y @param {string} layer @param {number} size @param {number} scale */
+    function(type, sheetpath, sx, sy, clampsx, clampsy, x, y, layer, size, scale) {
+        BaseStar.cameras.forEach((camera, i) => {
+            const point = camera.GetPos({ x: x, y: y }, type, true);
+            if(point.ignore) { return; }
+            const cameraLayer = camera.prefix + (camera.forcedLayer || layer);
+            gfx.DrawCenteredSprite(sheetpath, sx, sy, point.x, point.y, cameraLayer, size, scale * camera.zoom);
+            if(point.clamp !== null) {
+                let scale = 1200 / point.distance;
+                if(scale > 1.5) { scale = 1.5; }
+                else if(scale < 0.2) { scale = 0.2; }
+                gfx.DrawRotatedSprite(sheetpath, point.clamp, clampsx, clampsy, point.x - 15 * Math.cos(point.clamp), point.y - 15 * Math.sin(point.clamp), cameraLayer, size, scale * camera.zoom)
+            }
+        });
+    },
+
+
     DrawLineToCameras: /** @param {number} x1 @param {number} y1 @param {number} x2 @param {number} y2 @param {string} color @param {string} layer @param {number} [cx] @param {number} [cy] */
     function(x1, y1, x2, y2, color, layer, cx, cy) {
         BaseStar.cameras.forEach(camera => {

@@ -37,8 +37,8 @@ class Camera {
         this.betwixt += 0.1;
         if(this.betwixt >= 1) { this.betwixt = -1; }
     }
-    /** @param {{ x: number; y: number; }} posObj @param {string} type */
-    GetPos(posObj, type) {
+    /** @param {{ x: number; y: number; }} posObj @param {string} type @param {boolean} [doClamp] */
+    GetPos(posObj, type, doClamp) {
         let myPos = (typeof this.focusObj.GetWorldCenter === "function") ? vecm2p(this.focusObj.GetWorldCenter()) : this.focusObj;
         if(this.betwixt >= 0) {
             const oldPos = (typeof this.lastFocusObj.GetWorldCenter === "function") ? vecm2p(this.lastFocusObj.GetWorldCenter()) : this.lastFocusObj;
@@ -49,23 +49,38 @@ class Camera {
                 y: oldPos.y + delta.y * this.betwixt
             };
         }
-        const doClamp = type.indexOf("clamp") >= 0;
         if(myPos === null) { 
-            return { x: posObj.x, y: posObj.y, ignore: !this.visible || this.ignores.some(e => type.includes(e)) };
+            return { x: posObj.x, y: posObj.y, ignore: !this.visible || this.ignores.some(e => type.includes(e)), clamp: null, distance: 0 };
         }
         if(!this.visible || this.ignores.some(e => type.includes(e))) {
-            return { x: 0, y: 0, ignore: true }
+            return { x: 0, y: 0, ignore: true, clamp: null, distance: 0 }
         }
         let newX = this.cx + this.zoom * (posObj.x - myPos.x) + this.offsetx;
         let newY = this.cy + this.zoom * (posObj.y - myPos.y) + this.offsety;
-        if(doClamp) {
+        let clamp = null, distance = 0;
+        if(doClamp === true) {
             const clampPadding = 16;
-            if(newX < this.left) { newX = this.left + clampPadding; }
-            else if(newX > this.right) { newX = this.right - clampPadding; }
-            if(newY < this.top) { newY = this.top + clampPadding; }
-            else if(newY > this.bottom) { newY = this.bottom - clampPadding; }
+            let dx = 0, dy = 0;
+            if(newX < this.left) {
+                dx = newX - this.left;
+                newX = this.left + clampPadding;
+            } else if(newX > this.right) {
+                dx = newX - this.right;
+                newX = this.right - clampPadding;
+            }
+            if(newY < this.top) {
+                dy = newY - this.top;
+                newY = this.top + clampPadding;
+            } else if(newY > this.bottom) {
+                dy = newY - this.bottom;
+                newY = this.bottom - clampPadding;
+            }
+            if(dy !== 0 || dx !== 0) {
+                clamp = Math.atan2(dy, dx);
+                distance = Math.sqrt(dx * dx + dy * dy);
+            }
         }
-        return { x: newX, y: newY, ignore: false };
+        return { x: newX, y: newY, ignore: false, clamp: clamp, distance: distance };
     }
     /** @param {{ x: number; y: number; }} posObj @param {string} type */
     GetPosFromMeters(posObj, type) {
