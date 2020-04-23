@@ -1,7 +1,7 @@
 class FieldRunHandler extends Handler {
     state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; ball = null; hundredTimer = 0;
-    gravMult = 1;
+    gravMult = 1.5;
     slamdunks = []; runner = null;
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
@@ -248,7 +248,8 @@ class FieldRunHandler extends Handler {
         });
     }
     ApplyBallGravityForces() {
-        this.gravMult += 0.0012;
+        this.gravMult *= 1.001;
+        if(this.gravMult > 13) { this.gravMult = 13; }
         const ballData = this.ball.GetUserData();
         const ballPos = this.ball.GetWorldCenter();
         this.ball.beeForces = [];
@@ -264,22 +265,19 @@ class FieldRunHandler extends Handler {
         if(ballData.held) {
             this.ball.SetActive(false);
         } else if(ballData.immunity === undefined || --ballData.immunity <= 0) {
-            for (let j = 0; j < this.stars.length; j++) {
-                const starPos = this.stars[j].GetWorldCenter();
-                const starData = this.stars[j].GetUserData();
-                const starDist = new b2Vec2(0, 0);
-                starDist.Add(ballPos);
-                starDist.Subtract(starPos);
-                const force = this.gravMult * (starData.gravityPower * this.ball.GetMass()) / Math.pow(starDist.Length(), 2);
-                starDist.NegativeSelf();
-                starDist.Multiply(force);
-                if (starDist.Length() > starData.radius * starData.gravityRange) { starDist.Multiply(0.05); } // if ball is far away, weaken the force
-                if(ballData.thrown) { starDist.Multiply(0.05); } // gravity is weaker when ball is thrown from fielder to fielder
-                this.ball.ApplyForce(starDist, this.ball.GetWorldCenter());
-                this.ball.beeForces.push({
-                    x: m2p(ballPos.x), y: m2p(ballPos.y),
-                    dx: m2p(starDist.x), dy: m2p(starDist.y)
+            if(this.gravMult > 12) {
+                let onlyStar = -1, closestDist = 10000;
+                this.stars.forEach((star, i) => {
+                    const pos = star.GetWorldCenter();
+                    const d = Dist(pos.x, pos.y, ballPos.x, ballPos.y);
+                    if(d < closestDist) {
+                        closestDist = d;
+                        onlyStar = i;
+                    }
                 });
+                this.ApplyForceFromStar(this.stars[onlyStar], ballPos, ballData.thrown, true);
+            } else {
+                this.stars.forEach(star => this.ApplyForceFromStar(star, ballPos, ballData.thrown, false));
             }
         } else if(ballData.nextForce !== undefined) {
             this.ball.SetLinearVelocity(ballData.nextForce);
@@ -289,6 +287,30 @@ class FieldRunHandler extends Handler {
         if(ballData.runner !== undefined) {
             this.runner.x = m2p(ballPos.x);
             this.runner.y = m2p(ballPos.y);
+        }
+    }
+    ApplyForceFromStar(star, ballPos, thrown, superGravity) {
+        const starPos = star.GetWorldCenter();
+        const starData = star.GetUserData();
+        const starDist = new b2Vec2(0, 0);
+        starDist.Add(ballPos);
+        starDist.Subtract(starPos);
+        let force = this.gravMult * (starData.gravityPower * this.ball.GetMass()) / Math.pow(starDist.Length(), 2);
+        if(superGravity) {
+            starDist.NegativeSelf();
+            starDist.Multiply(10);
+            this.ball.SetLinearVelocity(starDist);
+        } else {
+            if (starDist.Length() > starData.radius * starData.gravityRange) { force *= 0.1; } // if ball is far away, weaken the force
+            if(thrown) { force *= 0.05; } // gravity is weaker when ball is thrown from fielder to fielder
+            starDist.NegativeSelf();
+            starDist.Multiply(force);
+            this.ball.ApplyForce(starDist, this.ball.GetWorldCenter());
+            this.ball.ApplyForce(starDist, this.ball.GetWorldCenter());
+            this.ball.beeForces.push({
+                x: m2p(ballPos.x), y: m2p(ballPos.y),
+                dx: m2p(starDist.x), dy: m2p(starDist.y)
+            });
         }
     }
     GetBallAngle(angleInRadians) {
