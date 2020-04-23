@@ -153,11 +153,11 @@ class FieldPickHandler extends Handler {
         gfx.WriteOptionText(this.team.name, 320, 32, "text", "#FFFFFF", 24);
         if(this.state === 1) {
             if(this.team.isPlayerControlled) {
-                gfx.WriteOptionText("Place your Outfielders", 320, 64, "text", "#FFFFFF", 24);
+                gfx.WriteOptionText("Place your Wanderers", 320, 64, "text", "#FFFFFF", 24);
             } else {
-                gfx.WriteOptionText("are placing their Outfielders", 320, 64, "text", "#FFFFFF", 24);
+                gfx.WriteOptionText("are placing their Wanderers", 320, 64, "text", "#FFFFFF", 24);
             }
-            gfx.WriteEchoOptionText(`Remaining Outfielders: ${this.totalOutfielders - this.outfielders.length}`, 320, 180, "text", "#FFFFFF", "#BA66FF", 16);
+            gfx.WriteEchoOptionText(`Remaining Wanderers: ${this.totalOutfielders - this.outfielders.length}`, 320, 180, "text", "#FFFFFF", "#BA66FF", 16);
         } else {
             if(this.team.isPlayerControlled) {
                 gfx.WriteOptionText("Is this OK?", 320, 64, "text", "#FFFFFF", 24);
@@ -215,7 +215,7 @@ class FieldPickHandler extends Handler {
         const c = ConstellationInfo[constellations[this.constsel]];
         const textY = 265;
         gfx.WriteEchoOptionText(`Stars: ${c.stars.length}`, 160, textY, "text", "#FFFFFF", "#BA66FF", 16);
-        gfx.WriteEchoOptionText(`Outfielders: ${20 - c.stars.length - 1}`, 320, textY, "text", "#FFFFFF", "#BA66FF", 16);
+        gfx.WriteEchoOptionText(`Wanderers: ${20 - c.stars.length - 1}`, 320, textY, "text", "#FFFFFF", "#BA66FF", 16);
         gfx.WriteEchoOptionText(`Gravity: ${c.stars.reduce((a, b) => a + b.power, 0)}`, 480, textY, "text", "#FFFFFF", "#BA66FF", 16);
         this.DrawConstellation(c, 320, 380);
     }
