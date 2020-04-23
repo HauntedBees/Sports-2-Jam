@@ -60,6 +60,12 @@ function NormalizeConstellations() { // clamps to 1000 width, starts at 0, 0
 
 /** @type {{[key:string] : Constellation }} */
 const ConstellationInfo = {
+    "Test": new Constellation(0, 0, 0, 50, 1, 1, [
+        new Star(0, 0, 3),
+        new Star(100, 0, 3),
+        new Star(100, 100, 3),
+        new Star(0, 100, 3)
+    ], [[0, 1], [1, 2], [2, 3], [3, 0]]),
     "Taurus": new Constellation(0, 0, 0, 0, 1, 1, [
         new Star(0, 241.44144144144144, 3),
         new Star(329.72972972972974, 230.63063063063063, 1),
@@ -385,6 +391,12 @@ const ConstellationInfo = {
 
 /** @type {{[key:string] : Constellation }} */
 const UnnormalizedConstellationInfo = {
+    "Test": new Constellation(0, 0, 0, 50, 1, 1, [
+        new Star(0, 0, 3),
+        new Star(100, 0, 3),
+        new Star(100, 100, 3),
+        new Star(0, 100, 3)
+    ], [[0, 1], [1, 2], [2, 3], [3, 0]]),
     "Taurus": new Constellation(0, 0, 0, 50, 1, 1, [
         new Star(5, 140, 3), // left horn
         new Star(188, 134, 1),

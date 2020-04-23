@@ -7,8 +7,25 @@ class CPUplayer {
     /** @type {FieldHandler} */ fielder = null;
 
     /** @param {FieldPickHandler} fp */
-    PickConstellationAndPlaceOutfielders(fp) {
+    PickConstellationAndPlaceOutfielders(fp, debug) {
         let counter = 5;
+        if(debug) {
+            if(--counter > 0) { return; }
+            counter = 10;
+            const cs = fp.team.GetConstellations();
+            let constsel = Math.floor(Math.random() * 3);
+            while(cs[constsel] === "") {
+                constsel = (constsel + 1) % 3;
+            }
+            fp.constsel = constsel;
+            fp.Confirm();
+            while(fp.state === 1) {
+                fp.Confirm();
+            }
+            fp.Confirm();
+            console.log("fuck you");
+            return;
+        }
         let wub = setInterval(function() {
             if(fp.state === 0) {
                 if(--counter > 0) { return; }
@@ -79,9 +96,9 @@ class CPUplayer {
     SetUpField() { }
     HandleField() {
         if(this.fielder.ballFielderIdx < 0) { return; }
-        this.fielder.ballFielderIdx = 0;
-        this.fielder.targetFielderIdx = 0;
-        this.fielder.ThrowBall();
+        //this.fielder.ballFielderIdx = 0;
+        //this.fielder.targetFielderIdx = 0;
+        //this.fielder.ThrowBall();
         /*this.fielder.TargetRunnerIncludeHolder();
         if(this.fielder.ballFielderIdx !== this.fielder.targetFielderIdx) {
             this.fielder.ThrowBall();
@@ -100,9 +117,9 @@ class CPUplayer {
     // Batting
     SetUpSwing() {
         this.batter.ready = true;
-        this.batter.dx = -5 + 10 * Math.random();
-        this.batter.dir = 0;
-        this.batter.power = 6 + Math.random() * 6;
+        this.batter.dx = 0;
+        this.batter.dir = -10 + 20 * Math.random();
+        this.batter.power = 2 + Math.random() * 10;
         this.batter.state = 2;
         this.someChance = 0.0005;
     }

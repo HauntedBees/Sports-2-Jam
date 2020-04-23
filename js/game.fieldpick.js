@@ -9,7 +9,23 @@ function GetDebugFunkoPop() {
     }
     fph.Confirm();
     const x0 = -500 * fph.scale, y0 = -(fph.maxY * fph.scale) / 2;
-    BaseStar.FieldSetupComplete(cs[fph.constsel], [], {
+    BaseStar.FieldSetupComplete(cs[fph.constsel], [
+        {x: -7, y: -37},
+        {x: 134, y: -18},
+        {x: 197, y: 53} ,
+        {x: 10, y: 81},
+        {x: 63, y: 19} ,
+        {x: 226, y: -94},
+        {x: -86, y: 68},
+        {x: -1, y: -90},
+        {x: 144, y: -98},
+        {x: -56, y: -92},
+        {x: 117, y: 93},
+        {x: 16, y: 28},
+        {x: 57, y: -91},
+        {x: 217, y: 1},
+        {x: 236, y: -57}
+    ], {
         x: (fph.leftx - x0) / fph.scale,
         y: (fph.topy - y0) / fph.scale,
         w: (fph.rightx - fph.leftx) / fph.scale,
@@ -28,7 +44,7 @@ class FieldPickHandler extends Handler {
         this.team = BaseStar.data.GetFieldTeam();
         this.myControls = this.team.GetControls();
         if(!this.team.isPlayerControlled) {
-            BaseStar.cpu.PickConstellationAndPlaceOutfielders(this);
+            BaseStar.cpu.PickConstellationAndPlaceOutfielders(this, true);
         }
     }
     CleanUp() { gfx.ClearSome(["interface", "text"]); }
