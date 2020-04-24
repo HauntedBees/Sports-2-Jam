@@ -207,7 +207,6 @@ class Runner extends Player {
         this.targetStar = -1;
         let nextx = 0, nexty = 0, stepVector = { x: 0, y: 0 }, sy = 0;
         let animFrame = 0, animCounter = 0;
-        this.atBase = false;
         let running = false;
         let dashTimer = 0;
         this.onBase = onBase;
@@ -256,7 +255,7 @@ class Runner extends Player {
             this.CalculateRunAngle();
             this.targetStar = idx;
             running = true;
-            this.atBase = false;
+            this.onBase = false;
         };
         this.CalculateRunAngle = function() {
             let angle = Math.atan2(stepVector.y, stepVector.x) / angleToRadians + 23;
@@ -280,7 +279,7 @@ class Runner extends Player {
                 running = false;
                 this.x = this.stargets[this.targetStar].x;
                 this.y = this.stargets[this.targetStar].y;
-                this.atBase = true;
+                this.onBase = true;
             }
         };
         this.Draw = function () {

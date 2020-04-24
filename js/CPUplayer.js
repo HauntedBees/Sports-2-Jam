@@ -86,7 +86,7 @@ class CPUplayer {
                 this.someChance += 0.0005;
             }
         } else {
-            if(this.runner.runner.atBase) {
+            if(this.runner.runner.onBase) {
                 this.runner.Confirm();
             }
         }

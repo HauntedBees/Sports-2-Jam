@@ -149,7 +149,7 @@ class FieldRunHandler extends Handler {
         BaseStar.data.inning.playersOnBase.forEach(e => {
             const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, true, runnerStars);
             b.targetStar = e.baseIdx;
-            b.atBase = true;
+            b.onBase = true;
             mainHandler.onBasePlayers.push(b);
         });
     }
@@ -169,7 +169,7 @@ class FieldRunHandler extends Handler {
         this.FinishBatting();
     }
     CatchOut() { // a fielder has caught the ball while the batter was still on it; all players not on bases are out
-        BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.atBase).map(e => e.GetRunnerShell());
+        BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.onBase).map(e => e.GetRunnerShell());
         if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
             AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
         } else {
@@ -228,7 +228,7 @@ class FieldRunHandler extends Handler {
         this.ApplyBallGravityForces();
         this.runHandler.Update();
         this.fieldHandler.Update();
-        if(this.fieldHandler.ballFielderIdx >= 0 && this.runner.atBase && this.runner.targetStar === this.fielders[this.fieldHandler.ballFielderIdx].base) {
+        if(this.fieldHandler.ballFielderIdx >= 0 && this.runner.onBase && this.runner.targetStar === this.fielders[this.fieldHandler.ballFielderIdx].base) {
             const me = this;
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
