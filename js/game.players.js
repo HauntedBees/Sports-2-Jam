@@ -210,6 +210,7 @@ class Runner extends Player {
         let running = false;
         let dashTimer = 0;
         this.onBase = onBase;
+        this.baseNumber = -1;
         this.stargets = stars;
         this.ball = null;
         const speed = BaseStar.fullMult * 1;
@@ -256,6 +257,7 @@ class Runner extends Player {
             this.targetStar = idx;
             running = true;
             this.onBase = false;
+            this.baseNumber = -1;
         };
         this.CalculateRunAngle = function() {
             let angle = Math.atan2(stepVector.y, stepVector.x) / angleToRadians + 23;
@@ -280,15 +282,17 @@ class Runner extends Player {
                 this.x = this.stargets[this.targetStar].x;
                 this.y = this.stargets[this.targetStar].y;
                 this.onBase = true;
+                this.baseNumber = this.targetStar;
             }
         };
         this.Draw = function () {
+            const drawY = this.y - (this.ball === null ? 0 : 10);
             if (running) {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
-                gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, drawY, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, drawY, "interface", 64, 0.75);
             } else {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.75);
-                gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, drawY, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, drawY, "interface", 64, 0.75);
             }
         };
         this.GetMiniMapDrawDetails = function() {

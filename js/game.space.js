@@ -150,6 +150,7 @@ class FieldRunHandler extends Handler {
             const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, true, runnerStars);
             b.targetStar = e.baseIdx;
             b.onBase = true;
+            b.baseNumber = e.baseIdx;
             mainHandler.onBasePlayers.push(b);
         });
     }
@@ -171,7 +172,20 @@ class FieldRunHandler extends Handler {
     CatchOut() { // a fielder has caught the ball while the batter was still on it; all players not on bases are out
         BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.onBase).map(e => e.GetRunnerShell());
         if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
-            AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
+            if(BaseStar.data.WasLastInning()) {
+                AnimationHelpers.StartScrollText("GAME SET!", function() { BaseStar.EndGame(); });
+            } else if(BaseStar.data.WasEndOfInning()) {
+                let msg = "NEXT INNING!";
+                console.log(BaseStar.data.inning.inningNumber);
+                switch(BaseStar.data.inning.inningNumber) {
+                    case 1: msg = "SECOND INNING!"; break;
+                    case 2: msg = "FINAL INNING!"; break;
+                    default: msg = "ZONGO BONGO, SOMETHING IS WRONGO!"; break;
+                }
+                AnimationHelpers.StartScrollText(msg, function() { BaseStar.ChangePlaces(); });
+            } else {
+                AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
+            }
         } else {
             this.FinishBatting();
         }

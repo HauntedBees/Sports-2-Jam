@@ -55,7 +55,10 @@ class FieldHandler extends SecondaryHandler {
     TargetRunner() {
         let minDist = -1;
         const runner = this.fullHandler.runner;
+        const onbaseIds = this.fullHandler.runHandler.onBaseRunners.map(e => e.baseNumber);
         this.fielders.forEach((f, i) => {
+            if(f.base < 0) { return; } // only target catchers, not wanderers
+            if(onbaseIds.indexOf(f.base) >= 0) { return; } // only target bases the current runner can actually reach
             const d = Dist(runner.x, runner.y, f.x, f.y);
             if((minDist < 0 || d < minDist) && i !== this.ballFielderIdx) {
                 minDist = d;
@@ -150,6 +153,15 @@ class FieldHandler extends SecondaryHandler {
             }
         }
     }
+    GetPlayerHoldingBallDetails() {
+        let details = null;
+        this.fielders.forEach(e => {
+            if(e.ball !== null) {
+                details = e.GetBallOffset();
+            }
+        });
+        return details;
+    }
     DrawInfoUI() {
         const prefix = this.team.GetLayerPrefix();
         if(prefix === null) { return; }
@@ -168,7 +180,7 @@ class FieldHandler extends SecondaryHandler {
             gfx.WriteEchoPlayerText("Cycle Targets", cx + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             
             gfx.DrawCenteredSprite("sprites", 12, 1, cx + 16, cy + 32, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Target Runner", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            gfx.WriteEchoPlayerText("Target Becomer", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
             gfx.DrawCenteredSprite("sprites", 11, 1, cx + 16, cy + 64, layer, 32, 1);
             gfx.WriteEchoPlayerText("Target Pitcher", cx + 64, cy + 69, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
