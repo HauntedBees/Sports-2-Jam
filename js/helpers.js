@@ -6,6 +6,7 @@ const Either = (a, b, condition1, condition2) => (a === condition1 && b === cond
 const PMult = (p, m) => ({ x: p.x * m, y: p.y * m });
 const PAdd = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
 const PSub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y });
+const InRect = (x, y, rx1, rx2, ry1, ry2) => (x >= rx1 && x <= rx2 && y >= ry1 && y <= ry2);
 const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,

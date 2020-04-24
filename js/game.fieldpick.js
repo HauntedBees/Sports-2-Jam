@@ -38,6 +38,7 @@ class FieldPickHandler extends Handler {
     outfielders = []; ofx = 0; ofy = 0;
     scale = 0.32; maxY = 0;
     leftx = 0; rightx = 0; topy = 0; bottomy = 0;
+    noZoneLeft = 0; noZoneRight = 0; noZoneTop = 0; noZoneBottom = 0;
     boundsMult = 1.5;
     constructor() {
         super();
@@ -103,6 +104,12 @@ class FieldPickHandler extends Handler {
             this.rightx = w;
             this.topy = -h;
             this.bottomy = h;
+            const dx = this.rightx - this.leftx;
+            const dy = this.bottomy - this.topy;
+            this.noZoneLeft = this.leftx + 15 * this.scale;
+            this.noZoneTop = this.topy + dy / 3;
+            this.noZoneBottom = this.topy + dy * 2 / 3;
+            this.noZoneRight = this.leftx + 15 * this.scale + dx / 4;
             this.AddOutfielder(true);
             return false;
         } else if(this.state === 1) {
@@ -124,8 +131,10 @@ class FieldPickHandler extends Handler {
         }
     }
     MoveOutfielder(dx, dy) {
-        this.ofx += 10 * dx;
-        this.ofy += 10 * dy;
+        let newX = this.ofx + 10 * dx, newY = this.ofy + 10 * dy;
+        if(InRect(newX, newY, this.noZoneLeft, this.noZoneRight, this.noZoneTop, this.noZoneBottom)) { return; }
+        this.ofx = newX;
+        this.ofy = newY;
         if(this.ofx > this.rightx) { this.ofx = this.rightx; }
         else if(this.ofx < this.leftx) { this.ofx = this.leftx  ; }
         if(this.ofy > this.bottomy) { this.ofy = this.bottomy; }
@@ -136,8 +145,18 @@ class FieldPickHandler extends Handler {
         if((this.totalOutfielders - this.outfielders.length) === 0) {
             this.state = 2;
         } else {
-            this.ofx = RandRange(this.leftx, this.rightx);
-            this.ofy = RandRange(this.topy, this.bottomy);
+            let attempts = 5;
+            let nx = RandRange(this.leftx, this.rightx), ny = RandRange(this.topy, this.bottomy);
+            while(InRect(nx, ny, this.noZoneLeft, this.noZoneRight, this.noZoneTop, this.noZoneBottom) && --attempts > 0) {
+                nx = RandRange(this.leftx, this.rightx);
+                ny = RandRange(this.topy, this.bottomy);
+            }
+            if(attempts === 0 && InRect(nx, ny, this.noZoneLeft, this.noZoneRight, this.noZoneTop, this.noZoneBottom)) {
+                nx = this.rightx;
+                ny = this.topy;
+            }
+            this.ofx = nx;
+            this.ofy = ny;
         }
     }
     Update() { }
@@ -175,17 +194,25 @@ class FieldPickHandler extends Handler {
         const w = (1000 * this.boundsMult) * this.scale;
         const csx = 320 - w / 4, csy = 340;
         this.DrawConstellation(c, csx, csy, this.scale, 0.5);
+        // borders
         gfx.DrawLineToCameras(csx + this.leftx, csy + this.topy, csx + this.rightx, csy + this.topy, "#00FF00", "interface");
         gfx.DrawLineToCameras(csx + this.leftx, csy + this.bottomy, csx + this.rightx, csy + this.bottomy, "#00FF00", "interface");
         gfx.DrawLineToCameras(csx + this.leftx, csy + this.topy, csx + this.leftx, csy + this.bottomy, "#00FF00", "interface");
         gfx.DrawLineToCameras(csx + this.rightx, csy + this.topy, csx + this.rightx, csy + this.bottomy, "#00FF00", "interface");
+        // no placement zone
+        gfx.DrawLineToCameras(csx + this.noZoneLeft, csy + this.noZoneTop, csx + this.noZoneRight, csy + this.noZoneTop, "#FF0000", "interface");
+        gfx.DrawLineToCameras(csx + this.noZoneLeft, csy + this.noZoneBottom, csx + this.noZoneRight, csy + this.noZoneBottom, "#FF0000", "interface");
+        gfx.DrawLineToCameras(csx + this.noZoneLeft, csy + this.noZoneTop, csx + this.noZoneLeft, csy + this.noZoneBottom, "#FF0000", "interface");
+        gfx.DrawLineToCameras(csx + this.noZoneRight, csy + this.noZoneTop, csx + this.noZoneRight, csy + this.noZoneBottom, "#FF0000", "interface");
 
         this.outfielders.forEach(o => {
-            gfx.DrawCenteredSprite("baseballers", 6, 1, csx + o.x, csy + o.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSprite(this.team.name, 0, 8, csx + o.x, csy + o.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSprite("baseballers", 4, 8, csx + o.x, csy + o.y, "interface", 64, 0.5);
         });
         
         if(this.state === 1) {
-            gfx.DrawCenteredSprite("baseballers", 6, 1, csx + this.ofx, csy + this.ofy, "interface", 64, 0.5);
+            gfx.DrawCenteredSprite(this.team.name, 0, 8, csx + this.ofx, csy + this.ofy, "interface", 64, 0.5);
+            gfx.DrawCenteredSprite("baseballers", 4, 8, csx + this.ofx, csy + this.ofy, "interface", 64, 0.5);
             if(this.ofy < this.bottomy) { gfx.DrawCenteredSprite("sprites", 11, 1, csx + this.ofx, csy + this.ofy + 16, "interface", 32, 0.75); }
             if(this.ofy > this.topy) { gfx.DrawCenteredSprite("sprites", 12, 1, csx + this.ofx, csy + this.ofy - 16, "interface", 32, 0.75); }
             if(this.ofx < this.rightx) { gfx.DrawCenteredSprite("sprites", 13, 1, csx + this.ofx + 16, csy + this.ofy, "interface", 32, 0.75); }
