@@ -18,6 +18,7 @@ const Title = {
         gfx.WriteEchoPlayerText("Licensed by Haunted Bees Productions", 5, 455, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
         gfx.WriteEchoPlayerText("© 2992 Digital Artisinal", 5, 475, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
     },
+    CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
             case controls.pause: 
@@ -291,6 +292,7 @@ const SeriesIndicator = {
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", playerTeam.hx, playerTeam.hy, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
     },
+    CleanUp: function() { this.opponentTeam = null; },
     KeyPress: function(key) {
         switch(key) {
             case controls.pause: 
@@ -371,6 +373,231 @@ const CoinToss = {
         gfx.ClearLayer("interface");
         gfx.DrawSprite("coin", this.coinFrame % 5, Math.floor(this.coinFrame / 5), 288, 208, "interface", 64);
         if(this.state === 1 && ++this.coinFrame >= 25) { this.coinFrame = 0; }
+    }
+};
+const WinScreen = {
+    elems: [], fast: true, isDraw: false, p1Won: false, 
+    Init: function() {
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
+        this.isDraw = BaseStar.data.team1.score === BaseStar.data.team2.score;
+        if(this.isDraw) {
+            this.p1Won = true;
+            gfx.WriteEchoOptionText("DRAW!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+            const dx = 32, cy = 220;
+            for(let i = 0; i < 20; i++) {
+                const div7 = Math.floor(i / 7);
+                const scale = 0.15 * div7;
+                const ix = -3.5 * dx + (i % 7) * dx + (div7 === 2 ? 16: 0);
+                const iy = 20 * div7;
+                gfx.DrawCenteredSprite(BaseStar.data.team1.name, 0, 8, 200 + ix, cy + iy, "background", 64, 0.75 + scale);
+                gfx.DrawCenteredSprite("baseballers", 4, 8, 200 + ix, cy + iy, "background", 64, 0.75 + scale);
+                
+                gfx.DrawCenteredSprite(BaseStar.data.team2.name, 0, 8, 460 + ix, cy + iy, "background", 64, 0.75 + scale);
+                gfx.DrawCenteredSprite("baseballers", 4, 8, 460 + ix, cy + iy, "background", 64, 0.75 + scale);
+            }
+        } else {
+            this.p1Won = BaseStar.data.team1.score > BaseStar.data.team2.score;
+            const winningTeam = this.p1Won ? BaseStar.data.team1 : BaseStar.data.team2;
+            const losingTeam = this.p1Won ? BaseStar.data.team2 : BaseStar.data.team1;
+            if(!BaseStar.data.team2.isPlayerControlled) {
+                if(this.p1Won) {
+                    gfx.WriteEchoOptionText("YOU WIN!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+                } else {
+                    gfx.WriteEchoOptionText("YOU LOSE!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+                }
+            } else {
+                gfx.WriteEchoOptionText("THE WINNER IS...", 320, 80, "text", "#FFFFFF", "#BA66FF", 48);
+                gfx.WriteEchoOptionText(winningTeam.name.toUpperCase(), 320, 120, "text", "#FFFFFF", "#BA66FF", 48);
+            }
+            const dx = 32, cy = 160;
+            for(let i = 0; i < 20; i++) {
+                const div7 = Math.floor(i / 7);
+                const scale = 0.15 * div7;
+                const ix = -3.5 * dx + (i % 7) * dx + (div7 === 2 ? 16: 0);
+                const iy = 20 * div7;
+                gfx.DrawCenteredSprite(losingTeam.name, 0, 8, 338 + ix, cy + iy, "background", 64, 0.75 + scale);
+                gfx.DrawCenteredSprite("baseballers", 4, 8, 338 + ix, cy + iy, "background", 64, 0.75 + scale);
+                const winnerY = RandRange(200, 360);
+                this.elems.push({
+                    team: winningTeam.name,
+                    x: RandRange(-300, -150),
+                    y: winnerY, scale: 0.8 + (winnerY - 200) / 200,
+                    speed: RandFloat(2, 4),
+                    animFrame: 0, animCounter: 0
+                });
+            }
+            this.elems.sort((a, b) => a.y - b.y);
+        }
+        gfx.WriteEchoOptionText("Press any button to continue.", 320, 420, "text", "#FFFFFF", "#BA66FF", 26);
+    },
+    KeyPress: function(key) {
+        switch(key) {
+            case controls.pause: 
+            case controls.confirm:
+            case controls.cancel:
+                this.Continue();
+                break;
+        }
+    },
+    CleanUp: function() { this.elems = []; },
+    Continue: function() {
+        if(BaseStar.data.team2.isPlayerControlled) {
+            // TODO: two player
+        } else if(this.p1Won) {
+            if(++outerGameData.seriesRound >= 5) {
+                game.Transition(SeriesWinScreen);
+            } else {
+                game.Transition(SeriesIndicator);
+            }
+        } else {
+            game.Transition(Title, [0]);
+        }
+    },
+    Update: function() {
+        this.elems.forEach(e => {
+            if(++e.animCounter > 4) { 
+                e.animCounter = 0;
+                e.animFrame++;
+            }
+            e.x += e.speed;
+        });
+    },
+    AnimUpdate: function() {
+        gfx.ClearLayer("interface");
+        this.elems.forEach(e => {
+            gfx.DrawCenteredSprite(e.team, (e.animFrame % 4), 0, e.x, e.y, "interface", 64, e.scale);
+            gfx.DrawCenteredSprite("baseballers", 4 + (e.animFrame % 4), 0, e.x, e.y, "interface", 64, e.scale);
+        });
+    }
+};
+const SeriesWinScreen = {
+    Init: function() {
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
+        gfx.WriteEchoOptionText("OCNGRATULATION!", 320, 50, "text", "#FFFFFF", "#BA66FF", 48);
+        gfx.WriteEchoOptionText("YOU WON THE WHIRLED SERIES!", 320, 80, "text", "#FFFFFF", "#BA66FF", 32);
+        gfx.DrawRectSprite("troph", 0, 0, 320, 250, "background", 328, 382, 0.75, true);
+        const suffix = BaseStar.data.team1.name[BaseStar.data.team1.name.length - 1] === "s" ? "'" : "'s";
+        gfx.WriteEchoOptionText(`The epic highs and lows of the ${BaseStar.data.team1.name}${suffix}`, 320, 430, "text", "#FFFFFF", "#BA66FF", 18);
+        gfx.WriteEchoOptionText(`Basesol career cannot be overstated.`, 320, 455, "text", "#FFFFFF", "#BA66FF", 18);
+    },
+    KeyPress: function(key) {
+        switch(key) {
+            case controls.pause: 
+            case controls.confirm:
+            case controls.cancel:
+                game.Transition(Title, [0]);
+                break;
+        }
+    },
+    Update: function() { },
+    AnimUpdate: function() {
+
+    }
+};
+const Credits = {
+    elems: [], fast: true, freeMovement: true,  
+    Init: function() {
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
+        this.speedupCounter = 0;
+        this.scroll = 0;
+        this.elems = [];
+        let dy = 500;
+        const AddSomething = (t, size, addy) => {
+            this.elems.push({ text: t, size: size, y: dy });
+            dy += addy;
+        };
+        const AddHeading = t => AddSomething(t, 28, 40);
+        const AddSubHeading = t => AddSomething(t, 22, 38);
+        const AddText = t => AddSomething(t, 20, 36);
+        const Whitespace = i => dy += 20 * (i || 1);
+
+        AddHeading("Zenn Halsey Basesol '93");
+        AddSubHeading("By Haunted Bees Productions");
+        AddSubHeading("for the Sports 2 Game Jam");
+        Whitespace(2);
+        AddHeading("Programming");
+        AddText("Sean Finch");
+        Whitespace(1);
+        AddHeading("Graphics");
+        AddText("Sean Finch");
+        Whitespace(1);
+        AddHeading("Game Design");
+        AddText("Sean Finch");
+        AddText("Skyler Johnson");
+        Whitespace(1);
+        AddHeading("Additional Credits");
+        AddText(`"3D Man Running Eight Directions"`);
+        AddText(`by Randy Tayler (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"Trophy"`);
+        AddText(`by Jeremy Woods (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"Retro Gaming" Font`);
+        AddText(`by Daymarius`);
+        Whitespace(0.5);
+        AddText(`"Another Space Backgrounds"`);
+        AddText(`by Rawdanitsu (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"Cleveland Browns New Uniform Unveiling"`);
+        AddText(`by Erik Drost (CC BY 2.0 License)`);
+        Whitespace(0.5);
+        AddText(`meSpeak.js`);
+        AddText(`by Norbert Landsteiner (GNU GPLv3 License)`);
+        Whitespace(0.5);
+        AddText(`Box2DWeb`);
+        AddText(`by Erin Catto (zlib/MIT License)`);
+        Whitespace(1);
+        AddHeading("Special Thanks");
+        AddText("CC Contreras");
+        AddText("Skyler Johnson");
+        AddText("Laura Billard");
+        AddText("Sheila Pollard");
+        AddText("Kelly Marine");
+        AddText("Madison Stemm");
+        AddText("Drishti Nand");
+        AddText("Catrina Fuentes");
+        AddText("Mental Grain");
+        AddText("Fabien Chereau");
+        AddText("Guillaume Chereau");
+        AddText("Andrew W.K.");
+        Whitespace(1);
+        AddText("and YOU!");
+        Whitespace(4);
+        this.dontSkip = this.elems.length;
+        AddText("© 2020 Haunted Bees Productions");
+        AddText("Proudly Free and Open Source Software");
+        AddText("Sharing is Caring!");
+        AddText("Find the game's source code on GitHub!");
+    },
+    CleanUp: function() { this.elems = []; },
+    KeyPress: function(key) {
+        switch(key) {
+            case controls.pause: return game.Transition(Title, [0]);
+            case controls.confirm:
+                if(this.scroll < 2000) {
+                    this.speedupCounter = (this.speedupCounter > 50) ? 0 : 500;
+                } else {
+                    game.Transition(Title, [0]);
+                }
+                break;
+            case controls.cancel:
+            case controls.down:
+                this.speedupCounter = 5;
+                break;
+        }
+    },
+    Update: function() {
+        this.scroll += (this.speedupCounter-- > 0) ? 4 : 1;
+    },
+    AnimUpdate: function() {
+        gfx.ClearLayer("text");
+        const dy = this.scroll;
+        this.elems.forEach((e, i) => {
+            let y = e.y - dy;
+            if(dy > 2030 && i >= this.dontSkip) { y = e.y - 2030; }
+            if(y < -20 || y > 500) { return; }
+            gfx.WriteEchoOptionText(e.text, 320, y, "text", "#FFFFFF", "#0000FF", e.size);
+        });
     }
 };
 
@@ -470,6 +697,7 @@ const Shell = {
     Init: function(s) {
 
     },
+    CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
             case controls.pause: 

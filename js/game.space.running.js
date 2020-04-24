@@ -18,7 +18,7 @@ class RunHandler extends SecondaryHandler {
             this.runner.Dash();
         }
     }
-    IsSafe() { return this.runner.atBase && this.onBaseRunners.every(e => e.atBase); }
+    IsSafe() { return this.runner.onBase && this.onBaseRunners.every(e => e.onBase); }
     AimForNextStar(dir) {
         if(this.runner.ball !== null) { return; }
         const len = this.runner.stargets.length;
@@ -74,7 +74,7 @@ class RunHandler extends SecondaryHandler {
             const scale = 1 + Math.sin(this.animCounter) / 4;
             gfx.DrawClampedSpriteToCameras("r_UI", "sprites", 8, 2, 11, 3, prevStar.x + 8, prevStar.y - 32, "overlay", 32, scale);
             gfx.DrawClampedSpriteToCameras("r_UI", "sprites", 9, 2, 11, 3, nextStar.x + 8, nextStar.y - 32, "overlay", 32, scale);
-            if(this.runner.atBase) {
+            if(this.runner.onBase) {
                 gfx.DrawClampedSpriteToCameras("r_UI", "sprites", 9, 0, 11, 3, currStar.x + 8, currStar.y - 32, "overlay", 32, scale);
                 gfx.DrawClampedSpriteToCameras("r_UI", "sprites", 10, 2, 11, 3, currStar.x + 8, this.runner.y - 56, "overlay", 32, scale);
             } else {

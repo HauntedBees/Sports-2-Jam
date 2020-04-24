@@ -36,6 +36,11 @@ const BaseStar = {
         gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay", "text"]);
         this.subhandler.AnimUpdate();
     },
+    EndGame: function() {
+        this.subhandler.CleanUp();
+        this.subhandler = null;
+        game.Transition(WinScreen);
+    },
     ChangePlaces: function() {
         this.data.SwitchTeams();
         this.SwitchHandler(AtBatHandler);
@@ -85,7 +90,7 @@ const game = {
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
         gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", 
                                      "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations",
-                                     "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter"], function() {
+                                     "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], function() {
             document.addEventListener("keypress", input.keyPress);
             document.addEventListener("keydown", input.keyDown);
             document.addEventListener("keyup", input.keyUp);
@@ -105,6 +110,7 @@ const game = {
     },
     Transition: function(newscene, args) {
         const wasFast = game.currentHandler.fast || false;
+        if(game.currentHandler.CleanUp !== undefined) { game.currentHandler.CleanUp(); }
         game.currentHandler = newscene;
         gfx.ClearAll();
         if(wasFast && !newscene.fast) {

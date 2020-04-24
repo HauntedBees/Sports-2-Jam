@@ -24,6 +24,8 @@ class GameData {
         else { this.team2.score += score; }
         this.inning.playersOnBase = [];
     }
+    WasLastInning() { return this.inning.inningNumber === 3 && this.inning.bothTeamsBatted; }
+    WasEndOfInning() { return this.inning.bothTeamsBatted; }
 }
 function InningData() {
     this.inningNumber = 1;
