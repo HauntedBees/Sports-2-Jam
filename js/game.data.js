@@ -65,6 +65,7 @@ function InningData() {
 function Team(player, idx, isPlayerControlled) {
     const teamInfo = TeamInfo[idx];
     gfx.TintSheet("baseballers", teamInfo.color, teamInfo.name);
+    gfx.FlipSheet(teamInfo.name);
     gfx.TintSheet("bigsprites", teamInfo.color, teamInfo.name + "_big");
     gfx.TintSheet("pitcher", teamInfo.color, teamInfo.name + "_pitcher");
     gfx.TintSheet("batter", teamInfo.color, teamInfo.name + "_batter");

@@ -364,11 +364,16 @@ class FieldRunHandler extends Handler {
             gfx.DrawCenteredSpriteToCameras("star", "sprites", data.powerIdx, 0, m2p(pos.x), m2p(pos.y), "interface", 32);
         });
         this.runHandler.AnimUpdate();
-
-        const pos = this.ball.GetWorldCenter();
-        const linearVelocity = this.ball.GetLinearVelocity();
-        const sx = this.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
-        gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
+    
+        const fieldHoldingInfo = this.fieldHandler.GetPlayerHoldingBallDetails();
+        if(fieldHoldingInfo !== null) {
+            gfx.DrawCenteredSpriteToCameras("ball", "sprites", 0, 2, fieldHoldingInfo.x, fieldHoldingInfo.y, "interface", 32);
+        } else {
+            const pos = this.ball.GetWorldCenter();
+            const linearVelocity = this.ball.GetLinearVelocity();
+            const sx = this.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
+            gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
+        }
 
         gfx.DrawHUDRectToCameras(155, 1, 484, 100, "#FFFFFF", "#000000", "overlay");
         this.minimap.Draw();

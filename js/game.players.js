@@ -23,8 +23,9 @@ class Player {
     }
 }
 class Fielder extends Player {
-    pitcher = false;
-    base = -1;
+    pitcher = false; catchDir = 0; base = -1;
+    force = { x: 0, y: 0 };
+    caughtBallTimer = 0; throwAnimState = 0;
     constructor(teamname, playerInfo, x, y, type, radius) {
         super(teamname, playerInfo, x, y, type, radius);
         this.Update = function () {
@@ -42,7 +43,16 @@ class Fielder extends Player {
     }
     CatchBall(ball) {
         this.ball = ball;
-        console.log("CAUGHT");
+        console.log("CAUIGHT!");
+        console.log(m2p(this.ball.GetWorldCenter().x));
+        console.log(this.x);
+        if(m2p(this.ball.GetWorldCenter().x) > this.x) {
+            this.catchDir = 0;
+        } else {
+            this.catchDir = 1;
+        }
+        this.caughtBallTimer = 5;
+        this.force = { x: 0, y: 0 };
         const ballData = this.ball.GetUserData();
         ballData.held = true;
         ballData.lastFielder = undefined;
@@ -51,6 +61,7 @@ class Fielder extends Player {
     ThrowBall(target) {
         if (this.ball === null) { return; }
         const dx = target.x - this.x, dy = target.y - this.y;
+        this.catchDir = dx < 0 ? 1 : 0;
         const magnitude = Math.sqrt(dx * dx + dy * dy);
         const force = new b2Vec2(dx / magnitude, dy / magnitude);
         force.Multiply(20);
@@ -62,14 +73,17 @@ class Fielder extends Player {
         ballData.generateParticles = true;
         ballData.nextForce = force;
         this.ball = null;
+        this.throwAnimState = 2;
     }
     Move(x, y) {
         this.x += x;
         this.y += y;
     }
+    GetBallOffset() {
+        return { x: this.x, y : this.y };
+    };
 }
 class Outfielder extends Fielder {
-    force = { x: 0, y: 0 };
     angle = 0;
     constructor(team, playerInfo, x, y) {
         super(team, playerInfo, x, y, "outfielder", 25);
@@ -89,6 +103,8 @@ class Outfielder extends Fielder {
             else if(angle < 0) { angle += 360; }
             sy = Math.floor(angle / 45);
 
+            if(this.caughtBallTimer > 0) { this.caughtBallTimer--; }
+            if(this.throwAnimState > 0) { this.throwAnimState--; }
             moving = this.force.x !== 0 || this.force.y !== 0;
             if(moving) {
                 if(this.force.x !== 0 && this.force.y !== 0) {
@@ -101,7 +117,25 @@ class Outfielder extends Fielder {
             }
         }
         this.Draw = function () {
-            if (moving) {
+            if(this.throwAnimState > 0) {
+                if(this.catchDir === 1) { // throwing to left
+                    const sx = this.throwAnimState === 2 ? 2 : 3;
+                    gfx.DrawCenteredSpriteToCameras("player", this.team, sx, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", "baseballers", sx + 4, 8, this.x, this.y, "interface", 64, 0.75);
+                } else { // throwing to right
+                    const sx = this.throwAnimState === 2 ? 5 : 4;
+                    gfx.DrawCenteredSpriteToCameras("player", this.team + "flip", sx, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", "baseballersflip", sx - 4, 8, this.x, this.y, "interface", 64, 0.75);
+                }
+            } else if(this.caughtBallTimer > 0) {
+                if(this.catchDir === 1) { // caught from left
+                    gfx.DrawCenteredSpriteToCameras("player", this.team, 1, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", "baseballers", 5, 8, this.x, this.y, "interface", 64, 0.75);
+                } else { // caught from right
+                    gfx.DrawCenteredSpriteToCameras("player", this.team + "flip", 6, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", "baseballersflip", 2, 8, this.x, this.y, "interface", 64, 0.75);
+                }
+            } else if (moving) {
                 gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
                 gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, this.y, "interface", 64, 0.75);
             } else {
@@ -111,9 +145,17 @@ class Outfielder extends Fielder {
         };
     }
     Move(x, y) {
+        if(this.caughtBallTimer > 0) { return; }
         this.force.x += x;
         this.force.y += y;
     }
+    GetBallOffset() {
+        if(this.caughtBallTimer > 0) {
+            return { x: this.x + (this.catchDir === 1 ? 15 : -15), y : this.y - 15 };
+        } else {
+            return { x: this.x - 2, y : this.y + 5 };
+        }
+    };
 }
 class Pitcher extends Outfielder {
     constructor(team, playerInfo, x, y) {

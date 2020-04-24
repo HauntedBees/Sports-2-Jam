@@ -3,6 +3,7 @@ const Title = {
     animFrame: 0, animCounter: 0,
     Init: function(state) {
         gfx.FlipSheet("helmets");
+        gfx.FlipSheet("baseballers");
         this.animFrame = 0;
         this.animCounter = 0;
         if(state !== undefined) {
