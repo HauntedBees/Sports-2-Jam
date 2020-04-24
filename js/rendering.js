@@ -32,6 +32,8 @@ const gfx = {
 
     TintSheet: /** @param {string} sheetName @param {string} tint @param {string} [name] */
     function(sheetName, tint, name) {
+        name = name || sheetName + "tint";
+        if(gfx.spritesheets[name] !== undefined) { return; }
         const sheet = gfx.spritesheets[sheetName];
         const canvas = document.createElement("canvas");
         canvas.width = sheet.width;
@@ -41,7 +43,6 @@ const gfx = {
         ctx.globalCompositeOperation = "source-atop";
         ctx.fillStyle = tint;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        name = name || sheetName + "tint";
         gfx.spritesheets[name] = canvas;
     },
     FlipSheet: /** @param {string} sheetName */
@@ -201,7 +202,7 @@ const gfx = {
        const sheet = gfx.spritesheets[sheetpath];
        const startX = sx * width;
        const startY = sy * height;
-       gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, width, height, x - (centered ? (width / 2) : 0), y - (centered ? (height / 2) : 0), width * scale, height * scale);
+       gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, width, height, x - (centered ? (scale * width / 2) : 0), y - (centered ? (scale * height / 2) : 0), width * scale, height * scale);
     },
 
     DrawMapCharacter: /** @param {number} x @param {number} y @param {{ x: number; y: number; }} offset @param {string} sheet @param {number} w @param {number} h @param {string} layer @param {number} sx @param {number} sy */
