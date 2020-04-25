@@ -274,7 +274,7 @@ class FieldRunHandler extends Handler {
                 frame: Math.floor(Math.random() * 1), 
                 timer: Math.ceil(Math.random() * 6), 
             });
-            if(BaseStar.particles.length > 1000) { BaseStar.particles.shift(); } // TODO: weak CPU mode
+            if((!playerOptions["particles"].value && BaseStar.particles.length > 20) || BaseStar.particles.length > 1000) { BaseStar.particles.shift(); }
         }
         if(ballData.held) {
             this.ball.SetActive(false);

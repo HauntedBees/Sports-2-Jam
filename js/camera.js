@@ -129,9 +129,11 @@ class MiniMap {
     Draw() { // TODO: UI just for runner or fielders
         gfx.ClearLayer("minimap");
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "minimap", 0, 0);
-        BaseStar.particles.forEach(p => {
-            this.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
-        });
+        if(playerOptions["particles"].value) {
+            BaseStar.particles.forEach(p => {
+                this.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
+            });
+        }
         this.space.stars.forEach(star => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
             this.DoSprite("sprites", data.powerIdx, 0, 32, pos, true, 0.2);

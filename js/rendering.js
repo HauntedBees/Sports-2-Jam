@@ -217,7 +217,7 @@ const gfx = {
     },
 
     WriteEchoPlayerText: /** @param {string} t @param {number} x @param {number} y @param {number} maxLen @param {string} layer @param {string} topColor @param {string} bottomColor @param {number} size @param {CanvasTextAlign} alignment */
-   function(t, x, y, maxLen, layer, topColor, bottomColor, size, alignment) {
+    function(t, x, y, maxLen, layer, topColor, bottomColor, size, alignment) {
         const ctx = gfx.ctx[layer];
         ctx.font = size + "px Retro";
         let name = t;
@@ -226,6 +226,7 @@ const gfx = {
         }
        gfx.WritePlayerTextInner(name, x + 1, y + 1, layer, bottomColor, size, alignment);
        gfx.WritePlayerTextInner(name, x, y, layer, topColor, size, alignment);
+       return ctx.measureText(name).width;
    },
 
    WritePlayerTextInner: /** @param {string} t @param {number} x @param {number} y @param {string} layer  @param {string} color @param {number} size @param {CanvasTextAlign} alignment */
@@ -241,7 +242,7 @@ const gfx = {
     WriteEchoOptionText: /** @param {string} t @param {number} x @param {number} y @param {string} layer @param {string} topColor @param {string} bottomColor @param {number} size */
     function(t, x, y, layer, topColor, bottomColor, size) {
         gfx.WriteOptionText(t, x + 1, y + 1, layer, bottomColor, size);
-        gfx.WriteOptionText(t, x, y, layer, topColor, size);
+        return gfx.WriteOptionText(t, x, y, layer, topColor, size);
     },
 
     WriteOptionText: /** @param {string} t @param {number} x @param {number} y @param {string} layer @param {string} color @param {number} size */

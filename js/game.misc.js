@@ -71,6 +71,7 @@ const Title = {
         switch(this.selection) {
             case 0: return game.Transition(TeamSelection, [1]);
             case 1: return this.ShowMultiplayerChoices();
+            case 2: return game.Transition(OptionsScreen, []);
         }
     },
     ToggleSelection: function(dir) {

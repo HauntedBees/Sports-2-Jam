@@ -5,6 +5,7 @@ const SpeakHandler = {
     Speak: function(text, person) {
         person = person || "Zenn";
         console.log(`${person}: ${text}`);
+        if(!playerOptions["voice"].value) { return; }
         //meSpeak.speak(text, SpeakHandler.Speakers[person]);
     },
     Stop: function() {
@@ -34,6 +35,7 @@ const Sounds = {
     },
     PlaySong: /** @param {string} name persist @param {number} [forcedVolume] */
     function(name, forcedVolume) {
+        if(!playerOptions["music"].value) { return; }
         console.log(`Now Playing: ${name}`);
         Sounds.ActiveSongs.push(name);
         Sounds.SoundTable[name].currentTime = 0;
@@ -42,6 +44,7 @@ const Sounds = {
     },
     PlaySound: /** @param {string} name @param {boolean} persistTransition @param {number} [forcedVolume] */
     function(name, persistTransition, forcedVolume) {
+        if(!playerOptions["sound"].value) { return; }
         console.log(`Now Playing: ${name}`);
         if(!persistTransition) { Sounds.ActiveSoundEffects.push(name); }
         Sounds.SoundTable[name].currentTime = 0;
