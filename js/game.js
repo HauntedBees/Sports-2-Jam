@@ -72,7 +72,16 @@ const outerGameData = {
 const game = {
     /** @type BaseHandler */ currentHandler: null,
     animIdx: 0, updateIdx: 0, paused: false, 
-    Start: function() {
+    Start: function(addAwaiter) {
+        if(addAwaiter) {
+            const aw = document.getElementById("awaiter");
+            aw.style["display"] = "block";
+            aw.addEventListener("click", function() {
+                aw.style["display"] = "none";
+                game.Start(false);
+            });
+            return;
+        }
         game.currentHandler = Title;
         const canvasLayers = ["background", "background2", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
                               "p2background", "p2background2", "p2debug", "p2interface", "p2overlay", "p2text", "p2specialanim"];
