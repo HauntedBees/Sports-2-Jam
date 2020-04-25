@@ -109,6 +109,7 @@ const game = {
         game.currentHandler.Update();
     },
     Transition: function(newscene, args) {
+        Sounds.EndAll();
         const wasFast = game.currentHandler.fast || false;
         if(game.currentHandler.CleanUp !== undefined) { game.currentHandler.CleanUp(); }
         game.currentHandler = newscene;
