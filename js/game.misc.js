@@ -17,6 +17,7 @@ const Title = {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "title", 640, 480, "background", 0, 0);
         gfx.WriteEchoPlayerText("Licensed by Haunted Bees Productions", 5, 455, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
         gfx.WriteEchoPlayerText("© 2992 Digital Artisinal", 5, 475, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
+        Sounds.PlaySong("title");
     },
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
@@ -29,6 +30,7 @@ const Title = {
         }
     },
     Confirm: function() {
+        Sounds.PlaySound("confirm", true);
         switch(this.state) {
             case 0: 
                 SpeakHandler.Speak("Let's play some Base Sol!");
@@ -44,6 +46,7 @@ const Title = {
     },
     Cancel: function() {
         if(this.state === 2) {
+            Sounds.PlaySound("cancel", true);
             this.selection = 1;
             this.ShowChoices();
         }
@@ -527,14 +530,12 @@ const Credits = {
         AddText("Skyler Johnson");
         Whitespace(1);
         AddHeading("Additional Credits");
+        
         AddText(`"3D Man Running Eight Directions"`);
         AddText(`by Randy Tayler (CC0 License)`);
         Whitespace(0.5);
         AddText(`"Trophy"`);
         AddText(`by Jeremy Woods (CC0 License)`);
-        Whitespace(0.5);
-        AddText(`"Retro Gaming" Font`);
-        AddText(`by Daymarius`);
         Whitespace(0.5);
         AddText(`"Another Space Backgrounds"`);
         AddText(`by Rawdanitsu (CC0 License)`);
@@ -542,12 +543,27 @@ const Credits = {
         AddText(`"Cleveland Browns New Uniform Unveiling"`);
         AddText(`by Erik Drost (CC BY 2.0 License)`);
         Whitespace(0.5);
+        AddText(`"Retro Gaming" Font`);
+        AddText(`by Daymarius`);
+        Whitespace(0.5);
+        
+        AddText(`"Awake! (Megawall-10)"`);
+        AddText(`by Cynic Music (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"7 Assorted Sound Effects"`);
+        AddText(`by Joth (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"Play Ball! v2.wav"`);
+        AddText(`by CGEffex (CC BY 3.0 License)`);
+        Whitespace(0.5);
+
         AddText(`meSpeak.js`);
         AddText(`by Norbert Landsteiner (GNU GPLv3 License)`);
         Whitespace(0.5);
         AddText(`Box2DWeb`);
         AddText(`by Erin Catto (zlib/MIT License)`);
         Whitespace(1);
+
         AddHeading("Special Thanks");
         AddText("CC Contreras");
         AddText("Skyler Johnson");
@@ -565,6 +581,7 @@ const Credits = {
         AddText("and YOU!");
         Whitespace(4);
         this.dontSkip = this.elems.length;
+        this.topy = dy - 200;
         AddText("© 2020 Haunted Bees Productions");
         AddText("Proudly Free and Open Source Software");
         AddText("Sharing is Caring!");
@@ -576,7 +593,7 @@ const Credits = {
             case controls.pause: return game.Transition(Title, [0]);
             case controls.confirm:
                 if(this.scroll < 2000) {
-                    this.speedupCounter = (this.speedupCounter > 50) ? 0 : 500;
+                    this.speedupCounter = (this.speedupCounter > 50) ? 0 : 660;
                 } else {
                     game.Transition(Title, [0]);
                 }
@@ -595,7 +612,7 @@ const Credits = {
         const dy = this.scroll;
         this.elems.forEach((e, i) => {
             let y = e.y - dy;
-            if(dy > 2030 && i >= this.dontSkip) { y = e.y - 2030; }
+            if(dy > this.topy && i >= this.dontSkip) { y = e.y - this.topy; }
             if(y < -20 || y > 500) { return; }
             gfx.WriteEchoOptionText(e.text, 320, y, "text", "#FFFFFF", "#0000FF", e.size);
         });
