@@ -31,7 +31,8 @@ const BaseStar = {
         //GetDebugFunkoPop(); this.SwitchHandler(AtBatHandler);
     },
     KeyPress: function(key) { this.subhandler.KeyPress(key); },
-    Update: function() { this.subhandler.Update(); },
+    //Update: function() { this.subhandler.Update(); },
+    Update: function() { if(!debuggo.fuckTheRules) { this.subhandler.Update(); } },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay", "text"]);
         this.subhandler.AnimUpdate();
@@ -69,82 +70,88 @@ const outerGameData = {
     team1Idx: 0, team2Idx: 0,
     seriesLineup: [], seriesRound: 0
 };
-const game = {
-    /** @type BaseHandler */ currentHandler: null,
-    animIdx: 0, updateIdx: 0, paused: false, 
-    Start: function(addAwaiter) {
+class Game {
+    paused = false;
+    animIdx = 0; updateIdx = 0;
+    /** @type {BaseHandler} */ currentHandler = null;
+    /** @type {InputHandler} */ inputHandler =  null;
+    /** @type {GameInput} */ p1c =  null;
+    /** @type {GameInput} */ p2c = null;
+    Initialize(addAwaiter) {
         if(addAwaiter) {
+            const me = this;
             const aw = document.getElementById("awaiter");
             aw.style["display"] = "block";
             aw.addEventListener("click", function() {
                 aw.style["display"] = "none";
-                game.Start(false);
+                me.Initialize();
             });
             return;
-        }
-        game.currentHandler = Title;
+        } 
+        this.currentHandler = Title;
         const canvasLayers = ["background", "background2", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
                               "p2background", "p2background2", "p2debug", "p2interface", "p2overlay", "p2text", "p2specialanim"];
         /** @type {{[key:string] : HTMLCanvasElement }} */ 
-        let canvasObj = {};
+        const canvasObj = {};
         for(let i = 0; i < canvasLayers.length; i++) {
             const name = canvasLayers[i];
             canvasObj[name] = /** @type {HTMLCanvasElement} */ (document.getElementById(name));
         }
         /** @type {{[key:string] : CanvasRenderingContext2D }} */ 
-        let contextObj = {};
+        const contextObj = {};
         for(const key in canvasObj) {
             contextObj[key] = canvasObj[key].getContext("2d");
         }
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
+        const game = this;
         gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "controller",
                                      "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations",
                                      "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], function() {
-            document.addEventListener("keypress", input.keyPress);
-            document.addEventListener("keydown", input.keyDown);
-            document.addEventListener("keyup", input.keyUp);
-            //window.addEventListener("gamepadconnected", input.gamepadConnected);
-            //window.addEventListener("gamepaddisconnected", input.gamepadDisconnected);
-            game.animIdx = setInterval(game.AnimUpdate, fpsAnim);
-            game.updateIdx = setInterval(game.Update, fpsUpdate);
+            game.inputHandler = new InputHandler();
+            game.p1c = game.inputHandler.controlSets[0];
+            game.p2c = game.inputHandler.controlSets[1];
+            game.animIdx = setInterval(function() { game.AnimUpdate(); }, fpsAnim);
+            game.updateIdx = setInterval(function() { game.Update(); }, fpsUpdate);
             Title.Init();
         });
-    },
-    AnimUpdate: function() {
-        if(game.currentHandler === null) { return; }
+    }
+    AnimUpdate() {
+        if(this.currentHandler === null) { return; }
         gfx.ClearLayer("minimap");
-        game.currentHandler.AnimUpdate();
-    },
-    Update: function() {
-        if(game.currentHandler === null) { return; }
-        game.currentHandler.Update();
-    },
-    Transition: function(newscene, args) {
+        this.currentHandler.AnimUpdate();
+    }
+    Update() {
+        if(this.currentHandler === null) { return; }
+        this.currentHandler.Update();
+    }
+    Transition(newHandler, args) {
         Sounds.EndAll();
-        const wasFast = game.currentHandler.fast || false;
-        if(game.currentHandler.CleanUp !== undefined) { game.currentHandler.CleanUp(); }
-        game.currentHandler = newscene;
+        const wasFast = this.currentHandler.fast || false;
+        if(this.currentHandler.CleanUp !== undefined) { this.currentHandler.CleanUp(); }
+        this.currentHandler = newHandler;
         gfx.ClearAll();
-        if(wasFast && !newscene.fast) {
-            clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, fpsUpdate);
-        } else if(!wasFast && newscene.fast) {
-            clearInterval(game.updateIdx);
-            game.updateIdx = setInterval(game.Update, fpsAnim);
+        if(wasFast && !newHandler.fast) {
+            clearInterval(this.updateIdx);
+            this.updateIdx = setInterval(function() { game.Update(); }, fpsUpdate);
+        } else if(!wasFast && newHandler.fast) {
+            clearInterval(this.updateIdx);
+            this.updateIdx = setInterval(function() { game.Update(); }, fpsAnim);
         }
         if(args === undefined) {
-            game.currentHandler.Init();
+            this.currentHandler.Init();
         } else {
-            game.currentHandler.Init(...args);
+            this.currentHandler.Init(...args);
         }
     }
-};
+}
+const game = new Game();
+
 const BaseHandler = {
     Init: function(...args) {},
     KeyPress: function(key) {},
     Update: function() {},
     AnimUpdate: function() {}
-};
+};  
 class Handler {
     freeMovement = false;
     freeMovement2 = false;
@@ -155,7 +162,7 @@ class Handler {
     CleanUp() {}
 }
 class SecondaryHandler extends Handler {
-    /** @type {Object} */ myControls = null;
+    /** @type {GameInput} */ myControls = null;
     /** @type {Team} */ team = null;
     /** @param {Team} team */
     constructor(team) {

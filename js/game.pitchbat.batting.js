@@ -8,8 +8,8 @@ class BatHandler extends SecondaryHandler {
     AwaitBall() { this.state = 3; }
     KeyPress(key) {
         switch(key) {
-            case this.myControls.pause: 
-            case this.myControls.confirm:
+            case this.myControls["pause"]: 
+            case this.myControls["confirm"]:
                 if(this.state === 0) {
                     this.state = 1;
                     this.dir = 5 * Math.sin(this.dirCursorCounter);
@@ -23,10 +23,10 @@ class BatHandler extends SecondaryHandler {
                     this.swingState = 1;
                 }
                 break;
-            case this.myControls.left:
+            case this.myControls["left"]:
                 if(this.state === 2 || this.state === 3) { this.dx = Math.max(this.dx - 1, -20); }
                 break;
-            case this.myControls.right:
+            case this.myControls["right"]:
                 if(this.state === 2 || this.state === 3) { this.dx = Math.min(this.dx + 1, 20); }
                 break;
         }

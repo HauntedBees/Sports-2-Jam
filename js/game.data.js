@@ -83,8 +83,8 @@ function Team(player, idx, isPlayerControlled) {
         return isPlayerControlled ? "p2" : null;
     };
     this.GetControls = function() {
-        if(player === 1) { return controls; }
-        return isPlayerControlled ? controls2 : {};
+        if(player === 1) { return game.p1c; }
+        return isPlayerControlled ? game.p2c : NPCInput;
     };
     this.GetConstellations = function() { return teamInfo.constellations; }
 };

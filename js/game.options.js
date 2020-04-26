@@ -25,15 +25,15 @@ const OptionsScreen = {
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.cancel:
+            case game.p1c["pause"]: 
+            case game.p1c["cancel"]:
                 this.selection = this.elems.length + 1;
                 break;
-            case controls.confirm: return this.ToggleOption();
-            case controls.left: return this.ToggleOption(false);
-            case controls.right: return this.ToggleOption(true);
-            case controls.down: return this.NavigateOptions(1);
-            case controls.up: return this.NavigateOptions(-1);
+            case game.p1c["confirm"]: return this.ToggleOption();
+            case game.p1c["left"]: return this.ToggleOption(false);
+            case game.p1c["right"]: return this.ToggleOption(true);
+            case game.p1c["down"]: return this.NavigateOptions(1);
+            case game.p1c["up"]: return this.NavigateOptions(-1);
         }
     },
     ToggleOption: function(forcedVal) {
@@ -88,11 +88,11 @@ const ControlsScreen = {
     Init: function() {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteEchoOptionText("Controls", 320, 32, "background", "#FFFFFF", "#BA66FF", 24);
-        const controlKeys = Object.keys(controls);
+        const controlKeys = Object.keys(game.p1c.currentControls);
         gfx.WriteEchoOptionText("Player 1", this.x1, this.GetY(-0.9), "background", "#FFFFFF", "#BA66FF", this.optionFontSize);
         gfx.WriteEchoOptionText("Player 2", this.x2, this.GetY(-0.9), "background", "#FFFFFF", "#BA66FF", this.optionFontSize);
         controlKeys.forEach((key, i) => {
-            const p1Control = controls[key], p2Control = controls2[key];
+            const p1Control = game.p1c.currentControls[key], p2Control = game.p2c.currentControls[key];
             gfx.WriteEchoPlayerText(key.toUpperCase(), this.x0, this.GetY(i), 300, "background", "#FFFFFF", "#0000AA", this.optionFontSize, "right");
             this.elems.push([key, p1Control, p2Control]);
         });
@@ -102,45 +102,44 @@ const ControlsScreen = {
     KeyPress: function(key) {
         if(this.changing) { return this.ConfirmNewKey(key); }
         switch(key) {
-            case controls.cancel: 
-            case controls.pause: 
+            case game.p1c["cancel"]: 
+            case game.p1c["pause"]: 
                 this.sy = this.elems.length;
                 break;
             case " ":
-            case controls.confirm:
+            case game.p1c["confirm"]:
                 Sounds.PlaySound("confirm", true);
                 if(this.sy === this.elems.length) {
                     return game.Transition(OptionsScreen, [true]);
                 } else {
-                    input.forceCleanKeyPress = true;
+                    game.inputHandler.forceCleanKeyPress = true;
                     this.changing = true;
                 }
                 break;
             case "ArrowDown":
-            case controls.down: return this.MoveCursor(0, 1);
+            case game.p1c["down"]: return this.MoveCursor(0, 1);
             case "ArrowUp":
-            case controls.up: return this.MoveCursor(0, -1);
+            case game.p1c["up"]: return this.MoveCursor(0, -1);
             case "ArrowLeft":
-            case controls.left: return this.MoveCursor(-1, 0);
+            case game.p1c["left"]: return this.MoveCursor(-1, 0);
             case "ArrowRight":
-            case controls.right: return this.MoveCursor(1, 0);
+            case game.p1c["right"]: return this.MoveCursor(1, 0);
         }
     },
     ConfirmNewKey(key) {
         Sounds.PlaySound("confirm", false);
-        input.forceCleanKeyPress = false;
+        game.inputHandler.forceCleanKeyPress = false;
         this.changing = false;
         const selection = this.elems[this.sy];
         const keyKey = selection[0];
         if(this.sx === 0) {
-            controls[keyKey] = key;
+            game.p1c.ChangeInputBinding(keyKey, key);
             selection[1] = key;
         } else {
-            controls2[keyKey] = key;
+            game.p2c.ChangeInputBinding(keyKey, key);
             selection[2] = key;
         }
-        ResetControlsArrays();
-        input.ignoreNextKeyPress = true;
+        game.inputHandler.ignoreNextKeyPress = true;
     },
     MoveCursor(dx, dy) {
         if(this.changing) { return; }
@@ -156,6 +155,34 @@ const ControlsScreen = {
         if(sx === this.sx && sy === this.sy && this.changing) { return ">PRESS KEY<"; }
         if(key === " ") { return "Space"; }
         if(key.indexOf("Arrow") === 0) { return key.replace("Arrow", "") + " Arrow"; }
+        if(key.indexOf("Gamepad") === 0) {
+            switch(key) {
+                case "Gamepad12": return "Dir Up";
+                case "Gamepad13": return "Dir Down";
+                case "Gamepad14": return "Dir Left";
+                case "Gamepad15": return "Dir Right";
+                case "Gamepad0": return "A Btn";
+                case "Gamepad1": return "B Btn";
+                case "Gamepad2": return "X Btn";
+                case "Gamepad3": return "Y Btn";
+                case "Gamepad4": return "L Btn";
+                case "Gamepad5": return "R Btn";
+                case "Gamepad6": return "L2 Btn";
+                case "Gamepad7": return "R2 Btn";
+                case "Gamepad8": return "Back Btn";
+                case "Gamepad9": return "Start Btn";
+                case "Gamepad10": return "L3 Btn";
+                case "Gamepad11": return "R3 Btn";
+                case "GamepadA0": return "L-Stick Left";
+                case "GamepadA1": return "L-Stick Up";
+                case "GamepadA2": return "R-Stick Left";
+                case "GamepadA3": return "R-Stick Up";
+                case "GamepadA4": return "L-Stick Right";
+                case "GamepadA5": return "L-Stick Down";
+                case "GamepadA6": return "R-Stick Right";
+                case "GamepadA7": return "R-Stick Down";
+            }
+        }
         return key;
     },
     AnimUpdate: function() {

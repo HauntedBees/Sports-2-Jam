@@ -22,11 +22,11 @@ const Title = {
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.confirm: return this.Confirm();
-            case controls.down: return this.ToggleSelection(1);
-            case controls.up: return this.ToggleSelection(-1);
-            case controls.cancel: return this.Cancel();
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]: return this.Confirm();
+            case game.p1c["down"]: return this.ToggleSelection(1);
+            case game.p1c["up"]: return this.ToggleSelection(-1);
+            case game.p1c["cancel"]: return this.Cancel();
         }
     },
     Confirm: function() {
@@ -127,19 +127,19 @@ const TeamSelection = {
     },
     KeyPress: function(key) {
         switch(key) {
-            case controls.cancel: return this.Cancel(0);
-            case controls.pause: 
-            case controls.confirm: return this.Confirm();
-            case controls.down: this.MoveCursor(0, 0, 1); break;
-            case controls.up: this.MoveCursor(0, 0, -1); break;
-            case controls.left: this.MoveCursor(0, -1, 0); break;
-            case controls.right: this.MoveCursor(0, 1, 0); break;
+            case game.p1c["cancel"]: return this.Cancel(0);
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]: return this.Confirm();
+            case game.p1c["down"]: this.MoveCursor(0, 0, 1); break;
+            case game.p1c["up"]: this.MoveCursor(0, 0, -1); break;
+            case game.p1c["left"]: this.MoveCursor(0, -1, 0); break;
+            case game.p1c["right"]: this.MoveCursor(0, 1, 0); break;
             // TODO: the rest of p2 logic
-            case controls2.cancel: return this.Cancel(1);
-            case controls2.down: this.MoveCursor(1, 0, 1); break;
-            case controls2.up: this.MoveCursor(1, 0, -1); break;
-            case controls2.left: this.MoveCursor(1, -1, 0); break;
-            case controls2.right: this.MoveCursor(1, 1, 0); break;
+            case game.p2c["cancel"]: return this.Cancel(1);
+            case game.p2c["down"]: this.MoveCursor(1, 0, 1); break;
+            case game.p2c["up"]: this.MoveCursor(1, 0, -1); break;
+            case game.p2c["left"]: this.MoveCursor(1, -1, 0); break;
+            case game.p2c["right"]: this.MoveCursor(1, 1, 0); break;
         }
     },
     Cancel: function(player) {
@@ -299,8 +299,8 @@ const SeriesIndicator = {
     CleanUp: function() { this.opponentTeam = null; },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.confirm:
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]:
                 SpeakHandler.Stop();
                 game.Transition(CoinToss);
                 break;
@@ -344,8 +344,8 @@ const CoinToss = {
     },
     KeyPress: function(key) {
         switch(key) {
-            case controls.confirm: this.Flip(true); break;
-            case controls.cancel: this.Flip(false); break;
+            case game.p1c["confirm"]: this.Flip(true); break;
+            case game.p1c["cancel"]: this.Flip(false); break;
         }
     },
     Flip: function(calledHeads) {
@@ -436,9 +436,9 @@ const WinScreen = {
     },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.confirm:
-            case controls.cancel:
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]:
+            case game.p1c["cancel"]:
                 this.Continue();
                 break;
         }
@@ -486,9 +486,9 @@ const SeriesWinScreen = {
     },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.confirm:
-            case controls.cancel:
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]:
+            case game.p1c["cancel"]:
                 game.Transition(Title, [0]);
                 break;
         }
@@ -590,16 +590,16 @@ const Credits = {
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: return game.Transition(Title, [0]);
-            case controls.confirm:
+            case game.p1c["pause"]: return game.Transition(Title, [0]);
+            case game.p1c["confirm"]:
                 if(this.scroll < 2000) {
                     this.speedupCounter = (this.speedupCounter > 50) ? 0 : 660;
                 } else {
                     game.Transition(Title, [0]);
                 }
                 break;
-            case controls.cancel:
-            case controls.down:
+            case game.p1c["cancel"]:
+            case game.p1c["down"]:
                 this.speedupCounter = 5;
                 break;
         }
@@ -718,11 +718,11 @@ const Shell = {
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
         switch(key) {
-            case controls.pause: 
-            case controls.confirm:
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]:
                 break;
-            case controls.down: this.ToggleSelection(1); break;
-            case controls.up: this.ToggleSelection(-1); break;
+            case game.p1c["down"]: this.ToggleSelection(1); break;
+            case game.p1c["up"]: this.ToggleSelection(-1); break;
         }
     },
     Update: function() {

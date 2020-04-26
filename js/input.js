@@ -1,225 +1,250 @@
-/*const gpVals = { triggerMin: 0.5, deadZones: [0.25, 0.25, 0.25, 0.25] };
-const controlSet = {
-    p1UsingGamepad: false, p2UsingGamepad: false, 
-    p1Controls: { up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" },
-    p2Controls: { up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" },
-    p1ControlsGamepad: { up: "1Gamepad12", left: "1Gamepad14", down: "1Gamepad13", right: "1Gamepad15", confirm: "1Gamepad0", cancel: "1Gamepad1", pause: "1Gamepad9" },
-    p2ControlsGamepad: { up: "2Gamepad12", left: "2Gamepad14", down: "2Gamepad13", right: "2Gamepad15", confirm: "2Gamepad0", cancel: "2Gamepad1", pause: "2Gamepad9" },
-    ResetControlsArrays: function() { // TODO: this for like gamepads
-        this.p1Arr = Object.keys(controls).map(k => this.p1Controls[k]);
-        this.p2Arr = Object.keys(controls2).map(k => this.p2Controls[k]);
+class GameInput {
+    justPressed = {}; keys = {};
+    /** @type {number} */ mainDirectionKey = undefined; 
+    usingGamepad = false; gamepadIndex = 0;
+    triggerMin = 0.5; deadZones = [0.25, 0.25, 0.25, 0.25]; buttonDelay = 10;
+    gamepadButtons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
+        0, 0, 0, 0, // negative axes Lx Ly Rx Ry
+        0, 0, 0, 0]; // positive axes Lx Ly Rx Ry
+    /** @type {string[]} */ controlArray = [];
+    /** @param {{ up: string; left: string; down: string; right: string; confirm: string; cancel: string; pause: string; }} keyboardDefaults */
+    constructor(keyboardDefaults) {
+        this.keyboardControls = keyboardDefaults;
+        this.gamepadControls = { up: "Gamepad12", left: "Gamepad14", down: "Gamepad13", right: "Gamepad15", confirm: "Gamepad0", cancel: "Gamepad1", pause: "Gamepad9" };
+        this.currentControls = this.keyboardControls;
+        this.ResetControlArray();
+        return new Proxy(this, {
+            get: (obj, key) => {
+                if(typeof(key) === "string" && obj.currentControls[key] !== undefined) {
+                    return this.currentControls[key];
+                } else {
+                    return obj[key];
+                }
+            }
+        });
     }
-};*/
-let controls = { up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" };
-let controls2 = { up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" };
-let controlsArr = Object.keys(controls).map(k => controls[k]);
-let controls2Arr = Object.keys(controls2).map(k => controls2[k]);
-function ResetControlsArrays() {
-    controlsArr = Object.keys(controls).map(k => controls[k]);
-    controls2Arr = Object.keys(controls2).map(k => controls2[k]);
-}
-const input = {
-    forceCleanKeyPress: false, ignoreNextKeyPress: false, 
-    justPressed: {}, keys: {}, mainKey: undefined, mainKey2: undefined, 
-    IsFreshPauseOrConfirmPress: () => (input.justPressed[controls.pause] === 0) || (input.justPressed[controls.confirm] === 0),
-    setMainKey: function(key) {
+    /** @param {"up" | "down" | "left" | "right" | "confirm" | "cancel" | "pause"} key */
+    Key(key) { return this.usingGamepad ? this.gamepadControls[key] : this.keyboardControls[key]; }
+    /** @param {string} key @param {string} value */
+    ChangeInputBinding(key, value) {
+        (this.usingGamepad ? this.gamepadControls : this.keyboardControls)[key] = value;
+        this.ResetControlArray();
+    }
+    ResetControlArray() {
+        if(this.usingGamepad) { this.controlArray = Object.keys(this.gamepadControls).map(k => this.gamepadControls[k]); }
+        else { this.controlArray = Object.keys(this.keyboardControls).map(k => this.keyboardControls[k]); }
+    }
+    /** @param {number} idx */
+    SetGamepad(idx) {
+        this.usingGamepad = true;
+        this.gamepadIndex = idx;
+        this.currentControls = this.gamepadControls;
+    }
+    /** @param {boolean} isGamepad */
+    ToggleControlType(isGamepad) {
+        this.usingGamepad = isGamepad;
+        this.currentControls = isGamepad ? this.gamepadControls : this.keyboardControls;
+    }
+    IsFreshPauseOrConfirmPress() {
+        return this.justPressed[this.currentControls.pause] === 0 || this.justPressed[this.currentControls.confirm] === 0;
+    }
+    /** @param {string} [key] */
+    SetMainKey(key) {
         if(key === undefined) {
-            if(input.keys[controls.up] !== undefined) { input.mainKey = 0; }
-            else if(input.keys[controls.left] !== undefined) { input.mainKey = 1; }
-            else if(input.keys[controls.down] !== undefined) { input.mainKey = 2; }
-            else if(input.keys[controls.right] !== undefined) { input.mainKey = 3; }
-            else { input.mainKey = undefined; }
-        } else if(input.mainKey === undefined) {
-            input.mainKey = [controls.up, controls.left, controls.down, controls.right].indexOf(key);
+            if(this.keys[this.currentControls.up] !== undefined) { this.mainDirectionKey = 0; }
+            else if(this.keys[this.currentControls.left] !== undefined) { this.mainDirectionKey = 1; }
+            else if(this.keys[this.currentControls.down] !== undefined) { this.mainDirectionKey = 2; }
+            else if(this.keys[this.currentControls.right] !== undefined) { this.mainDirectionKey = 3; }
+            else { this.mainDirectionKey = undefined; }
+        } else if(this.mainDirectionKey === undefined) {
+            this.mainDirectionKey = [this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key);
         }
-    },
-    setMainKey2: function(key) {
-        if(key === undefined) {
-            if(input.keys[controls2.up] !== undefined) { input.mainKey2 = 0; }
-            else if(input.keys[controls2.left] !== undefined) { input.mainKey2 = 1; }
-            else if(input.keys[controls2.down] !== undefined) { input.mainKey2 = 2; }
-            else if(input.keys[controls2.right] !== undefined) { input.mainKey2 = 3; }
-            else { input.mainKey2 = undefined; }
-        } else if(input.mainKey2 === undefined) {
-            input.mainKey2 = [controls2.up, controls2.left, controls2.down, controls2.right].indexOf(key);
+    }
+    ClearAllKeys() {
+        this.mainDirectionKey = undefined;
+        for(const key in this.keys) {
+            clearInterval(this.keys[key]);
+            this.keys[key] = undefined;
         }
-    },
-    ClearAllKeys: function() {
-        input.mainKey = undefined;
-        for(const key in input.keys) {
-            clearInterval(input.keys[key]);
-            input.keys[key] = undefined;
-        }
-    },
+    }
+    /** @param {string} key */
     IsIgnoredByKeyPress(key) {
         if(key.indexOf("Arrow") === 0) { return true; }
         if(key[0] === "F" && key.length > 1) { return true; }
         return ["Alt", "Shift", "Control", "CapsLock", "Tab", "Escape", "Backspace", "NumLock",
                 "Delete", "End", "PageDown", "PageUp", "Home", "Insert", "ScrollLock", "Pause"].indexOf(key) >= 0;
-    },
-    GetKey: e => e.key.length === 1 ? e.key.toLowerCase() : e.key,
-    keyDown: function(e) {
-        if(input.forceCleanKeyPress) {
-            game.currentHandler.KeyPress(e.key);
-            return;
-        }
-        const key = input.GetKey(e);
-        input.justPressed[key] = input.justPressed[key] === undefined ? 0 : input.justPressed[key] + 1;
-        let controlSet = null, freeMovement = false, playerNum = 0;
-        if(controlsArr.indexOf(key) >= 0) {
-            controlSet = controls;
-            freeMovement = game.currentHandler.freeMovement || false;
-            playerNum = 1;
-        } else if(controls2Arr.indexOf(key) >= 0) {
-            controlSet = controls2;
-            freeMovement = game.currentHandler.freeMovement2 || (game.currentHandler.freeMovement === undefined ? false : game.currentHandler.freeMovement);
-            playerNum = 2;
-        }
-        if(controlSet === null) { return; }
-        input.keyDown2(key, controlSet, freeMovement, playerNum);
-    },
-    keyDown2: function(key, keySet, freeMovement, playerNum) {
-        if([keySet.up, keySet.left, keySet.down, keySet.right].indexOf(key) >= 0 && freeMovement) {
-            if(playerNum === 1) { input.setMainKey(key); }
-            else { input.setMainKey2(key); }
+    }
+    /** @param {KeyboardEvent} e */
+    GetKey(e) { return e.key.length === 1 ? e.key.toLowerCase() : e.key; }
 
-            if(input.keys[key] !== undefined) { return; }
-            input.keys[key] = setInterval(function() {
+    /** @param {KeyboardEvent} e */
+    KeyDown(e) {
+        const key = this.GetKey(e);
+        if(this.controlArray.indexOf(key) < 0) { return; }
+        this.ToggleControlType(false);
+        this.justPressed[key] = this.justPressed[key] === undefined ? 0 : (this.justPressed[key] + 1);
+        const freeMovement = game.currentHandler.freeMovement || false;
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
+            this.SetMainKey(key);
+            if(this.keys[key] !== undefined) { return; }
+            this.keys[key] = setInterval(function() {
                 game.currentHandler.KeyPress(key);
             }, 50);
-        } else if(input.IsIgnoredByKeyPress(key)) { game.currentHandler.KeyPress(key); }
-    },
-    keyUp: function(e) {
-        const key = input.GetKey(e);
-        input.justPressed[key] = -1;
-        let controlSet = null, freeMovement = false, playerNum = 0;
-        if(controlsArr.indexOf(key) >= 0) {
-            controlSet = controls;
-            freeMovement = game.currentHandler.freeMovement || false;
-            playerNum = 1;
-        } else if(controls2Arr.indexOf(key) >= 0) {
-            controlSet = controls2;
-            freeMovement = game.currentHandler.freeMovement2 || (game.currentHandler.freeMovement === undefined ? false : game.currentHandler.freeMovement);
-            playerNum = 2;
+        } else if(this.IsIgnoredByKeyPress(key)) { game.currentHandler.KeyPress(key); }        
+    }
+    /** @param {KeyboardEvent} e */
+    KeyUp(e) {
+        const key = this.GetKey(e);
+        if(this.controlArray.indexOf(key) < 0) { return; }
+        this.justPressed[key] = -1;
+        const freeMovement = game.currentHandler.freeMovement || false;
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
+            clearInterval(this.keys[key]);
+            this.keys[key] = undefined;
+            this.SetMainKey();
         }
-        if(controlSet === null) { return; }
-        input.keyUp2(key, controlSet, freeMovement, playerNum);
-    },
-    keyUp2: function(key, keySet, freeMovement, playerNum) {
-        if([keySet.up, keySet.left, keySet.down, keySet.right].indexOf(key) >= 0 && freeMovement) {
-            clearInterval(input.keys[key]);
-            input.keys[key] = undefined;
-            if(playerNum === 1) { input.setMainKey(); }
-            else { input.setMainKey2(); }
-        }
-    },
-    keyPress: function(e) {
-        if(input.forceCleanKeyPress) { return; }
-        if(input.ignoreNextKeyPress) { // is this a hack? yes. does it work? also yes.
-            input.ignoreNextKeyPress = false;
-            return;
-        }
-        const key = input.GetKey(e);
-        let controlSet = null, freeMovement = false;
-        if(controlsArr.indexOf(key) >= 0) {
-            controlSet = controls;
-            freeMovement = game.currentHandler.freeMovement || false;
-        } else if(controls2Arr.indexOf(key) >= 0) {
-            controlSet = controls2;
-            freeMovement = game.currentHandler.freeMovement2 || (game.currentHandler.freeMovement === undefined ? false : game.currentHandler.freeMovement);
-        }
-        if(controlSet === null) { return; }
-        if([controlSet.up, controlSet.left, controlSet.down, controlSet.right].indexOf(key) >= 0 && freeMovement) {
+    }
+    /** @param {KeyboardEvent} e */
+    KeyPress(e) {
+        const key = this.GetKey(e);
+        if(this.controlArray.indexOf(key) < 0) { return; }
+        const freeMovement = game.currentHandler.freeMovement || false;
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
             return;
         }
         game.currentHandler.KeyPress(key);
-        input.justPressed[key]++;
-    },/*
-    gamepads: {}, gamepadQueryIdx: -1,
-    gamepadButtons: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
-        0, 0, 0, 0, // negative axes Lx Ly Rx Ry
-        0, 0, 0, 0], // positive axes Lx Ly Rx Ry
-    gamepadConnected: function(e) {
-        input.gamepads[e.gamepad.index] = e.gamepad;
-        console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
-        //input.SwitchControlType(1);
-        input.gamepadQueryIdx = setInterval(input.QueryGamepads, 10);
-    },
-    gamepadDisconnected: function(e) {
-        delete input.gamepads[e.gamepad.index];
-        let hasKeys = false;
-        for(const key in input.gamepads) { hasKeys = true; break; }
-        if(!hasKeys) {
-            console.log("no controllers left!");
-            clearInterval(input.gamepadQueryIdx);
-            input.gamepadQueryIdx = -1;
-            //input.SwitchControlType(0);
-        }
-    },
-    QueryGamepads: function() {
-        const gamepads = navigator.getGamepads();
-        if(gamepads === undefined || gamepads === null || !document.hasFocus()) { return; }
+        this.justPressed[key]++;
+    }
+    /** @param {Gamepad} gp */
+    ParseGamepad(gp) {
+        if(gp === null || gp.index !== this.gamepadIndex) { return; }
         const buttonsDown = [];
-        let forceDeadzone = gpVals.deadZones[0];
-        switch(forceDeadzone) {
-            case 1: forceDeadzone = 0.3333; break;
-            case 2: forceDeadzone = 0.5; break;
-            case 3: forceDeadzone = 0.6666; break;
-            case 4: forceDeadzone = 0.75; break;
-        }
-        for(const gp in gamepads) {
-            if(gamepads[gp] === null || gamepads[gp].id === undefined) { continue; }
-            gamepads[gp].buttons.forEach((e, i) => {
-                if(e.pressed && e.value >= gpVals.triggerMin && i < 16) { buttonsDown.push(i); }
-            });
-            gamepads[gp].axes.forEach((e, i) => {
-                if(e <= -(forceDeadzone || gpVals.deadZones[i])) {
-                    buttonsDown.push(16 + i);
-                } else if(e >= (forceDeadzone || gpVals.deadZones[i])) {
-                    buttonsDown.push(20 + i);
-                }
-            });
-        }
-        //if(buttonsDown.length > 0 && options.controltype === 0) { input.SwitchControlType(1); } // oh wait it was already ruiend lol
-        for(let i = 0; i < input.gamepadButtons.length; i++) {
-            const prevState = input.gamepadButtons[i];
+        gp.buttons.forEach((e, i) => {
+            if(e.pressed && e.value >= this.triggerMin && i < 16) { buttonsDown.push(i); }
+        });
+        gp.axes.forEach((e, i) => {
+            if(e <= -this.deadZones[i]) {
+                buttonsDown.push(16 + i);
+            } else if(e >= this.deadZones[i]) {
+                buttonsDown.push(20 + i);
+            }
+        });
+        if(buttonsDown.length > 0) { this.ToggleControlType(true); }
+        this.gamepadButtons.forEach((prevState, i) => {
             const btn = (i < 16) ? ("Gamepad" + i) : ("GamepadA" + (i - 16));
-            const movements = [controls.up, controls.left, controls.down, controls.right];
-            const altMovements = [controls.up2, controls.left2, controls.down2, controls.right2];
+            const movements = [this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right];
             if(buttonsDown.indexOf(i) < 0 && buttonsDown.indexOf(-i) < 0) { // not pressed
                 if(prevState > 0) { // just released
-                    input.gamepadButtons[i] = -1;
-                    input.justPressed[btn] = -1;
-                    let currMovements = movements;
-                    if(altMovements.indexOf(btn) >= 0) {
-                        currMovements = altMovements;
-                        //input.SwapPrimaryAndSecondaryGamepadControls();
+                    this.gamepadButtons[i] = -1;
+                    this.justPressed[btn] = -1;
+                    if(movements.indexOf(btn) >= 0 && game.currentHandler.freeMovement) {
+                        clearInterval(this.keys[btn]);
+                        this.keys[btn] = undefined;
+                        this.SetMainKey();
                     }
-                    if(currMovements.indexOf(btn) >= 0 && game.currentInputHandler.freeMovement) {
-                        clearInterval(input.keys[btn]);
-                        input.keys[btn] = undefined;
-                        input.setMainKey();
-                    }
-                } else { input.gamepadButtons[i] = 0; } // not pressed
+                } else { this.gamepadButtons[i] = 0; } // not pressed
             } else { // pressed
-                input.gamepadButtons[i]++;
-                const btnVal = input.gamepadButtons[i];
+                this.gamepadButtons[i]++;
+                const btnVal = this.gamepadButtons[i];
                 if(btnVal === 1 || (btnVal >= 45 && btnVal % 15 === 0)) {
-                    input.justPressed[btn] = input.justPressed[btn] === undefined ? 0 : input.justPressed[btn] + 1;
-                    let currMovements = movements;
-                    if(altMovements.indexOf(btn) >= 0) {
-                        currMovements = altMovements;
-                        input.SwapPrimaryAndSecondaryGamepadControls();
-                    }
-                    if(currMovements.indexOf(btn) >= 0 && game.currentInputHandler.freeMovement) {
-                        input.setMainKey(btn);
-                        if(input.keys[btn] !== undefined) { return; }
-                        input.keys[btn] = setInterval(function() {
-                            game.currentInputHandler.keyPress(btn);
-                        }, input.BUTTONDELAY);
-                    } else { game.currentInputHandler.keyPress(btn); }
+                    this.justPressed[btn] = this.justPressed[btn] === undefined ? 0 : (this.justPressed[btn] + 1);
+                    if(movements.indexOf(btn) >= 0 && game.currentHandler.freeMovement) {
+                        this.SetMainKey(btn);
+                        if(this.keys[btn] !== undefined) { return; }
+                        this.keys[btn] = setInterval(function() {
+                            game.currentHandler.KeyPress(btn);
+                        }, this.buttonDelay);
+                    } else { game.currentHandler.KeyPress(btn); }
                 }
             }
+        });
+    }
+}
+class ShellGameInput extends GameInput {
+    constructor() {
+        super({ up: "", left: "", down: "", right: "", confirm: "", cancel: "", pause: "" });
+    }
+    Key(key) { return ""; }
+    ChangeInputBinding(key, value) {}
+    ResetControlArray() {}
+    SetGamepad(idx) {}
+    ToggleControlType(isGamepad) {}
+    IsFreshPauseOrConfirmPress() { return false; }
+    SetMainKey(key) {}
+    ClearAllKeys() {}
+    IsIgnoredByKeyPress(){ return false; }
+    GetKey() { return ""; }
+    KeyDown(e) {}
+    KeyUp(e) {}
+    KeyPress(e) {}
+    ParseGamepad(gp) {}
+}
+const NPCInput = new ShellGameInput();
+class InputHandler {
+    forceCleanKeyPress = false; ignoreNextKeyPress = false;
+    gamepads = {}; gamepadQueryIdx = -1;
+    controlSets = [
+        new GameInput({ up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" }),
+        new GameInput({ up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" })
+    ];
+    constructor() {
+        const me = this;
+        // @ts-ignore
+        window.addEventListener("gamepadconnected", function(e) { me.GamepadConnected(e); });
+        // @ts-ignore
+        window.addEventListener("gamepaddisconnected", function(e) { me.GamepadDisconnected(e); });
+        // @ts-ignore
+        document.addEventListener("keypress", function(e) { me.KeyPress(e); });
+        // @ts-ignore
+        document.addEventListener("keydown", function(e) { me.KeyDown(e); });
+        // @ts-ignore
+        document.addEventListener("keyup", function(e) { me.KeyUp(e); });
+    }
+    /** @param {GamepadEvent} e */
+    GamepadConnected(e) {
+        this.gamepads[e.gamepad.index] = e.gamepad;
+        console.log("Gamepad connected at index %d: %s. %d buttons, %d axes.", e.gamepad.index, e.gamepad.id, e.gamepad.buttons.length, e.gamepad.axes.length);
+        if(e.gamepad.index === 0) {
+            this.controlSets[0].SetGamepad(0);
+        } else if(e.gamepad.index === 1) {
+            this.controlSets[1].SetGamepad(1);
         }
-    }*/
+        if(this.gamepadQueryIdx < 0) {
+            const me = this;
+            this.gamepadQueryIdx = setInterval(function() { me.QueryGamepads(); }, 10);
+        }
+    }
+    /** @param {GamepadEvent} e */
+    GamepadDisconnected(e) {
+        delete this.gamepads[e.gamepad.index];
+        if(Object.keys(this.gamepads).length === 0) {
+            console.log("no gamepads left!");
+            clearInterval(this.gamepadQueryIdx);
+            this.gamepadQueryIdx = -1;
+        }
+    }
+    QueryGamepads() {
+        const gamepads = navigator.getGamepads();
+        if(gamepads === undefined || gamepads === null || !document.hasFocus()) { return; }
+        const numGamepads = gamepads.length;
+        for(let i = 0; i < numGamepads; i++) {
+            this.controlSets.forEach(c => c.ParseGamepad(gamepads[i]));
+        }
+    }
+    /** @param {KeyboardEvent} e */
+    KeyPress(e) {
+        if(this.forceCleanKeyPress) { return; }
+        if(this.ignoreNextKeyPress) { // is this a hack? yes. does it work? also yes.
+            this.ignoreNextKeyPress = false;
+            return;
+        }
+        this.controlSets.forEach(c => c.KeyPress(e));
+    }
+    /** @param {KeyboardEvent} e */
+    KeyDown(e) {
+        if(this.forceCleanKeyPress) { game.currentHandler.KeyPress(e.key); return; }
+        this.controlSets.forEach(c => c.KeyDown(e));
+    }
+    /** @param {KeyboardEvent} e */
+    KeyUp(e) { this.controlSets.forEach(c => c.KeyUp(e)); }
 };

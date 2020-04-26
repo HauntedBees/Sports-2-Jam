@@ -195,11 +195,12 @@ class FieldRunHandler extends Handler {
         BaseStar.SwitchHandler(AtBatHandler);
     }
     SwitchFielderFreeMovement(newVal) {
-        input.ClearAllKeys();
         if(BaseStar.data.team1.isUp) {
+            BaseStar.data.team2.GetControls().ClearAllKeys();
             this.freeMovement2 = newVal;
             BaseStar.freeMovement2 = newVal;
         } else {
+            BaseStar.data.team1.GetControls().ClearAllKeys();
             this.freeMovement = newVal;
             BaseStar.freeMovement = newVal;
         }

@@ -168,23 +168,23 @@ class PitchHandler extends SecondaryHandler {
     }
     KeyPress(key) {
         switch(key) {
-            case this.myControls.pause: 
-            case this.myControls.cancel: break;
-            case this.myControls.left:
+            case this.myControls["pause"]: 
+            case this.myControls["cancel"]: break;
+            case this.myControls["left"]:
                 if(!this.ready) { this.throwStyle = 3; }
                 else if(this.pitchAnimState < 5) { this.dx = Math.max(this.dx - 1, -10); }
                 break;
-            case this.myControls.right:
+            case this.myControls["right"]:
                 if(!this.ready) { this.throwStyle = 2; }
                 else if(this.pitchAnimState < 5) { this.dx = Math.min(this.dx + 1, 10); }
                 break;
-            case this.myControls.down:
+            case this.myControls["down"]:
                 if(!this.ready) { this.throwStyle = 0; }
                 break;
-            case this.myControls.up:
+            case this.myControls["up"]:
                 if(!this.ready) { this.throwStyle = 1; }
                 break;
-            case this.myControls.confirm:
+            case this.myControls["confirm"]:
                 this.ready = true;
                 break;
         }

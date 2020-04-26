@@ -40,12 +40,12 @@ class RunHandler extends SecondaryHandler {
     }
     KeyPress(key) {
         switch(key) {
-            case this.myControls.pause: 
-            case this.myControls.confirm: return this.Confirm();
-            case this.myControls.left: return this.AimForNextStar(-1);
-            case this.myControls.right: return this.AimForNextStar(1);
-            case this.myControls.up: return this.TargetClosestBase();
-            case this.myControls.cancel: return this.SwitchRunner();
+            case this.myControls["pause"]: 
+            case this.myControls["confirm"]: return this.Confirm();
+            case this.myControls["left"]: return this.AimForNextStar(-1);
+            case this.myControls["right"]: return this.AimForNextStar(1);
+            case this.myControls["up"]: return this.TargetClosestBase();
+            case this.myControls["cancel"]: return this.SwitchRunner();
         }
     }
     Update() {

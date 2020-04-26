@@ -98,13 +98,13 @@ class FieldHandler extends SecondaryHandler {
     KeyPress(key) {
         let dx = 0, dy = 0, confirm = false, cancel = false;
         switch(key) {
-            case this.myControls.pause: 
-            case this.myControls.confirm: confirm = true; break;
-            case this.myControls.cancel: cancel = true; break;
-            case this.myControls.up: dy -= 1; break;
-            case this.myControls.down: dy += 1; break;
-            case this.myControls.left: dx -= 1; break;
-            case this.myControls.right: dx += 1; break;
+            case this.myControls["pause"]: 
+            case this.myControls["confirm"]: confirm = true; break;
+            case this.myControls["cancel"]: cancel = true; break;
+            case this.myControls["up"]: dy -= 1; break;
+            case this.myControls["down"]: dy += 1; break;
+            case this.myControls["left"]: dx -= 1; break;
+            case this.myControls["right"]: dx += 1; break;
         }
         if(this.ballFielderIdx < 0) { // moving
             if(dx !== 0 || dy !== 0) { this.MoveFielders(dx, dy); }

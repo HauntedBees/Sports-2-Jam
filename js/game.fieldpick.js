@@ -51,25 +51,25 @@ class FieldPickHandler extends Handler {
     CleanUp() { gfx.ClearSome(["interface", "text"]); }
     KeyPress(key) {
         switch(key) {
-            case this.myControls.cancel: return this.Cancel();
-            case this.myControls.pause: 
-            case this.myControls.confirm: return this.Confirm();
-            case this.myControls.left: 
+            case this.myControls["cancel"]: return this.Cancel();
+            case this.myControls["pause"]: 
+            case this.myControls["confirm"]: return this.Confirm();
+            case this.myControls["left"]: 
                 if(this.state === 0) {
                     this.constsel = Math.max(0, this.constsel - 1);
                 } else {
                     this.MoveOutfielder(-1, 0);
                 }
                 break;  
-            case this.myControls.right:
+            case this.myControls["right"]:
                 if(this.state === 0) {
                     this.constsel = Math.min(2, this.constsel + 1);
                 } else {
                     this.MoveOutfielder(1, 0);
                 }
                 break;
-            case this.myControls.up: return this.MoveOutfielder(0, -1);
-            case this.myControls.down: return this.MoveOutfielder(0, 1);
+            case this.myControls["up"]: return this.MoveOutfielder(0, -1);
+            case this.myControls["down"]: return this.MoveOutfielder(0, 1);
         }
     }
     Cancel() {
