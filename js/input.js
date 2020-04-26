@@ -16,15 +16,21 @@ class GameInput {
         return new Proxy(this, {
             get: (obj, key) => {
                 if(typeof(key) === "string" && obj.currentControls[key] !== undefined) {
-                    return this.currentControls[key];
+                    return obj.Key(key);
                 } else {
                     return obj[key];
                 }
             }
         });
     }
-    /** @param {"up" | "down" | "left" | "right" | "confirm" | "cancel" | "pause"} key */
-    Key(key) { return this.usingGamepad ? this.gamepadControls[key] : this.keyboardControls[key]; }
+    /** @param {string} key */
+    Key(key) {
+        if(this.usingGamepad) {
+            return this.gamepadIndex.toString() + this.currentControls[key];
+        } else {
+            return this.currentControls[key];
+        }
+    }
     /** @param {string} key @param {string} value */
     ChangeInputBinding(key, value) {
         (this.usingGamepad ? this.gamepadControls : this.keyboardControls)[key] = value;
@@ -152,9 +158,9 @@ class GameInput {
                         this.SetMainKey(btn);
                         if(this.keys[btn] !== undefined) { return; }
                         this.keys[btn] = setInterval(function() {
-                            game.currentHandler.KeyPress(btn);
+                            game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn);
                         }, this.buttonDelay);
-                    } else { game.currentHandler.KeyPress(btn); }
+                    } else { game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn); }
                 }
             }
         });
