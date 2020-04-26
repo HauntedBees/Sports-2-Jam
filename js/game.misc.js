@@ -429,7 +429,14 @@ const CoinToss = {
         this.state = 0;
         this.calledHeads = false;
         this.callingTeam = outerGameData.team1Idx;
-        this.opposingTeam = outerGameData.seriesLineup[outerGameData.seriesRound];
+        switch(outerGameData.gameType) {
+            case "series":
+                this.opposingTeam = outerGameData.seriesLineup[outerGameData.seriesRound];
+                break;
+            case "2p_local":
+                this.opposingTeam = outerGameData.team2Idx;
+                break;
+        }
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText("Captain - Call the Coin Toss!", 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
