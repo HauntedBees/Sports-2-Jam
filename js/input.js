@@ -157,8 +157,9 @@ class GameInput {
                     if(movements.indexOf(btn) >= 0 && game.currentHandler.freeMovement) {
                         this.SetMainKey(btn);
                         if(this.keys[btn] !== undefined) { return; }
+                        const me = this;
                         this.keys[btn] = setInterval(function() {
-                            game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn);
+                            game.currentHandler.KeyPress(me.gamepadIndex.toString() + btn);
                         }, this.buttonDelay);
                     } else { game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn); }
                 }
