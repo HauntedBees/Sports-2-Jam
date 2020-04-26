@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <title>Zenn Halsey BaseSol '93</title>
+        <meta name="author" content="Haunted Bees Productions">
+        <meta name="description" content="We're having a ball out here in space!">
+        <meta name="keywords" content="gravity,sports,2">
+        <!--<link rel="shortcut icon" href="favicon.ico">-->
+        <style>
+            @font-face { font-family: "Retro"; src: url("RetroGamingZ.ttf") }
+            body {
+				font-family: "Retro";
+				text-align: center;
+				border: 0 !important;
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+            canvas {
+                border: 1px solid black;
+                image-rendering: pixelated;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0; 
+                text-align: center;
+            }
+            canvas:not(#canvas) { pointer-events: none }
+            #minimap {
+                display: none;
+                left: -476px;
+                top: 1px;
+                background-color: #0000FF;
+                border: 2px solid white;
+            }
+            #p2canvs > canvas {
+                border: 1px solid white !important;
+                left: 640px;
+            }
+            #awaiter {
+                background-color: #000000;
+                color: #FFFFFF;
+                width: 640px; height: 480px;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0; 
+                text-align: center;
+                z-index: 99999;
+            }
+            #awaiter > div {
+                padding-top: 220px;
+                font-size: 28px;
+            }
+            #specialanim { border: none !important }
+            #specialBG {
+                border: 1px solid black;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0; 
+                width: 1280px;
+                height: 480px;
+                background: linear-gradient(
+                    rgba(0, 0, 155, 0.45),
+                    rgba(0, 0, 0, 0.95)
+                ), url(img/background.png);
+            }
+        </style>
+    </head>
+    <body style="text-align: center">
+        <div id="specialBG"></div>
+        <div id="p1canvs">
+            <canvas id="canvas" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="background" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="background2" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="debug" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="interface" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="overlay" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="text" width="640" height="480" style="border: 1px solid black"></canvas>
+        </div>
+        <div id="p2canvs" style="display: none">
+            <canvas id="p2canvas" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2background" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2background2" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2debug" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2interface" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2overlay" width="640" height="480" style="border: 1px solid black"></canvas>
+            <canvas id="p2text" width="640" height="480" style="border: 1px solid black"></canvas>
+        </div>
+        <canvas id="specialanim" width="640" height="480" style="border: 1px solid black"></canvas>
+        <canvas id="minimap" width="160" height="120"></canvas>
+        <div id="awaiter" style="display: none"><div>Click here to start the game.</div></div>
+        <div id="fullBoy"></div>
+        <div id="fontLoader"><div style="font-family:Retro">&nbsp;</div></div>
+        <script type="text/javascript" src="mespeak/mespeak.js"></script>
+        <script type="text/javascript" src="js/sound.js"></script>
+        <script type="text/javascript" src="js/box2d.min.js"></script>
+        <script type="text/javascript" src="js/helpers.js"></script>
+        <script type="text/javascript" src="js/debug.js"></script>
+        <script type="text/javascript" src="js/b2helpers.js"></script>
+        <script type="text/javascript" src="js/input.js"></script>
+        <script type="text/javascript" src="js/constellations.js"></script>
+        <script type="text/javascript" src="js/CPUplayer.js"></script>
+        <script type="text/javascript" src="js/camera.js"></script>
+        <script type="text/javascript" src="js/game.js"></script>
+        <script type="text/javascript" src="js/game.data.js"></script>
+        <script type="text/javascript" src="js/game.misc.js"></script>
+        <script type="text/javascript" src="js/game.options.js"></script>
+        <script type="text/javascript" src="js/game.fieldpick.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.batting.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.pitching.js"></script>
+        <script type="text/javascript" src="js/game.pitchbat.js"></script>
+        <script type="text/javascript" src="js/game.players.js"></script>
+        <script type="text/javascript" src="js/game.space.running.js"></script>
+        <script type="text/javascript" src="js/game.space.fielding.js"></script>
+        <script type="text/javascript" src="js/game.space.js"></script>
+        <script type="text/javascript" src="js/rendering.js"></script>
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function() {
+                meSpeak.loadVoice("voices/en/en-us.json");
+                game.Initialize(false); 
+            });
+        </script>
+    </body>
+</html>

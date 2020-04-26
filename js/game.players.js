@@ -1,6 +1,7 @@
 class Player {
-    constructor(teamname, playerInfo, x, y, type, radius) {
-        this.team = teamname;
+    /** @param {Team} teamInfo @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {string} type @param {number} radius */
+    constructor(teamInfo, playerInfo, x, y, type, radius) {
+        this.team = teamInfo;
         this.playerInfo = playerInfo;
         this.homex = x;
         this.x = x;
@@ -14,11 +15,11 @@ class Player {
         };
         this.Update = function () { };
         this.Draw = function () {
-            gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.5);
+            gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, 0, 8, this.x, this.y, "interface", 64, 0.5);
             gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.5);
         };
         this.GetMiniMapDrawDetails = function() {
-            return [this.team, 6, 1, 64, { x: this.x, y: this.y }, false, 0.5];
+            return [this.team.ballerSheet, 6, 1, 64, { x: this.x, y: this.y }, false, 0.5];
         };
     }
 }
@@ -26,8 +27,9 @@ class Fielder extends Player {
     pitcher = false; catchDir = 0; base = -1;
     force = { x: 0, y: 0 };
     caughtBallTimer = 0; throwAnimState = 0;
-    constructor(teamname, playerInfo, x, y, type, radius) {
-        super(teamname, playerInfo, x, y, type, radius);
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {string} type @param {number} radius */
+    constructor(team, playerInfo, x, y, type, radius) {
+        super(team, playerInfo, x, y, type, radius);
         this.Update = function () {
             if (this.ball !== null) {
                 this.ball.SetPosition({ x: p2m(this.x), y: p2m(this.y - 10) });
@@ -35,9 +37,9 @@ class Fielder extends Player {
         };
         this.GetMiniMapDrawDetails = function() {
             if(this.ball === null) {
-                return [this.team, this.pitcher ? 3: 6, this.pitcher ? 2 : 1, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.33 : 0.25];
+                return [this.team.ballerSheet, this.pitcher ? 3: 6, this.pitcher ? 2 : 1, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.33 : 0.25];
             } else {
-                return [this.team, 4, 2, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.6 : 0.5];
+                return [this.team.ballerSheet, 4, 2, 64, { x: this.x, y: this.y }, false, this.pitcher ? 0.6 : 0.5];
             }
         };
     }
@@ -85,6 +87,7 @@ class Fielder extends Player {
 }
 class Outfielder extends Fielder {
     angle = 0;
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y */
     constructor(team, playerInfo, x, y) {
         super(team, playerInfo, x, y, "outfielder", 25);
         let animFrame = 0, animCounter = 0, sy = 0;
@@ -120,26 +123,26 @@ class Outfielder extends Fielder {
             if(this.throwAnimState > 0) {
                 if(this.catchDir === 1) { // throwing to left
                     const sx = this.throwAnimState === 2 ? 2 : 3;
-                    gfx.DrawCenteredSpriteToCameras("player", this.team, sx, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, sx, 8, this.x, this.y, "interface", 64, 0.75);
                     gfx.DrawCenteredSpriteToCameras("player", "baseballers", sx + 4, 8, this.x, this.y, "interface", 64, 0.75);
                 } else { // throwing to right
                     const sx = this.throwAnimState === 2 ? 5 : 4;
-                    gfx.DrawCenteredSpriteToCameras("player", this.team + "flip", sx, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", this.team.flipSheet, sx, 8, this.x, this.y, "interface", 64, 0.75);
                     gfx.DrawCenteredSpriteToCameras("player", "baseballersflip", sx - 4, 8, this.x, this.y, "interface", 64, 0.75);
                 }
             } else if(this.caughtBallTimer > 0) {
                 if(this.catchDir === 1) { // caught from left
-                    gfx.DrawCenteredSpriteToCameras("player", this.team, 1, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, 1, 8, this.x, this.y, "interface", 64, 0.75);
                     gfx.DrawCenteredSpriteToCameras("player", "baseballers", 5, 8, this.x, this.y, "interface", 64, 0.75);
                 } else { // caught from right
-                    gfx.DrawCenteredSpriteToCameras("player", this.team + "flip", 6, 8, this.x, this.y, "interface", 64, 0.75);
+                    gfx.DrawCenteredSpriteToCameras("player", this.team.flipSheet, 6, 8, this.x, this.y, "interface", 64, 0.75);
                     gfx.DrawCenteredSpriteToCameras("player", "baseballersflip", 2, 8, this.x, this.y, "interface", 64, 0.75);
                 }
             } else if (moving) {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, animFrame, sy, this.x, this.y, "interface", 64, 0.75);
                 gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, this.y, "interface", 64, 0.75);
             } else {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, this.y, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, 0, 8, this.x, this.y, "interface", 64, 0.75);
                 gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, this.y, "interface", 64, 0.75);
             }
         };
@@ -158,6 +161,7 @@ class Outfielder extends Fielder {
     };
 }
 class Pitcher extends Outfielder {
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y */
     constructor(team, playerInfo, x, y) {
         super(team, playerInfo, x, y);
         this.pitcher = true;
@@ -165,12 +169,7 @@ class Pitcher extends Outfielder {
 }
 class Infielder extends Fielder {
     animCounter = 0; animFrame = 0;
-    /**
-     * @param {string} team
-     * @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo
-     * @param {number} x @param {number} y @param {number} base
-     * @param {FieldRunHandler} mainHandler
-     */
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {number} base @param {FieldRunHandler} mainHandler */
     constructor(team, playerInfo, x, y, base, mainHandler) {
         super(team, playerInfo, x, y, "infielder", 35);
         this.base = base;
@@ -186,7 +185,7 @@ class Infielder extends Fielder {
         this.Draw = function () {
             const ballPos = vecm2p(this.mainHandler.ball.GetWorldCenter());
             const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x) - 1.17;
-            gfx.DrawRotatedSpriteToCameras("player", this.team + "_big", angle, 1 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
+            gfx.DrawRotatedSpriteToCameras("player", this.team.bigSpriteSheet, angle, 1 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
         };
     }
     Move(x, y) { }
@@ -201,8 +200,9 @@ class RunnerShell {
     }
 }
 class Runner extends Player {
-    constructor(teamname, playerInfo, x, y, onBase, stars) {
-        super(teamname, playerInfo, x, y, (onBase ? "runnerOnBase" : "runner"), 15);
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {boolean} onBase @param {any[]} stars */
+    constructor(team, playerInfo, x, y, onBase, stars) {
+        super(team, playerInfo, x, y, (onBase ? "runnerOnBase" : "runner"), 15);
         this.dashed = false;
         this.targetStar = -1;
         let nextx = 0, nexty = 0, stepVector = { x: 0, y: 0 }, sy = 0;
@@ -288,20 +288,20 @@ class Runner extends Player {
         this.Draw = function () {
             const drawY = this.y - (this.ball === null ? 0 : 10);
             if (running) {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, animFrame, sy, this.x, drawY, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, animFrame, sy, this.x, drawY, "interface", 64, 0.75);
                 gfx.DrawCenteredSpriteToCameras("player", "baseballers", animFrame + 4, sy, this.x, drawY, "interface", 64, 0.75);
             } else {
-                gfx.DrawCenteredSpriteToCameras("player", this.team, 0, 8, this.x, drawY, "interface", 64, 0.75);
+                gfx.DrawCenteredSpriteToCameras("player", this.team.ballerSheet, 0, 8, this.x, drawY, "interface", 64, 0.75);
                 gfx.DrawCenteredSpriteToCameras("player", "baseballers", 4, 8, this.x, drawY, "interface", 64, 0.75);
             }
         };
         this.GetMiniMapDrawDetails = function() {
             if(running) {
-                return [this.team, animFrame, sy, 64, { x: this.x, y: this.y }, false, 0.4];
+                return [this.team.ballerSheet, animFrame, sy, 64, { x: this.x, y: this.y }, false, 0.4];
             } else if(this.onBase) {
-                return [this.team, 4, 8, 64, { x: this.x - 100, y: this.y - 100 }, false, 0.3];
+                return [this.team.ballerSheet, 4, 8, 64, { x: this.x - 100, y: this.y - 100 }, false, 0.3];
             } else {
-                return [this.team, 4, 8, 64, { x: this.x, y: this.y }, false, 0.3];
+                return [this.team.ballerSheet, 4, 8, 64, { x: this.x, y: this.y }, false, 0.3];
             }
         };
     }

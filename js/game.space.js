@@ -124,21 +124,21 @@ class FieldRunHandler extends Handler {
         const runnerStars = [];
         const bounds = BaseStar.fieldBounds;
         const pitcherPos = GetPoint(bounds.x, bounds.y + bounds.h / 2 + pitcherDx * 25);
-        this.pitcher = new Pitcher(fieldTeam.name, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
+        this.pitcher = new Pitcher(fieldTeam, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
         this.fielders.push(this.pitcher);
         const mainHandler = this;
         c.stars.forEach((e, i) => {
             const p = GetPoint(e.x + 16, e.y);
             runnerStars.push(p);
             mainHandler.stars.push(BaseStar.b2Helper.GetStar(p.x, p.y, e.power * e.power * powerMult, e.power));
-            mainHandler.fielders.push(new Infielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
+            mainHandler.fielders.push(new Infielder(fieldTeam, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
         });
         BaseStar.outfielders.forEach((e, i) => {
             const p = GetPoint(e.x, e.y);
-            mainHandler.fielders.push(new Outfielder(fieldTeam.name, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
+            mainHandler.fielders.push(new Outfielder(fieldTeam, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
         });
         const runnerPos = GetPoint(bounds.x + 30, bounds.y + bounds.h / 2 + ballDetails.pos * 5);
-        this.runner = new Runner(runningTeam.name, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], runnerPos.x, runnerPos.y, false, runnerStars);
+        this.runner = new Runner(runningTeam, runningTeam.players[BaseStar.data.inning.atBatPlayerIdx], runnerPos.x, runnerPos.y, false, runnerStars);
         
         const angle = 4 * (2 * ballDetails.dir + ballDetails.offset); // approx. [-13.2, 13.2]; *4 = [-52.8, 52.8]
         const y = 2 * ballDetails.power * Math.sin(angle * angleToRadians);
@@ -147,7 +147,7 @@ class FieldRunHandler extends Handler {
         this.ball = BaseStar.b2Helper.GetBaseball(runnerPos, linearVelocity, this.runner);
 
         BaseStar.data.inning.playersOnBase.forEach(e => {
-            const b = new Runner(runningTeam.name, e.playerInfo, e.x, e.y, true, runnerStars);
+            const b = new Runner(runningTeam, e.playerInfo, e.x, e.y, true, runnerStars);
             b.targetStar = e.baseIdx;
             b.onBase = true;
             b.baseNumber = e.baseIdx;

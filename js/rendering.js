@@ -4,7 +4,7 @@ const gfx = {
     pi2: Math.PI * 2, 
     canvasWidth: 960, canvasHeight: 760,
     tileWidth: 960, tileHeight: 720, 
-    spritesheets: [], teamSheets: [], 
+    spritesheets: [],
 
     LoadSpriteSheets: /** @param {string} source @param {string[]} paths @param {() => void} callback */
     function(source, paths, callback) {
@@ -32,7 +32,7 @@ const gfx = {
 
     TintSheet: /** @param {string} sheetName @param {string} tint @param {string} [name] */
     function(sheetName, tint, name) {
-        name = name || sheetName + "tint";
+        name = name || (sheetName + "tint");
         if(gfx.spritesheets[name] !== undefined) { return; }
         const sheet = gfx.spritesheets[sheetName];
         const canvas = document.createElement("canvas");
@@ -190,7 +190,7 @@ const gfx = {
     function(sheetpath, sx, sy, x, y, layer, size, scale) {
         scale = scale || 1;
         size = size || 32;
-        const sheet = gfx.teamSheets[sheetpath] !== undefined ? gfx.teamSheets[sheetpath] : gfx.spritesheets[sheetpath];
+        const sheet = gfx.spritesheets[sheetpath];
         const startX = sx * size;
         const startY = sy * size;
         gfx.DrawImage(gfx.ctx[layer], sheet, startX, startY, size, size, x, y, size * scale, size * scale);
@@ -210,10 +210,17 @@ const gfx = {
         layer = layer || "characters"; sx = sx || 0; sy = sy || 0;
         gfx.DrawImage(gfx.ctx[layer], gfx.spritesheets[sheet], sx * w, sy * h, w, h, (x - offset.x), (y - offset.y), w, h);
     },
-
+    failed: false,
     DrawImage: /** @param {CanvasRenderingContext2D} ctx @param {any} image @param {any} srcX @param {any} srcY @param {any} srcW @param {any} srcH @param {any} dstX @param {any} dstY @param {any} dstW @param {any} dstH */
     function(ctx, image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
-        ctx.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);  
+        if(gfx.failed) { return; }
+        try {
+            ctx.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);  
+        } catch {
+            console.log("A THING BREAK: " + image);
+            console.trace();
+            gfx.failed = true;
+        }
     },
 
     WriteEchoPlayerText: /** @param {string} t @param {number} x @param {number} y @param {number} maxLen @param {string} layer @param {string} topColor @param {string} bottomColor @param {number} size @param {CanvasTextAlign} alignment */
