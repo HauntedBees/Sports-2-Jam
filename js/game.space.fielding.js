@@ -166,36 +166,37 @@ class FieldHandler extends SecondaryHandler {
         const prefix = this.team.GetLayerPrefix();
         if(prefix === null) { return; }
         const layer = prefix + "text";
+        const xInfo = this.fullHandler.GetInfoUIX(this.team.playerNum, true);
         if(this.ballFielderIdx < 0) {
-            const cx = 320, cy = 45;
-            gfx.DrawCenteredSprite("sprites", 12, 1, cx, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 14, 1, cx + 32, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 11, 1, cx + 64, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 13, 1, cx + 96, cy, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Move", cx + 128, cy + 5, 100, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            const cy = 45;
+            gfx.DrawCenteredSprite("sprites", 12, 1, xInfo.centerX, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 14, 1, xInfo.centerX + 32, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 11, 1, xInfo.centerX + 64, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 13, 1, xInfo.centerX + 96, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Move", xInfo.centerX + 128, cy + 5, 100, layer, "#FFFFFF", "#BA66FF", 16, "left");
         } else {
-            const cx = 185, cx2 = 440, cy = 16, cy2 = 30;
-            gfx.DrawCenteredSprite("sprites", 14, 1, cx, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 13, 1, cx + 32, cy, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Cycle Targets", cx + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            const cy = 16, cy2 = 30;
+            gfx.DrawCenteredSprite("sprites", 14, 1, xInfo.leftX, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 13, 1, xInfo.leftX + 32, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Cycle Targets", xInfo.leftX + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             
-            gfx.DrawCenteredSprite("sprites", 12, 1, cx + 16, cy + 32, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Target Becomer", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            gfx.DrawCenteredSprite("sprites", 12, 1, xInfo.leftX + 16, cy + 32, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Target Becomer", xInfo.leftX + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
-            gfx.DrawCenteredSprite("sprites", 11, 1, cx + 16, cy + 64, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Target Pitcher", cx + 64, cy + 69, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            gfx.DrawCenteredSprite("sprites", 11, 1, xInfo.leftX + 16, cy + 64, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Target Pitcher", xInfo.leftX + 64, cy + 69, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
             if(this.targetFielderIdx === this.ballFielderIdx) {
                 if(!this.dunked) {
-                    gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy2 + 16, layer, 32, 1);
-                    gfx.WriteEchoPlayerText("Slam Dunk", cx2 + 32, cy2 + 21, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                    gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.rightX, cy2 + 16, layer, 32, 1);
+                    gfx.WriteEchoPlayerText("Slam Dunk", xInfo.rightX + 32, cy2 + 21, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
                 }
             } else {
-                gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy2, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Throw Ball", cx2 + 32, cy2 + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.rightX, cy2, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Throw Ball", xInfo.rightX + 32, cy2 + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
-                gfx.DrawCenteredSprite("sprites", 12, 2, cx2, cy2 + 32, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Target Self", cx2 + 32, cy2 + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.DrawCenteredSprite("sprites", 12, 2, xInfo.rightX, cy2 + 32, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Target Self", xInfo.rightX + 32, cy2 + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             }
         }
     }

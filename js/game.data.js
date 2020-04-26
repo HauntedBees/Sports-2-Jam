@@ -78,6 +78,7 @@ function Team(player, idx, isPlayerControlled) {
     this.isPlayerControlled = isPlayerControlled;
     this.isUp = false;
     this.score = 0;
+    this.playerNum = player;
     this.GetLayerPrefix = function() {
         if(player === 1) { return ""; }
         return isPlayerControlled ? "p2" : null;

@@ -31,7 +31,7 @@ class AtBatHandler extends Handler {
         if(BaseStar.data.inning.StruckOut()) {
             BaseStar.data.inning.IncrementBatter();
             if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
-                AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
+                BaseStar.TeamSwitchHandler();
             } else {
                 BaseStar.SwitchHandler(AtBatHandler);
             }

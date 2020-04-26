@@ -1,7 +1,7 @@
 class FieldRunHandler extends Handler {
     state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; ball = null; hundredTimer = 0;
-    gravMult = 1.5;
+    gravMult = 1.5; showSplitScreenIn2P = true;
     slamdunks = []; runner = null;
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
@@ -172,20 +172,7 @@ class FieldRunHandler extends Handler {
     CatchOut() { // a fielder has caught the ball while the batter was still on it; all players not on bases are out
         BaseStar.data.inning.playersOnBase = this.runHandler.onBaseRunners.filter(e => e.onBase).map(e => e.GetRunnerShell());
         if(BaseStar.data.inning.IncreaseOutsAndReturnIfSwitch()) {
-            if(BaseStar.data.WasLastInning()) {
-                AnimationHelpers.StartScrollText("GAME SET!", function() { BaseStar.EndGame(); });
-            } else if(BaseStar.data.WasEndOfInning()) {
-                let msg = "NEXT INNING!";
-                console.log(BaseStar.data.inning.inningNumber);
-                switch(BaseStar.data.inning.inningNumber) {
-                    case 1: msg = "SECOND INNING!"; break;
-                    case 2: msg = "FINAL INNING!"; break;
-                    default: msg = "ZONGO BONGO, SOMETHING IS WRONGO!"; break;
-                }
-                AnimationHelpers.StartScrollText(msg, function() { BaseStar.ChangePlaces(); });
-            } else {
-                AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
-            }
+            BaseStar.TeamSwitchHandler();
         } else {
             this.FinishBatting();
         }
@@ -390,8 +377,32 @@ class FieldRunHandler extends Handler {
             gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
         }
 
-        gfx.DrawHUDRectToCameras(155, 1, 484, 100, "#FFFFFF", "#000000", "overlay");
+        gfx.DrawHUDRectToCameras(0, 1, 640, 100, "#FFFFFF", "#000000", "overlay");
         this.minimap.Draw();
+    }
+    GetInfoUIX(playerNum, isFielding) {
+        const xInfo = { centerX: 320, leftX: 185, rightX: 440 };
+        if(outerGameData.gameType === "2p_local") {
+            if(playerNum === 1) {
+                xInfo.centerX -= 160;
+                if(isFielding) {
+                    xInfo.leftX -= 150;
+                    xInfo.rightX -= 150;
+                } else {
+                    xInfo.leftX -= 120;
+                    xInfo.rightX -= 120;
+                }
+            } else {
+                if(isFielding) {
+                    xInfo.leftX += 20;
+                    xInfo.rightX += 20;
+                } else {
+                    xInfo.leftX += 40;
+                    xInfo.rightX += 40;
+                }
+            }
+        }
+        return xInfo;
     }
     DebugDraw() {
         if(this.debug === 0) { return; }

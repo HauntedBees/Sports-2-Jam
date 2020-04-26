@@ -51,6 +51,11 @@ class RunHandler extends SecondaryHandler {
     Update() {
         this.runner.Update();
         this.runner.SyncCollider();
+        if(this.runner.onBase && this.fullHandler.pitcher.ball !== null) {
+            const me = this.fullHandler;
+            AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
+            return;
+        }
         this.animCounter += 0.1;
         if(this.animCounter > 100) {
             this.animCounter = 0;
@@ -87,29 +92,30 @@ class RunHandler extends SecondaryHandler {
         const prefix = this.team.GetLayerPrefix();
         if(prefix === null) { return; }
         const layer = prefix + "text";
+        const xInfo = this.fullHandler.GetInfoUIX(this.team.playerNum, false);
         if(this.runner.ball !== null) {
-            const cx = 320, cy = 45;
-            gfx.DrawCenteredSprite("sprites", 11, 2, cx, cy, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Jump Off Ball", cx + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            const cy = 45;
+            gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.centerX, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Jump Off Ball", xInfo.centerX + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
         } else {
-            const cx = 185, cx2 = 440, cy = 30;
-            gfx.DrawCenteredSprite("sprites", 14, 1, cx, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 13, 1, cx + 32, cy, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Cycle Targets", cx + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            const cy = 30;
+            gfx.DrawCenteredSprite("sprites", 14, 1, xInfo.leftX, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 13, 1, xInfo.leftX + 32, cy, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Cycle Targets", xInfo.leftX + 64, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             
-            gfx.DrawCenteredSprite("sprites", 12, 1, cx + 16, cy + 32, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Target Closest", cx + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            gfx.DrawCenteredSprite("sprites", 12, 1, xInfo.leftX + 16, cy + 32, layer, 32, 1);
+            gfx.WriteEchoPlayerText("Target Closest", xInfo.leftX + 64, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
             if(this.IsSafe()) {
-                gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Finish", cx2 + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.rightX, cy, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Finish", xInfo.rightX + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             } else if(!this.runner.dashed) {
-                gfx.DrawCenteredSprite("sprites", 11, 2, cx2, cy, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Dash", cx2 + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.rightX, cy, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Dash", xInfo.rightX + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             }
             if(this.onBaseRunners.length > 0) {
-                gfx.DrawCenteredSprite("sprites", 12, 2, cx2, cy + 32, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Switch Runner", cx2 + 32, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.DrawCenteredSprite("sprites", 12, 2, xInfo.rightX, cy + 32, layer, 32, 1);
+                gfx.WriteEchoPlayerText("Switch Runner", xInfo.rightX + 32, cy + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             }
         }
     }

@@ -227,7 +227,7 @@ class PitchHandler extends SecondaryHandler {
                 break;
         }
         if(this.team.isPlayerControlled && !this.ready) {
-            const centerx = 320, centery = 400, d = 20;
+            const centerx = outerGameData.gameType === "2p_local" ? 420 : 320, centery = 400, d = 20;
             gfx.DrawCenteredSprite("sprites", 11, 2, centerx, centery, "text", 32, 1);
             gfx.DrawCenteredSprite("sprites", 11, this.throwStyle === 0 ? 1 : 0, centerx, centery + d, "text", 32, 1);
             gfx.DrawCenteredSprite("sprites", 12, this.throwStyle === 1 ? 1 : 0, centerx, centery - d, "text", 32, 1);

@@ -129,12 +129,13 @@ const TeamSelection = {
         switch(key) {
             case game.p1c["cancel"]: return this.Cancel(0);
             case game.p1c["pause"]: 
-            case game.p1c["confirm"]: return this.Confirm();
+            case game.p1c["confirm"]: return this.Confirm(0);
             case game.p1c["down"]: this.MoveCursor(0, 0, 1); break;
             case game.p1c["up"]: this.MoveCursor(0, 0, -1); break;
             case game.p1c["left"]: this.MoveCursor(0, -1, 0); break;
             case game.p1c["right"]: this.MoveCursor(0, 1, 0); break;
-            // TODO: the rest of p2 logic
+            case game.p2c["pause"]: 
+            case game.p2c["confirm"]: return this.Confirm(1);
             case game.p2c["cancel"]: return this.Cancel(1);
             case game.p2c["down"]: this.MoveCursor(1, 0, 1); break;
             case game.p2c["up"]: this.MoveCursor(1, 0, -1); break;
@@ -146,33 +147,48 @@ const TeamSelection = {
         if(player === 0) {
             if(this.confirmed) {
                 this.confirmed = false;
+                Sounds.PlaySound("cancel", false);
             } else {
                 game.Transition(Title, [this.twoPlayer ? 1 : 0]);
+                Sounds.PlaySound("cancel", true);
             }
         } else if(this.confirmed2) {
             this.confirmed2 = false;
+            Sounds.PlaySound("cancel", false);
         }
     },
-    Confirm: function() {
-        outerGameData.team1Idx = this.sy * this.rowLength + this.sx;
-        if(this.confirmed) {
-            if(this.twoPlayer) {
-                // TODO: player 2
-            } else {
-                outerGameData.seriesRound = 0;
-                outerGameData.seriesLineup = [3]; // [];
-                for(let i = 0; i < 4; i++) { // 5
-                    outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
+    Confirm: function(player) {
+        if(player === 0) {
+            outerGameData.team1Idx = this.sy * this.rowLength + this.sx;
+            if(this.confirmed) {
+                if(this.twoPlayer) {
+                    if(!this.confirmed2) { return; }
+                    outerGameData.gameType = "2p_local";
+                    game.Transition(VersusIndicator);
+                } else {
+                    outerGameData.gameType = "series";
+                    outerGameData.seriesRound = 0;
+                    outerGameData.seriesLineup = [3]; // [];
+                    for(let i = 0; i < 4; i++) { // 5
+                        outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
+                    }
+                    game.Transition(SeriesIndicator);
                 }
-                game.Transition(SeriesIndicator);
+            } else {
+                SpeakHandler.Speak(TeamInfo[outerGameData.team1Idx].name);
+                this.confirmed = true;
+                Sounds.PlaySound("confirm", false);
             }
         } else {
-            SpeakHandler.Speak(TeamInfo[this.sy * this.rowLength + this.sx].name);
-            this.confirmed = true;
+            if(this.confirmed2) { return; }
+            outerGameData.team2Idx = this.sy2 * this.rowLength + this.sx2;
+            SpeakHandler.Speak(TeamInfo[outerGameData.team2Idx].name);
+            this.confirmed2 = true;
+            Sounds.PlaySound("confirm", false);
         }
     },
     MoveCursor: function(player, dx, dy) {
-        const newx = this.sx + dx, newy = this.sy + dy;
+        const newx = (player === 0 ? this.sx : this.sx2) + dx, newy = (player === 0 ? this.sy : this.sy2) + dy;
         if(newx < 0 || newx >= this.rowLength) { return; }
         if(newy < 0 || newy >= Math.ceil(TeamInfo.length / this.rowLength)) { return; }
         const targetTeam = newy * this.rowLength + newx;
@@ -187,6 +203,7 @@ const TeamSelection = {
         }
     },
     UpdateMap: function(targetTeam) {
+        if(this.twoPlayer) { return false; }
         if(this.earthX < 225) {
             this.earthX += 225;
         } else if(this.earthX >= 450) {
@@ -197,8 +214,6 @@ const TeamSelection = {
         const dx2 = (dx > 0) ? (newTeam.mapx - 225 - this.earthX) : (newTeam.mapx + 225 - this.earthX);
         this.nextY = newTeam.mapcy;
         this.nextX = newTeam.mapx;
-        console.log(`1: from ${this.earthX} to ${newTeam.mapx}: ${newTeam.mapx - this.earthX}`);
-        console.log(`2: from ${this.earthX} to ${newTeam.mapx}: ${dx2}`);
         if(Math.abs(dx2) < Math.abs(dx)) {
             this.nextX += 225 * (dx < 0 ? 1 : -1);
             dx = dx2;
@@ -227,14 +242,20 @@ const TeamSelection = {
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "text"]);
         if(this.twoPlayer) {
-            gfx.WriteOptionText("Choose your Teams", 320, 32, "text", "#FFFFFF", 24);
+            if(this.confirmed && this.confirmed2) {
+                gfx.WriteOptionText("Confirm Team Selections?", 320, 32, "text", "#FFFFFF", 24);
+            } else {
+                gfx.WriteOptionText("Choose your Teams", 320, 32, "text", "#FFFFFF", 24);
+            }
         } else if(this.confirmed) {
             gfx.WriteOptionText("Confirm Team Selection?", 320, 32, "text", "#FFFFFF", 24);
         } else {
             gfx.WriteOptionText("Choose your Team", 320, 32, "text", "#FFFFFF", 24);
         }
         if(this.twoPlayer) {
-            this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, this.sx2, this.sy2, this.confirmed2));
+            this.teams.forEach(e => e.Draw(true, this.sx, this.sy, this.confirmed, this.sx2, this.sy2, this.confirmed2));
+            this.Draw2PTeamDetails(TeamInfo[this.sy * this.rowLength + this.sx], 190, false);
+            this.Draw2PTeamDetails(TeamInfo[this.sy2 * this.rowLength + this.sx2], 450, true);
         } else {
             gfx.DrawEarth("interface", 215, 120, this.earthX, 0.5);
             gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 265, 120 + this.earthY, "interface", 32, 1);
@@ -246,13 +267,30 @@ const TeamSelection = {
                 gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx + 96 * i, 144, "interface", 128, 0.66);
                 gfx.WriteEchoOptionText(name, cx + 96 * i, 200, "text", "#FFFFFF", "#BA66FF", 12);
             });
+            this.teams.forEach(e => e.Draw(false, this.sx, this.sy, this.confirmed, -1, -1, false));
             gfx.WriteEchoOptionText(team.name, cx + 96, 92, "text", "#FFFFFF", "#BA66FF", 18);
             gfx.DrawSprite("helmets", 3, 3, 30, 80, "interface", 160);
             gfx.DrawSprite("helmets", team.hx, team.hy, 30, 80, "interface", 160);
-            this.teams.forEach(e => e.Draw(this.sx, this.sy, this.confirmed, -1, -1, false));
             gfx.WriteEchoPlayerText("Star Becomer: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
             gfx.WriteEchoPlayerText("Star Pitcher: " + starPlayers[teamIdx].pitcher, cx - 25, 250, 500, "text", "#FFFFFF", "#6666AA", 12, "left");
         }
+    },
+    Draw2PTeamDetails(team, cx, flipped) {
+        gfx.WriteEchoOptionText(team.name, cx, 70, "text", "#FFFFFF", "#BA66FF", 18);
+        const helmety = 170;
+        if(flipped) {
+            gfx.DrawCenteredSprite("helmetsflip", 0, 3, cx - 10, helmety, "interface", 160);
+            gfx.DrawCenteredSprite("helmetsflip", 3 - team.hx, team.hy, cx - 10, helmety, "interface", 160);
+        } else {
+            gfx.DrawCenteredSprite("helmets", 3, 3, cx + 10, helmety, "interface", 160);
+            gfx.DrawCenteredSprite("helmets", team.hx, team.hy, cx + 10, helmety, "interface", 160);
+        }
+        const dx = flipped ? 130 : -130;
+        team.constellations.forEach((name, i) => {
+            const c = ConstellationInfo[name];
+            if(c === undefined) { return; }
+            gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx + dx, 100 + 64 * i, "interface", 128, 0.45);
+        });
     }
 };
 const SeriesIndicator = {
@@ -325,6 +363,64 @@ const SeriesIndicator = {
         gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 320, 120 + this.earthY, "overlay", 32, 1);
     }
 };
+const VersusIndicator = {
+    exDir: 0, eyDir: 0, 
+    earthX: 0, earthY: 0,
+    opponentTeam: null,
+    Init: function() {
+        gfx.TintSheet("helmetsflip", "#00000099")
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
+        gfx.WriteOptionText(`Versus Match`, 320, 32, "background", "#FFFFFF", 24);
+        
+        const helmety = 200, bottomy = 340;
+        const playerTeam = TeamInfo[outerGameData.team1Idx];
+        const opponentTeam = TeamInfo[outerGameData.team2Idx];
+        this.opponentTeam = opponentTeam;
+
+        this.exDir = (opponentTeam.mapx - playerTeam.mapx) / 20;
+        this.eyDir = (opponentTeam.mapcy - playerTeam.mapcy) / 20;
+        this.earthX = playerTeam.mapx;
+        this.earthY = playerTeam.mapcy;
+
+        SpeakHandler.Speak(`Versus Match: ${playerTeam.name} versus ${opponentTeam.name}`);
+
+        gfx.WriteOptionText(`${playerTeam.name} v. ${opponentTeam.name}`, 320, 64, "background", "#FFFFFF", 20);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, 190, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmets", playerTeam.hx, playerTeam.hy, 190, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 0, 3, 450, helmety, "interface", 160, 1);
+        gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 3 - opponentTeam.hx, opponentTeam.hy, 450, helmety, "interface", 160, 1);
+        
+        // TODO: what should go down at the bottom?
+    },
+    CleanUp: function() { this.opponentTeam = null; },
+    KeyPress: function(key) {
+        switch(key) {
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]:
+                SpeakHandler.Stop();
+                game.Transition(CoinToss);
+                break;
+        }
+    },
+    Update: function() {
+        if(this.exDir !== 0) {
+            this.earthX += this.exDir;
+            this.earthY += this.eyDir;
+            const teamInfo = this.opponentTeam;
+            const teamX = teamInfo.mapx;
+            if((this.exDir > 0 && this.earthX > teamX) || (this.exDir < 0 && this.earthX < teamX)) {
+                this.exDir = 0;
+                this.earthX = teamX;
+                this.earthY = teamInfo.mapcy;
+            }
+        }
+    },
+    AnimUpdate: function() {
+        gfx.ClearLayer("overlay");
+        gfx.DrawEarth("overlay", 270, 120, this.earthX, 0.5);
+        gfx.DrawCenteredSpriteToCameras("UI", "sprites", 2, 1, 320, 120 + this.earthY, "overlay", 32, 1);
+    }
+};
 const CoinToss = {
     coinFrame: 0, state: 0, p1BatsFirst: false,  
     calledHeads: false, callingTeam: 0, opposingTeam: 0, 
@@ -351,7 +447,7 @@ const CoinToss = {
     Flip: function(calledHeads) {
         if(this.state === 1) { return; }
         if(this.state === 2) {
-            game.Transition(BaseStar, ["series", this.p1BatsFirst]); // TODO: what about when not series??
+            game.Transition(BaseStar, [this.p1BatsFirst]);
             return;
         }
         this.calledHeads = calledHeads;
@@ -387,6 +483,7 @@ const WinScreen = {
         if(this.isDraw) {
             this.p1Won = true;
             gfx.WriteEchoOptionText("DRAW!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+            gfx.WriteEchoOptionText(BaseStar.data.team1.score + "-" + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 36);
             const dx = 32, cy = 220;
             for(let i = 0; i < 20; i++) {
                 const div7 = Math.floor(i / 7);
@@ -405,13 +502,15 @@ const WinScreen = {
             const losingTeam = this.p1Won ? BaseStar.data.team2 : BaseStar.data.team1;
             if(!BaseStar.data.team2.isPlayerControlled) {
                 if(this.p1Won) {
-                    gfx.WriteEchoOptionText("YOU WIN!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+                    gfx.WriteEchoOptionText("YOU WIN!", 320, 90, "text", "#FFFFFF", "#BA66FF", 48);
                 } else {
-                    gfx.WriteEchoOptionText("YOU LOSE!", 320, 100, "text", "#FFFFFF", "#BA66FF", 48);
+                    gfx.WriteEchoOptionText("YOU LOSE!", 320, 90, "text", "#FFFFFF", "#BA66FF", 48);
                 }
+                gfx.WriteEchoOptionText(BaseStar.data.team1.score + " - " + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 36);
             } else {
-                gfx.WriteEchoOptionText("THE WINNER IS...", 320, 80, "text", "#FFFFFF", "#BA66FF", 48);
-                gfx.WriteEchoOptionText(winningTeam.name.toUpperCase(), 320, 120, "text", "#FFFFFF", "#BA66FF", 48);
+                gfx.WriteEchoOptionText("THE WINNER IS...", 320, 70, "text", "#FFFFFF", "#BA66FF", 36);
+                gfx.WriteEchoOptionText(winningTeam.name.toUpperCase(), 320, 110, "text", "#FFFFFF", "#BA66FF", 48);
+                gfx.WriteEchoOptionText(BaseStar.data.team1.score + " - " + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 36);
             }
             const dx = 32, cy = 160;
             for(let i = 0; i < 20; i++) {
@@ -446,7 +545,11 @@ const WinScreen = {
     CleanUp: function() { this.elems = []; },
     Continue: function() {
         if(BaseStar.data.team2.isPlayerControlled) {
-            // TODO: two player
+            if(outerGameData.gameType === "2p_local") {
+                game.Transition(Title, [1]);
+            } else {
+                // TODO: play again?
+            }
         } else if(this.p1Won) {
             if(++outerGameData.seriesRound >= 5) {
                 game.Transition(SeriesWinScreen);
@@ -628,7 +731,10 @@ class TeamOption {
         this.sx = sx; this.sy = sy;
         this.x = x; this.y = y;
     }
-    Draw(p1SelX, p1SelY, p1Confirmed, p2SelX, p2SelY, p2Confirmed) {
+    /** @param {boolean} isTwoPlayer
+     *  @param {number} p1SelX @param {number} p1SelY @param {boolean} p1Confirmed
+     *  @param {number} p2SelX @param {number} p2SelY @param {boolean} [p2Confirmed] */
+    Draw(isTwoPlayer, p1SelX, p1SelY, p1Confirmed, p2SelX, p2SelY, p2Confirmed) {
         gfx.DrawCenteredSprite("teamlogos", this.sx, this.sy, this.x, this.y, "interface", 128, this.scale);
         if(p1SelX === this.ix && p1SelY === this.iy) {
             if(p1Confirmed) {
@@ -636,6 +742,7 @@ class TeamOption {
             } else {
                 gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
             }
+            if(isTwoPlayer) { gfx.DrawCenteredSprite("teamselect", 0, 1, this.x, this.y, "interface", 128, this.scale); }
         }
         if(p2SelX === this.ix && p2SelY === this.iy) {
             if(p2Confirmed) {
@@ -643,6 +750,7 @@ class TeamOption {
             } else {
                 gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
             }
+            if(isTwoPlayer) { gfx.DrawCenteredSprite("teamselect", 1, 1, this.x, this.y, "interface", 128, this.scale); }
         }
     }
 }

@@ -54,7 +54,7 @@ class BatHandler extends SecondaryHandler {
         }
     }
     AnimUpdate() {
-        const batHandlerX = 320, batHandlerY = 360;
+        const batHandlerX = outerGameData.gameType === "2p_local" ? 220 : 320, batHandlerY = 360;
         gfx.DrawRectSprite(this.team.name + "_batter", this.swingAnimState, 0, 220 + this.dx, 100, "interface", 145, 335, 0.75);
         gfx.DrawRectSprite("batter", this.swingAnimState, 1, 220 + this.dx, 100, "interface", 145, 335, 0.75);
         if(this.team.isPlayerControlled) {
