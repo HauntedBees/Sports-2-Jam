@@ -2,6 +2,7 @@ class GameInput {
     justPressed = {}; keys = {};
     /** @type {number} */ mainDirectionKey = undefined; 
     usingGamepad = false; gamepadIndex = 0;
+    freeMovement = false;
     triggerMin = 0.5; deadZones = [0.25, 0.25, 0.25, 0.25]; buttonDelay = 10;
     gamepadButtons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
         0, 0, 0, 0, // negative axes Lx Ly Rx Ry
@@ -89,8 +90,7 @@ class GameInput {
         if(this.controlArray.indexOf(key) < 0) { return; }
         this.ToggleControlType(false);
         this.justPressed[key] = this.justPressed[key] === undefined ? 0 : (this.justPressed[key] + 1);
-        const freeMovement = game.currentHandler.freeMovement || false;
-        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && this.freeMovement) {
             this.SetMainKey(key);
             if(this.keys[key] !== undefined) { return; }
             this.keys[key] = setInterval(function() {
@@ -103,8 +103,7 @@ class GameInput {
         const key = this.GetKey(e);
         if(this.controlArray.indexOf(key) < 0) { return; }
         this.justPressed[key] = -1;
-        const freeMovement = game.currentHandler.freeMovement || false;
-        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && this.freeMovement) {
             clearInterval(this.keys[key]);
             this.keys[key] = undefined;
             this.SetMainKey();
@@ -114,8 +113,7 @@ class GameInput {
     KeyPress(e) {
         const key = this.GetKey(e);
         if(this.controlArray.indexOf(key) < 0) { return; }
-        const freeMovement = game.currentHandler.freeMovement || false;
-        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && freeMovement) {
+        if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && this.freeMovement) {
             return;
         }
         game.currentHandler.KeyPress(key);
@@ -143,7 +141,7 @@ class GameInput {
                 if(prevState > 0) { // just released
                     this.gamepadButtons[i] = -1;
                     this.justPressed[btn] = -1;
-                    if(movements.indexOf(btn) >= 0 && game.currentHandler.freeMovement) {
+                    if(movements.indexOf(btn) >= 0 && this.freeMovement) {
                         clearInterval(this.keys[btn]);
                         this.keys[btn] = undefined;
                         this.SetMainKey();
@@ -154,7 +152,7 @@ class GameInput {
                 const btnVal = this.gamepadButtons[i];
                 if(btnVal === 1 || (btnVal >= 45 && btnVal % 15 === 0)) {
                     this.justPressed[btn] = this.justPressed[btn] === undefined ? 0 : (this.justPressed[btn] + 1);
-                    if(movements.indexOf(btn) >= 0 && game.currentHandler.freeMovement) {
+                    if(movements.indexOf(btn) >= 0 && this.freeMovement) {
                         this.SetMainKey(btn);
                         if(this.keys[btn] !== undefined) { return; }
                         const me = this;

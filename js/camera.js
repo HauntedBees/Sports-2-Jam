@@ -126,7 +126,7 @@ class MiniMap {
     CleanUp() {
         document.getElementById("minimap").style["display"] = "none";
     }
-    Draw() { // TODO: UI just for runner or fielders
+    Draw(showRunnerData, showFielderData) {
         gfx.ClearLayer("minimap");
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "minimap", 0, 0);
         if(playerOptions["particles"].value) {
@@ -134,9 +134,17 @@ class MiniMap {
                 this.DoSprite("sprites", 0, 1, 32, p, false, 0.2);
             });
         }
-        this.space.stars.forEach(star => {
+        let runnerTargetOverlayPos = null;
+        let fielderTargetOverlayPos = null;
+        this.space.stars.forEach((star, i) => {
             const pos = star.GetWorldCenter(), data = star.GetUserData();
             this.DoSprite("sprites", data.powerIdx, 0, 32, pos, true, 0.2);
+            if(showRunnerData && this.space.runHandler.runner.targetStar === i) {
+                runnerTargetOverlayPos = PAdd(pos, {x: 0, y: -1});
+            }
+            if(showFielderData && this.space.fieldHandler.targetFielderIdx === i) {
+                fielderTargetOverlayPos = PAdd(pos, {x: 0, y: -1});
+            }
         });
         this.const.connections.forEach(e => {
             const star1 = this.space.stars[e[0]].GetWorldCenter(), star2 = this.space.stars[e[1]].GetWorldCenter();
@@ -169,6 +177,9 @@ class MiniMap {
             this.DoSprite(...f.GetMiniMapDrawDetails());
         });
         this.DoBaseballerSprite(...this.space.runHandler.runner.GetMiniMapDrawDetails());
+
+        if(runnerTargetOverlayPos !== null) { this.DoSprite("sprites", 10, 2, 32, runnerTargetOverlayPos, true, 0.5); }
+        if(fielderTargetOverlayPos !== null) { this.DoSprite("sprites", 10, 3, 32, fielderTargetOverlayPos, true, 0.5); }
     }
     DoLine(a, b, isBox2D) {
         if(isBox2D) { a = vecm2p(a); b = vecm2p(b); }

@@ -1,9 +1,9 @@
 class AtBatHandler extends Handler {
     state = 0; // 0 = waiting on both players, 1 = ball is being pitched or hit
-    ballData = {}; animFrame = 0;
+    ballData = {}; animFrame = 0; freeMovement = true;
+    ohWowState = 0; ohWowFrame = 0;
     constructor() {
         super();
-        this.freeMovement = true;
         const p1IsBatter = BaseStar.data.team1.isUp;
         const battingTeam = p1IsBatter ? BaseStar.data.team1 : BaseStar.data.team2;
         const pitchingTeam = p1IsBatter ? BaseStar.data.team2 : BaseStar.data.team1;
@@ -47,7 +47,14 @@ class AtBatHandler extends Handler {
         if(AnimationHelpers.IsAnimating()) { return; }
         this.batHandler.Update();
         this.pitchHandler.Update();
+        if(AnimationHelpers.IsAnimating()) { return; }
         this.animFrame += 0.005;
+        if(this.ohWowState > 0) { 
+            if(++this.ohWowState > 4) {
+                this.ohWowState = 1;
+                this.ohWowFrame = this.ohWowFrame === 0 ? 1 : 0;
+            }
+        }
         if(this.state === 0) {
             if(this.batHandler.ready && this.pitchHandler.ready) {
                 this.state = 1;
@@ -62,14 +69,15 @@ class AtBatHandler extends Handler {
                 distance = Math.abs(distance);
                 let offset = 0;
                 console.log(distance);
-                if(distance <= 0.01) { // perfect shot
-                    offset = 0; // TODO: do something pretty when perfect shot
-                } else if(distance <= 0.1) { // close enough
+                if(distance <= 0.08) { // perfect shot
+                    this.ohWowState = 1;
+                    offset = 0;
+                } else if(distance <= 0.75) { // close enough
                     offset = 0.25;
-                } else if(distance <= 0.25) { // ehh
+                } else if(distance <= 0.15) { // ehh
                     offset = Math.log(100 * distance);
                 } else {
-                    offset = Math.log(100 * distance); //offset = -1;
+                    offset = -1;
                 }
                 if(offset >= 0) {
                     this.ballData = {
@@ -128,6 +136,9 @@ class AtBatHandler extends Handler {
 
         this.pitchHandler.AnimUpdate();
         this.batHandler.AnimUpdate();
+        if(this.ohWowState > 0) {
+            gfx.DrawSprite("bigsprites", 4, this.ohWowFrame, this.pitchHandler.pitch.idealX, this.pitchHandler.pitch.idealY - 118, "text", 128, 1);
+        }
         if(this.pitchHandler.pitch === null) {
             gfx.WriteEchoPlayerText("0", 35, 373, 300, "text", "#FFFFFF", "#BA66FF", 11, "right");
         } else {

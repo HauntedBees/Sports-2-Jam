@@ -32,9 +32,9 @@ function b2Helpers(world) {
             identity: "star"
         }, true);
     };
-    this.GetBaseball = function(position, velocity, runner) {
+    this.GetBaseball = function(position, velocity, runner, fake) {
         const ball = this.GetCircle(position.x, position.y, 7, true, {
-            generateParticles: true, stopped: false,
+            generateParticles: (fake !== true), stopped: false,
             runner: runner, identity: "baseball"
         }, false);
         if(runner !== undefined) { runner.SetBall(ball); }

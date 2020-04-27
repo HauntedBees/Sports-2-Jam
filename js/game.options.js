@@ -62,7 +62,7 @@ const OptionsScreen = {
     AnimUpdate: function() {
         gfx.ClearLayer("interface");
         this.elems.forEach(e => {
-            gfx.DrawCenteredSprite("bigsprites", e.value ? 0 : 1, 1, 390, e.y - 6, "interface", 128, 1);
+            gfx.DrawCenteredSprite("bigsprites", e.value ? 2 : 3, 1, 390, e.y - 6, "interface", 128, 1);
         });
         if(this.selection < this.elems.length) { // actual option
             const sel = this.elems[this.selection];

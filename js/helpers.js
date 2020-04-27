@@ -1,5 +1,5 @@
 const fpsAnim = 1000 / 60, fpsUpdate = 80;
-//const fpsAnim = 1000 / 60, fpsUpdate = 800;
+//const fpsAnim = 1000 / 6, fpsUpdate = 800;
 const RandRange = (a, b) => (a + Math.floor((b - a) * Math.random()));
 const RandFloat = (a, b) => a + (b - a) * Math.random();
 const Either = (a, b, condition1, condition2) => (a === condition1 && b === condition2) || (a === condition2 && b === condition1);
@@ -7,6 +7,7 @@ const PMult = (p, m) => ({ x: p.x * m, y: p.y * m });
 const PAdd = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
 const PSub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y });
 const InRect = (x, y, rx1, rx2, ry1, ry2) => (x >= rx1 && x <= rx2 && y >= ry1 && y <= ry2);
+const Clamp = (n, min, max) => Math.min(Math.max(min, n), max);
 const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,

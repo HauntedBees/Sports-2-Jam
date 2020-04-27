@@ -45,7 +45,7 @@ class FieldPickHandler extends Handler {
         this.team = BaseStar.data.GetFieldTeam();
         this.myControls = this.team.GetControls();
         if(!this.team.isPlayerControlled) {
-            BaseStar.cpu.PickConstellationAndPlaceOutfielders(this, true);
+            BaseStar.cpu.PickConstellationAndPlaceOutfielders(this, false);
         }
     }
     CleanUp() { gfx.ClearSome(["interface", "text"]); }
@@ -106,7 +106,7 @@ class FieldPickHandler extends Handler {
             this.bottomy = h;
             const dx = this.rightx - this.leftx;
             const dy = this.bottomy - this.topy;
-            this.noZoneLeft = this.leftx + 15 * this.scale;
+            this.noZoneLeft = this.leftx;
             this.noZoneTop = this.topy + dy / 3;
             this.noZoneBottom = this.topy + dy * 2 / 3;
             this.noZoneRight = this.leftx + 15 * this.scale + dx / 4;

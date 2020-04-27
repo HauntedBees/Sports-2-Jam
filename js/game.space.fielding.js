@@ -1,7 +1,6 @@
 class FieldHandler extends SecondaryHandler {
-    ballFielderIdx = -1;
-    targetFielderIdx = -1;
-    dunkSpan = 0; dunked = false; slamDunkIdx = -1;
+    ballFielderIdx = -1; targetFielderIdx = -1; doubleSpeed = false;
+    dunkSpan = 0; dunked = false; pitcherdunked = false; slamDunkIdx = -1;
     animCounter = Math.floor(Math.random() * 100);
     /** @param {Team} team @param {FieldRunHandler} fieldRunHandler @param {Fielder[]} fielders */
     constructor(team, fieldRunHandler, fielders) {
@@ -14,7 +13,7 @@ class FieldHandler extends SecondaryHandler {
     CatchBall(fielder, ball, runner) {
         const ballInfo = ball.GetUserData();
         if(ballInfo.runner === undefined) { // catching ball, runner is not connected to ball
-            this.fullHandler.SwitchFielderFreeMovement(false);
+            this.SwitchFielderFreeMovement(false);
             fielder.CatchBall(ball);
             this.ballFielderIdx = this.fielders.findIndex(e => e === fielder);
             // if the ball reaches the pitcher when all runners are at their bases, the round ends and they're automatically safe
@@ -42,7 +41,7 @@ class FieldHandler extends SecondaryHandler {
         AnimationHelpers.StartScrollText((slamDunk ? "SLAM DUNK!  " : "") + "OUT!", function() { me.CatchOut(); });
     }
     MoveFielders(dx, dy) {
-        const speed = 5;
+        const speed = this.doubleSpeed ? 10 : 5;
         this.fielders.forEach(f => {
             f.Move(speed * dx, speed * dy);
         });
@@ -66,17 +65,6 @@ class FieldHandler extends SecondaryHandler {
             }
         });
     }
-    TargetRunnerIncludeHolder() {
-        let minDist = -1;
-        const runner = this.fullHandler.runner;
-        this.fielders.forEach((f, i) => {
-            const d = Dist(runner.x, runner.y, f.x, f.y);
-            if((minDist < 0 || d < minDist)) {
-                minDist = d;
-                this.targetFielderIdx = i;
-            }
-        });
-    }
     TargetPitcher() {
         this.fielders.forEach((f, i) => {
             if(f.pitcher) { this.targetFielderIdx = i; }
@@ -84,16 +72,27 @@ class FieldHandler extends SecondaryHandler {
     }
     ThrowBall() {
         if(this.targetFielderIdx === this.ballFielderIdx) {
-            if(this.dunked) { return; } // can't dunk twice in one round!
-            this.slamDunkIdx = this.ballFielderIdx;
-            this.dunked = true;
+            if(this.fielders[this.ballFielderIdx].pitcher) {
+                if(this.pitcherdunked) { return; } // can't dunk twice in one round!
+                this.slamDunkIdx = this.ballFielderIdx;
+                this.pitcherdunked = true;
+            } else {
+                if(this.dunked) { return; } // can't dunk twice in one round!
+                this.slamDunkIdx = this.ballFielderIdx;
+                this.dunked = true;
+            }
         } else {
             this.fullHandler.gravMult = Math.max(1.5, this.fullHandler.gravMult / 2);
             this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);
-            this.fullHandler.SwitchFielderFreeMovement(true);
+            this.SwitchFielderFreeMovement(true);
             this.ballFielderIdx = -1;
             this.targetFielderIdx = -1;
         }
+    }
+    SwitchFielderFreeMovement(newVal) {
+        const controls = this.team.GetControls();
+        controls.ClearAllKeys();
+        controls.freeMovement = newVal;
     }
     KeyPress(key) {
         let dx = 0, dy = 0, confirm = false, cancel = false;

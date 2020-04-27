@@ -33,7 +33,6 @@ const BaseStar = {
     },
     SwitchView: function(sideBySide) {
         const minifiedView = (document.getElementById("fullBoy") === null);
-        console.log("tiny: " + minifiedView);
         if(sideBySide) {
             if(this.isSideBySide) { return; }
             this.isSideBySide = true;
@@ -114,8 +113,8 @@ const BaseStar = {
         if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
             this.SwitchView(true);
         } else { this.SwitchView(false); }
-        this.freeMovement = this.subhandler.freeMovement;
-        this.freeMovement2 = this.subhandler.freeMovement2;
+        game.p1c.freeMovement = this.subhandler.freeMovement;
+        game.p2c.freeMovement = this.subhandler.freeMovement;
     },
     SwitchHandlerWithArgs: function(handler, ...args) {
         if(this.subhandler !== null) { this.subhandler.CleanUp(); }
@@ -123,8 +122,8 @@ const BaseStar = {
         if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
             this.SwitchView(true);
         } else { this.SwitchView(false); }
-        this.freeMovement = this.subhandler.freeMovement;
-        this.freeMovement2 = this.subhandler.freeMovement2;
+        game.p1c.freeMovement = this.subhandler.freeMovement;
+        game.p2c.freeMovement = this.subhandler.freeMovement;
     },
     FieldSetupComplete: function(constellation, outfielders, fieldBoundaries) {
         this.data.SetConstellation(constellation);
@@ -173,7 +172,7 @@ class Game {
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
         const game = this;
         gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "controller",
-                                     "batmeter", "baseballers", "basehud", "teamselect", "teamlogos", "constellations",
+                                     "batmeter", "baseballers", "basehud", "teamlogos", "constellations",
                                      "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], function() {
             game.inputHandler = new InputHandler();
             game.p1c = game.inputHandler.controlSets[0];
@@ -192,11 +191,16 @@ class Game {
         if(this.currentHandler === null) { return; }
         this.currentHandler.Update();
     }
+    SetFreeMovement(newVal) {
+        game.p1c.freeMovement = newVal;
+        game.p2c.freeMovement = newVal;
+    }
     Transition(newHandler, args) {
         Sounds.EndAll();
         const wasFast = this.currentHandler.fast || false;
         if(this.currentHandler.CleanUp !== undefined) { this.currentHandler.CleanUp(); }
         this.currentHandler = newHandler;
+        game.SetFreeMovement(newHandler.freeMovement || false);
         gfx.ClearAll();
         if(wasFast && !newHandler.fast) {
             clearInterval(this.updateIdx);
@@ -222,7 +226,6 @@ const BaseHandler = {
 };  
 class Handler {
     freeMovement = false;
-    freeMovement2 = false;
     showSplitScreenIn2P = false;
     constructor() {}
     KeyPress(key) {}

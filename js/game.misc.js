@@ -39,8 +39,8 @@ const Title = {
             case 2:
                 switch(this.selection) {
                     case 0: return game.Transition(TeamSelection, [2]);
-                    case 1: return console.log("online host");
-                    case 2: return console.log("online join");
+                    case 1: return game.Transition(OnlineHostGame);
+                    case 2: return game.Transition(OnlineJoinGame);
                 }
         }
     },
@@ -745,19 +745,19 @@ class TeamOption {
         gfx.DrawCenteredSprite("teamlogos", this.sx, this.sy, this.x, this.y, "interface", 128, this.scale);
         if(p1SelX === this.ix && p1SelY === this.iy) {
             if(p1Confirmed) {
-                gfx.DrawCenteredSprite("teamselect", 0, 0, this.x, this.y, "interface", 128, this.scale);
+                gfx.DrawCenteredSprite("bigsprites", 0, 0, this.x, this.y, "interface", 128, this.scale);
             } else {
-                gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
+                gfx.DrawCenteredSprite("bigsprites", 1, 0, this.x, this.y, "interface", 128, this.scale);
             }
-            if(isTwoPlayer) { gfx.DrawCenteredSprite("teamselect", 0, 1, this.x, this.y, "interface", 128, this.scale); }
+            if(isTwoPlayer) { gfx.DrawCenteredSprite("bigsprites", 0, 1, this.x, this.y, "interface", 128, this.scale); }
         }
         if(p2SelX === this.ix && p2SelY === this.iy) {
             if(p2Confirmed) {
-                gfx.DrawCenteredSprite("teamselect", 0, 0, this.x, this.y, "interface", 128, this.scale);
+                gfx.DrawCenteredSprite("bigsprites", 0, 0, this.x, this.y, "interface", 128, this.scale);
             } else {
-                gfx.DrawCenteredSprite("teamselect", 1, 0, this.x, this.y, "interface", 128, this.scale);
+                gfx.DrawCenteredSprite("bigsprites", 1, 0, this.x, this.y, "interface", 128, this.scale);
             }
-            if(isTwoPlayer) { gfx.DrawCenteredSprite("teamselect", 1, 1, this.x, this.y, "interface", 128, this.scale); }
+            if(isTwoPlayer) { gfx.DrawCenteredSprite("bigsprites", 1, 1, this.x, this.y, "interface", 128, this.scale); }
         }
     }
 }

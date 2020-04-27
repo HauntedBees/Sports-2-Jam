@@ -17,7 +17,7 @@ class FieldRunHandler extends Handler {
         this.world = new b2World(new b2Vec2(0, 0), true);
         BaseStar.b2Helper = new b2Helpers(this.world);
         this.InitDebug();
-        this.GetStarsAndPlayersFromConstellationAndSwingBat(constellation, runningTeam, fieldTeam, pitcherPos, ballDetails);
+        const runnerDetails = this.GetStarsAndPlayersFromConstellationAndSwingBat(constellation, runningTeam, fieldTeam, pitcherPos, ballDetails);
         this.CreateBoundaries();
         
         const l = new b2ContactListener();
@@ -27,8 +27,8 @@ class FieldRunHandler extends Handler {
 
         this.runHandler = new RunHandler(runningTeam, this, this.runner, this.onBasePlayers, this.ball);
         this.fieldHandler = new FieldHandler(fieldTeam, this, this.fielders);
-        this.freeMovement = !p1IsRunner;
-        this.freeMovement2 = p1IsRunner;
+        game.p1c.freeMovement = !p1IsRunner;
+        game.p2c.freeMovement = p1IsRunner;
 
         if(p1IsRunner) {
             BaseStar.cameras[0].ignores = ["f_"];
@@ -41,7 +41,7 @@ class FieldRunHandler extends Handler {
             BaseStar.cameras[1].ignores = ["f_"];
             BaseStar.cameras[1].SwitchFocus(this.runner, true);
         }
-        BaseStar.cpu.InitFieldRun(this.runHandler, this.fieldHandler, !runningTeam.isPlayerControlled, !fieldTeam.isPlayerControlled);
+        BaseStar.cpu.InitFieldRun(this.runHandler, this.fieldHandler, !runningTeam.isPlayerControlled, !fieldTeam.isPlayerControlled, runnerDetails.runnerPos, runnerDetails.linearVelocity);
     }
     CleanUp() {
         this.minimap.CleanUp();
@@ -153,6 +153,7 @@ class FieldRunHandler extends Handler {
             b.baseNumber = e.baseIdx;
             mainHandler.onBasePlayers.push(b);
         });
+        return { runnerPos: runnerPos, linearVelocity: linearVelocity }
     }
     SafeBall() {
         BaseStar.data.inning.strikes = 0;
@@ -180,17 +181,6 @@ class FieldRunHandler extends Handler {
     FinishBatting() {
         BaseStar.data.inning.IncrementBatter();
         BaseStar.SwitchHandler(AtBatHandler);
-    }
-    SwitchFielderFreeMovement(newVal) {
-        if(BaseStar.data.team1.isUp) {
-            BaseStar.data.team2.GetControls().ClearAllKeys();
-            this.freeMovement2 = newVal;
-            BaseStar.freeMovement2 = newVal;
-        } else {
-            BaseStar.data.team1.GetControls().ClearAllKeys();
-            this.freeMovement = newVal;
-            BaseStar.freeMovement = newVal;
-        }
     }
     KeyPress(key) {
         if(AnimationHelpers.IsAnimating()) { return; }
@@ -227,7 +217,9 @@ class FieldRunHandler extends Handler {
         }
 
         if(this.dunkyTargeting) { this.ApplyDunkies(); }
-        this.ApplyBallGravityForces();
+        this.gravMult *= 1.001;
+        if(this.gravMult > 13) { this.gravMult = 13; }
+        this.ApplyBallGravityForces(this.ball, this.gravMult);
         this.runHandler.Update();
         this.fieldHandler.Update();
         if(this.fieldHandler.ballFielderIdx >= 0 && this.runner.onBase && this.runner.targetStar === this.fielders[this.fieldHandler.ballFielderIdx].base) {
@@ -235,6 +227,7 @@ class FieldRunHandler extends Handler {
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
     }
+    
     ApplyDunkies() {
         this.slamdunks.forEach(dunky => {
             const dunko = dunky.body;
@@ -249,12 +242,11 @@ class FieldRunHandler extends Handler {
             dunko.ApplyForce(playerDis, dunko.GetWorldCenter());
         });
     }
-    ApplyBallGravityForces() {
-        this.gravMult *= 1.001;
-        if(this.gravMult > 13) { this.gravMult = 13; }
-        const ballData = this.ball.GetUserData();
-        const ballPos = this.ball.GetWorldCenter();
-        this.ball.beeForces = [];
+    ApplyBallGravityForces(ball, gravMult) {
+        const ballData = ball.GetUserData();
+        const ballPos = ball.GetWorldCenter();
+        const ballMass = ball.GetMass();
+        ball.beeForces = [];
         if((this.hundredTimer % 3) === 0 && ballData.generateParticles) {
             BaseStar.particles.push({
                 x: m2p(ballPos.x) - 24 + Math.floor(Math.random() * 17),
@@ -265,9 +257,9 @@ class FieldRunHandler extends Handler {
             if((!playerOptions["particles"].value && BaseStar.particles.length > 20) || BaseStar.particles.length > 1000) { BaseStar.particles.shift(); }
         }
         if(ballData.held) {
-            this.ball.SetActive(false);
+            ball.SetActive(false);
         } else if(ballData.immunity === undefined || --ballData.immunity <= 0) {
-            if(this.gravMult > 12) {
+            if(gravMult > 12) {
                 let onlyStar = -1, closestDist = 10000;
                 this.stars.forEach((star, i) => {
                     const pos = star.GetWorldCenter();
@@ -279,11 +271,11 @@ class FieldRunHandler extends Handler {
                 });
                 this.ApplyForceFromStar(this.stars[onlyStar], ballPos, ballData.thrown, true);
             } else {
-                this.stars.forEach(star => this.ApplyForceFromStar(star, ballPos, ballData.thrown, false));
+                this.stars.forEach(star => this.ApplyForceFromStar(ball, gravMult, star, ballPos, ballMass, ballData.thrown, false));
             }
         } else if(ballData.nextForce !== undefined) {
-            this.ball.SetLinearVelocity(ballData.nextForce);
-            this.ball.SetActive(true);
+            ball.SetLinearVelocity(ballData.nextForce);
+            ball.SetActive(true);
             delete ballData.nextForce;
         }
         if(ballData.runner !== undefined) {
@@ -291,13 +283,13 @@ class FieldRunHandler extends Handler {
             this.runner.y = m2p(ballPos.y);
         }
     }
-    ApplyForceFromStar(star, ballPos, thrown, superGravity) {
+    ApplyForceFromStar(ball, gravMult, star, ballPos, ballMass, thrown, superGravity) {
         const starPos = star.GetWorldCenter();
         const starData = star.GetUserData();
         const starDist = new b2Vec2(0, 0);
         starDist.Add(ballPos);
         starDist.Subtract(starPos);
-        let force = this.gravMult * (starData.gravityPower * this.ball.GetMass()) / Math.pow(starDist.Length(), 2);
+        let force = gravMult * (starData.gravityPower * ballMass) / Math.pow(starDist.Length(), 2);
         if(superGravity) {
             starDist.NegativeSelf();
             starDist.Multiply(10);
@@ -307,9 +299,9 @@ class FieldRunHandler extends Handler {
             if(thrown) { force *= 0.05; } // gravity is weaker when ball is thrown from fielder to fielder
             starDist.NegativeSelf();
             starDist.Multiply(force);
-            this.ball.ApplyForce(starDist, this.ball.GetWorldCenter());
-            this.ball.ApplyForce(starDist, this.ball.GetWorldCenter());
-            this.ball.beeForces.push({
+            ball.ApplyForce(starDist, ball.GetWorldCenter());
+            ball.ApplyForce(starDist, ball.GetWorldCenter());
+            ball.beeForces.push({
                 x: m2p(ballPos.x), y: m2p(ballPos.y),
                 dx: m2p(starDist.x), dy: m2p(starDist.y)
             });
@@ -378,7 +370,7 @@ class FieldRunHandler extends Handler {
         }
 
         gfx.DrawHUDRectToCameras(0, 1, 640, 100, "#FFFFFF", "#000000", "overlay");
-        this.minimap.Draw();
+        this.minimap.Draw(this.runHandler.team.isPlayerControlled, this.fieldHandler.team.isPlayerControlled);
     }
     GetInfoUIX(playerNum, isFielding) {
         const xInfo = { centerX: 320, leftX: 185, rightX: 440 };

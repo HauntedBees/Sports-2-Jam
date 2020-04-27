@@ -201,6 +201,9 @@ class PitchHandler extends SecondaryHandler {
             if(this.pitch.GetPercent() > 0.7) {
                 const struckOut = BaseStar.data.inning.AddStrikeAndReturnIfOut();
                 const me = this.fullHandler;
+                if(!this.team.isPlayerControlled) {
+                    BaseStar.cpu.PlayerFailures[this.throwStyle] += 1;
+                }
                 if(struckOut) {
                     AnimationHelpers.StartScrollText("STRUCK OUT!", function() { me.StrikeOut(); });
                 } else {

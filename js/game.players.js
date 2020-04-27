@@ -45,9 +45,6 @@ class Fielder extends Player {
     }
     CatchBall(ball) {
         this.ball = ball;
-        console.log("CAUIGHT!");
-        console.log(m2p(this.ball.GetWorldCenter().x));
-        console.log(this.x);
         if(m2p(this.ball.GetWorldCenter().x) > this.x) {
             this.catchDir = 0;
         } else {
@@ -69,7 +66,7 @@ class Fielder extends Player {
         force.Multiply(20);
         const ballData = this.ball.GetUserData();
         ballData.lastFielder = this;
-        ballData.immunity = 10;
+        ballData.immunity = 80;
         ballData.held = false;
         ballData.thrown = true;
         ballData.generateParticles = true;
@@ -89,7 +86,7 @@ class Outfielder extends Fielder {
     angle = 0;
     /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y */
     constructor(team, playerInfo, x, y) {
-        super(team, playerInfo, x, y, "outfielder", 25);
+        super(team, playerInfo, x, y, "outfielder", 40);
         let animFrame = 0, animCounter = 0, sy = 0;
         let moving = false;
         this.Update = function() {
@@ -185,7 +182,7 @@ class Infielder extends Fielder {
         this.Draw = function () {
             const ballPos = vecm2p(this.mainHandler.ball.GetWorldCenter());
             const angle = Math.atan2(this.y - ballPos.y, this.x - ballPos.x) - 1.17;
-            gfx.DrawRotatedSpriteToCameras("player", this.team.bigSpriteSheet, angle, 1 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
+            gfx.DrawRotatedSpriteToCameras("player", this.team.bigSpriteSheet, angle, 2 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
         };
     }
     Move(x, y) { }

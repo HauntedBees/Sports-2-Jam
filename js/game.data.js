@@ -1,8 +1,8 @@
 class GameData {
     /** @param {number} team1idx @param {number} team2idx @param {boolean} isTeam2PlayerControlled */
     constructor(team1idx, team2idx, isTeam2PlayerControlled, p1BatsFirst) {
-        this.team1 = new Team(1, team1idx, true);
-        this.team2 = new Team(2, team2idx, isTeam2PlayerControlled);
+        this.team1 = new Team(1, team1idx, true, false);
+        this.team2 = new Team(2, team2idx, isTeam2PlayerControlled, team1idx === team2idx);
         this.team1.isUp = p1BatsFirst;
         this.team2.isUp = !p1BatsFirst;
         this.constellation = "Cygnus";
@@ -59,18 +59,33 @@ function InningData() {
         }
     };
 }
-/**
- * @param {number} player
- * @param {number} idx
- * @param {boolean} isPlayerControlled
- */
-function Team(player, idx, isPlayerControlled) {
+/** @param {number} player @param {number} idx @param {boolean} isPlayerControlled @param {boolean} darkTint */
+function Team(player, idx, isPlayerControlled, darkTint) {
     const teamInfo = TeamInfo[idx];
     gfx.TintSheet("baseballers", teamInfo.color, teamInfo.name);
-    gfx.FlipSheet(teamInfo.name);
     gfx.TintSheet("bigsprites", teamInfo.color, teamInfo.name + "_big");
     gfx.TintSheet("pitcher", teamInfo.color, teamInfo.name + "_pitcher");
     gfx.TintSheet("batter", teamInfo.color, teamInfo.name + "_batter");
+    if(darkTint) {
+        const tintColor = "#FFFFFF99";
+        gfx.TintSheet(teamInfo.name, tintColor, teamInfo.name + "_dark");
+        gfx.FlipSheet(teamInfo.name + "_dark");
+        gfx.TintSheet(teamInfo.name + "_big", tintColor, teamInfo.name + "_dark_big");
+        gfx.TintSheet(teamInfo.name + "_pitcher", tintColor, teamInfo.name + "_dark_pitcher");
+        gfx.TintSheet(teamInfo.name + "_batter", tintColor, teamInfo.name + "_dark_batter");
+        this.ballerSheet = teamInfo.name + "_dark";
+        this.flipSheet = teamInfo.name + "_darkflip";
+        this.bigSpriteSheet = teamInfo.name + "_dark_big";
+        this.pitcherSheet = teamInfo.name + "_dark_pitcher";
+        this.batterSheet = teamInfo.name + "_dark_batter";
+    } else {
+        gfx.FlipSheet(teamInfo.name);
+        this.ballerSheet = teamInfo.name;
+        this.flipSheet = teamInfo.name + "flip";
+        this.bigSpriteSheet = teamInfo.name + "_big";
+        this.pitcherSheet = teamInfo.name + "_pitcher";
+        this.batterSheet = teamInfo.name + "_batter";
+    }
     this.name = teamInfo.name;
     this.players = PlayerInfo.filter(e => e.team === idx);
     const splitName = teamInfo.name.split(" ");
@@ -89,26 +104,19 @@ function Team(player, idx, isPlayerControlled) {
     };
     this.GetConstellations = function() { return teamInfo.constellations; }
 };
-const TeamInfo = [ // NOTE: KEEP MAPX BETWEEN 225 AND 450 
-    // 2*   Asia: Korea, Japan
-    // 2*   North America: USA, Greenland
-    // 1*   Australia: Australia
-    // 1*   Atlantis
-    // 1    Europe: Italy
-    // 1    South America: Peru
-    // 1    Africa: Burundi
-    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 369, mapcy: 70, constellations: ["Sagittarius", "", ""] },
-    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 324, mapcy: 34, constellations: ["Ursa Major", "Taurus", ""] },
-    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 247, mapcy: 12, constellations: ["Centaurus", "", "Libra"] },
-        { name: "Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 293, mapcy: 58, constellations: ["Cetus", "Boötes", "Aries"] }, // AWAITING VERONICA
-    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 339, mapcy: 60, constellations: ["Scorpius", "Perseus", ""] },
-    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 254, mapcy: 56, constellations: ["Gemini", "Cygnus", ""] },
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 413, mapcy: 58, constellations: ["Aquarius", "", ""] }, 
-    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 363, mapcy: 54, constellations: ["Pisces", "", ""] },
-    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 248, mapcy: 60, constellations: ["Pegasus", "", "Cancer"] },
-    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 387, mapcy: 30, constellations: ["Hercules", "Capricornus", ""] },
-            { name: "Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 225, mapcy: 0, constellations: ["Virgo", "", ""] }, // NAME PENDING
-            { name: "Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 225, mapcy: 0, constellations: ["Lepus", "Leo", ""] } // NAME PENDING
+const TeamInfo = [ // NOTE: KEEP MAPX BETWEEN 225 AND 450
+    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 369, mapcy: 70, constellations: ["Sagittarius", "Orion", ""] },        // Greenland
+    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 324, mapcy: 34, constellations: ["Ursa Major", "Taurus", ""] },          // Burundi
+    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 247, mapcy: 12, constellations: ["Centaurus", "", "Libra"] },              // Australia
+    { name: "Makhachkala Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 297, mapcy: 64, constellations: ["Cetus", "Boötes", "Aries"] },         // *Russia
+    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 339, mapcy: 60, constellations: ["Scorpius", "Perseus", ""] },           // France
+    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 254, mapcy: 56, constellations: ["Gemini", "Cygnus", ""] },                  // Japan
+    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 390, mapcy: 30, constellations: ["Pegasus", "Capricornus", "Monoceros"] },   // *Peru
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 413, mapcy: 58, constellations: ["Aquarius", "", ""] },           // USA
+    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 363, mapcy: 54, constellations: ["Pisces", "", "Delphinus"] },              // Atlantis
+    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 248, mapcy: 60, constellations: ["Hercules", "", "Cancer"] },           // Korea
+    { name: "Cúcuta Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 387, mapcy: 36, constellations: ["Virgo", "", "Andromeda"] },             // Colombia
+    { name: "Lilongwe Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 321, mapcy: 22, constellations: ["Lepus", "Leo", "Ursa Minor"] }          // *Malawi
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },
@@ -360,20 +368,4 @@ for(let i = 0; i < TeamInfo.length; i++) {
     const bestPitcher = teamPlayers.reduce((a, b) => (a.stat4 > b.stat4 ? a : b)).name;
     starPlayers.push({ batter: bestBatter, pitcher: bestPitcher });
 }
-const PitchNames = [
-    "Wave",
-    "Direct",
-    "Unity",
-    "Deceit"
-];
-
-/*
-    { team: 10, name: "Udalimon Cosraver", stat1: 512, stat2: 0.588, stat3: 7.89, stat4: 77 },
-    { team: 10, name: "Tobby Tarobon", stat1: 586, stat2: 0.431, stat3: 8.41, stat4: 77 },
-    { team: 10, name: "Scolo Faubark", stat1: 472, stat2: 0.581, stat3: 8.73, stat4: 69 },
-    { team: 10, name: "Jimmadle Kosse", stat1: 426, stat2: 0.346, stat3: 9.65, stat4: 81 },
-    { team: 10, name: "Zelminonsun Moelfriza", stat1: 618, stat2: 0.539, stat3: 10.42, stat4: 79 },
-    { team: 10, name: "Tadwin Bery", stat1: 526, stat2: 0.932, stat3: 10.16, stat4: 79 },
-    { team: 10, name: "Lial Sperzchne", stat1: 447, stat2: 0.12, stat3: 4.31, stat4: 84 },
-    { team: 10, name: "Merward Bringhrino", stat1: 558, stat2: 0.951, stat3: 2.36, stat4: 86 }
- */
+const PitchNames = ["Wave", "Direct", "Unity", "Deceit"];
