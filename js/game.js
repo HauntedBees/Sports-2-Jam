@@ -23,6 +23,7 @@ const BaseStar = {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.team2Idx, true, p1BatsFirst);
         }
         this.SwitchView(false);
+        this.particles = [];
         this.cpu = new CPUplayer();
         this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
@@ -109,6 +110,8 @@ const BaseStar = {
     SwitchHandler: /** @param {new () => any} handler */
     function(handler) {
         if(this.subhandler !== null) { this.subhandler.CleanUp(); }
+        game.p1c.ClearAllKeys();
+        game.p2c.ClearAllKeys();
         this.subhandler = new handler();
         if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
             this.SwitchView(true);
@@ -155,7 +158,7 @@ class Game {
             });
             return;
         } 
-        this.currentHandler = Title;
+        this.currentHandler = LogoScreen;
         const canvasLayers = ["background", "background2", "debug", "interface", "overlay", "text", "specialanim", "minimap", 
                               "p2background", "p2background2", "p2debug", "p2interface", "p2overlay", "p2text"];
         /** @type {{[key:string] : HTMLCanvasElement }} */ 
@@ -179,7 +182,7 @@ class Game {
             game.p2c = game.inputHandler.controlSets[1];
             game.animIdx = setInterval(function() { game.AnimUpdate(); }, fpsAnim);
             game.updateIdx = setInterval(function() { game.Update(); }, fpsUpdate);
-            Title.Init();
+            LogoScreen.Init();
         });
     }
     AnimUpdate() {
@@ -197,6 +200,7 @@ class Game {
     }
     Transition(newHandler, args) {
         Sounds.EndAll();
+        meSpeak.stop();
         const wasFast = this.currentHandler.fast || false;
         if(this.currentHandler.CleanUp !== undefined) { this.currentHandler.CleanUp(); }
         this.currentHandler = newHandler;

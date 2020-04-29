@@ -63,7 +63,7 @@ class Fielder extends Player {
         this.catchDir = dx < 0 ? 1 : 0;
         const magnitude = Math.sqrt(dx * dx + dy * dy);
         const force = new b2Vec2(dx / magnitude, dy / magnitude);
-        force.Multiply(20);
+        force.Multiply(30);
         const ballData = this.ball.GetUserData();
         ballData.lastFielder = this;
         ballData.immunity = 80;
@@ -84,9 +84,9 @@ class Fielder extends Player {
 }
 class Outfielder extends Fielder {
     angle = 0;
-    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y */
-    constructor(team, playerInfo, x, y) {
-        super(team, playerInfo, x, y, "outfielder", 40);
+    /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {number} [radius] */
+    constructor(team, playerInfo, x, y, radius) {
+        super(team, playerInfo, x, y, "outfielder", radius || 40);
         let animFrame = 0, animCounter = 0, sy = 0;
         let moving = false;
         this.Update = function() {
@@ -146,6 +146,8 @@ class Outfielder extends Fielder {
     }
     Move(x, y) {
         if(this.caughtBallTimer > 0) { return; }
+        x *= SpeedMult();
+        y *= SpeedMult();
         this.force.x += x;
         this.force.y += y;
     }
@@ -160,7 +162,7 @@ class Outfielder extends Fielder {
 class Pitcher extends Outfielder {
     /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y */
     constructor(team, playerInfo, x, y) {
-        super(team, playerInfo, x, y);
+        super(team, playerInfo, x, y, 25);
         this.pitcher = true;
     }
 }
@@ -269,7 +271,7 @@ class Runner extends Player {
             }
             if (!running) { return; }
             
-            const mult = 1 + ((dashTimer -- > 0) ? Math.floor(dashTimer / 8) : 0);
+            let mult = SpeedMult() * (1 + ((dashTimer -- > 0) ? Math.floor(dashTimer / 8) : 0));
             this.x += mult * stepVector.x;
             this.y += mult * stepVector.y;
 

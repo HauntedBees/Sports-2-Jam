@@ -88,7 +88,7 @@ class DeceitPitch extends Pitch {
             const y = this.y1 + this.dy * myBallThrowPercentage;
             if(myBallThrowPercentage >= 0) {
                 const myScale = (Math.log(0.1 + myBallThrowPercentage) + Math.E) / 2;
-                gfx.DrawCenteredSprite("sprites", this.animCounter, (i === this.realBall ? 2 : 8), x, y, "interface", 32, myScale);
+                gfx.DrawCenteredSprite("sprites", this.animCounter, (i === this.realBall ? 2 : 3), x, y, "interface", 32, myScale);
             }
         }
     }

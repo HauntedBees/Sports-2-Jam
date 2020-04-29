@@ -1,5 +1,5 @@
 const fpsAnim = 1000 / 60, fpsUpdate = 80;
-//const fpsAnim = 1000 / 6, fpsUpdate = 800;
+const b2Framerate = 1 / 60, slowdownMult = 0.5;
 const RandRange = (a, b) => (a + Math.floor((b - a) * Math.random()));
 const RandFloat = (a, b) => a + (b - a) * Math.random();
 const Either = (a, b, condition1, condition2) => (a === condition1 && b === condition2) || (a === condition2 && b === condition1);

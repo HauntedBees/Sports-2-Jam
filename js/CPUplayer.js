@@ -1,4 +1,3 @@
-// TODO: make the CPU player not extremely bad at this
 class CPUplayer {
     constructor() { }
     /** @type {BatHandler} */ batter = null;
@@ -175,6 +174,8 @@ class CPUplayer {
             } else {
                 const goodFieldBoy = this.fielder.fielders[this.targetFieldPos.fielder];
                 const f = new b2Vec2(this.targetFieldPos.x, this.targetFieldPos.y);
+                const d = Dist(this.targetFieldPos.x, this.targetFieldPos.y, goodFieldBoy.x, goodFieldBoy.y);
+                if(d < 10) { return; }
                 f.Subtract(new b2Vec2(goodFieldBoy.x, goodFieldBoy.y));
                 f.Normalize();
                 this.fielder.MoveFielders(f.x, f.y);
@@ -454,7 +455,9 @@ class CPUplayer {
         this.fakeHelper.GetBarrier(boundx - 20, boundy, 20, boundh);
         this.fakeHelper.GetBarrier(boundx + boundw, boundy, 20, boundh);
 
-        this.stepSize = 1 / (50 + Clamp(accuracy, 0, 10));
+        const clampedAccuracy = Clamp(accuracy, 0, 10);
+        const stepSizeTop = (50 + clampedAccuracy) * SpeedMult();
+        this.stepSize = 1 / stepSizeTop;
         this.foresight = Clamp(foresight, 3, 13);
         const stepsToTake = this.foresight * 80;
 
@@ -480,7 +483,7 @@ class CPUplayer {
         for(let i = 0; i < stepsToTake; i++) {
             this.fakeWorld.Step(stepSize, 10, 10);
             this.fakeWorld.ClearForces();
-            this.fakeGravMult *= 1.001;
+            this.fakeGravMult *= 1 + (0.001 * SpeedMult());
             if(this.fakeGravMult > 13) { this.fakeGravMult = 13; }
             this.fielder.fullHandler.ApplyBallGravityForces(this.fakeBall, this.fakeGravMult);
             this.ballPredictions.push(vecm2p(this.fakeBall.GetWorldCenter()));
@@ -547,13 +550,18 @@ class CPUplayer {
         this.batter.dir = -10 + 20 * Math.random();
         this.batter.power = 2 + Math.random() * 10;
         this.batter.state = 2;
-        this.someChance = 0.0005;
+        this.someChance = 0.0002;
     }
     TrySwing() {
         let doHit = false;
         if(this.pitcher.pitchAnimState < 3) { return; }
-        if(this.pitcher.pitch.GetPercent() < 0.15) {
-            doHit = Math.random() < 0.13;
+        const pitchPercent = this.pitcher.pitch.GetPercent();
+        if(pitchPercent <= 0.1) {
+            doHit = false;
+        } else if(pitchPercent < 0.15) {
+            doHit = Math.random() < 0.01;
+        } else if(pitchPercent > 0.4) {
+            doHit = Math.random() < 0.3;
         } else {
             doHit = Math.random() < this.someChance;
         }

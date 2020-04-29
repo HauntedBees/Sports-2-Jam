@@ -2,8 +2,6 @@ const Title = {
     state: 0, elems: [], selection: 0, 
     animFrame: 0, animCounter: 0,
     Init: function(state) {
-        gfx.FlipSheet("helmets");
-        gfx.FlipSheet("baseballers");
         this.animFrame = 0;
         this.animCounter = 0;
         if(state !== undefined) {
@@ -33,7 +31,7 @@ const Title = {
         Sounds.PlaySound("confirm", true);
         switch(this.state) {
             case 0: 
-                SpeakHandler.Speak("Let's play some Base Sol!");
+                SpeakHandler.SpeakFromKey("letsplay");
                 return this.ShowChoices();
             case 1: return this.ConfirmSelection();
             case 2:
@@ -175,14 +173,14 @@ const TeamSelection = {
                     game.Transition(SeriesIndicator);
                 }
             } else {
-                SpeakHandler.Speak(TeamInfo[outerGameData.team1Idx].name);
+                SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team1Idx].name);
                 this.confirmed = true;
                 Sounds.PlaySound("confirm", false);
             }
         } else {
             if(this.confirmed2) { return; }
             outerGameData.team2Idx = this.sy2 * this.rowLength + this.sx2;
-            SpeakHandler.Speak(TeamInfo[outerGameData.team2Idx].name);
+            SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team2Idx].name);
             this.confirmed2 = true;
             Sounds.PlaySound("confirm", false);
         }
@@ -467,7 +465,7 @@ const CoinToss = {
     },
     Landed: function() {
         this.state = 2;
-        const landedHeads = this.coinFrame % 2 === 0;
+        const landedHeads = !this.calledHeads;//this.coinFrame % 2 === 0;
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
@@ -515,9 +513,9 @@ const WinScreen = {
                 }
                 gfx.WriteEchoOptionText(BaseStar.data.team1.score + " - " + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 36);
             } else {
-                gfx.WriteEchoOptionText("THE WINNER IS...", 320, 70, "text", "#FFFFFF", "#BA66FF", 36);
-                gfx.WriteEchoOptionText(winningTeam.name.toUpperCase(), 320, 110, "text", "#FFFFFF", "#BA66FF", 48);
-                gfx.WriteEchoOptionText(BaseStar.data.team1.score + " - " + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 36);
+                gfx.WriteEchoOptionText("THE WINNER IS...", 320, 70, "text", "#FFFFFF", "#BA66FF", 32);
+                gfx.WriteEchoOptionText(winningTeam.name.toUpperCase(), 320, 110, "text", "#FFFFFF", "#BA66FF", 38);
+                gfx.WriteEchoOptionText(BaseStar.data.team1.score + " - " + BaseStar.data.team2.score, 320, 140, "text", "#FFFFFF", "#BA66FF", 32);
             }
             const dx = 32, cy = 160;
             for(let i = 0; i < 20; i++) {
@@ -634,6 +632,7 @@ const Credits = {
         Whitespace(1);
         AddHeading("Graphics");
         AddText("Sean Finch");
+        AddText("Marcin Rojek");
         Whitespace(1);
         AddHeading("Game Design");
         AddText("Sean Finch");
@@ -726,6 +725,47 @@ const Credits = {
             if(y < -20 || y > 500) { return; }
             gfx.WriteEchoOptionText(e.text, 320, y, "text", "#FFFFFF", "#0000FF", e.size);
         });
+    }
+};
+const LogoScreen = {
+    Init: function() {
+        gfx.FlipSheet("helmets");
+        gfx.FlipSheet("baseballers");
+        this.success = false;
+        this.timer = 50;
+        gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "logo", 640, 480, "background", 0, 0);
+    },
+    TrySpeak: function() {
+        if(SpeakHandler.PreloadedMessages["logo"] === undefined) { return; }
+        this.success = true;
+        SpeakHandler.SpeakFromKey("logo", function(success) {
+            if(!success) { return; }
+            if(game.currentHandler !== LogoScreen) { return; }
+            game.Transition(Title);
+        });
+    },
+    CleanUp: function() { },
+    KeyPress: function(key) {
+        switch(key) {
+            case game.p1c["pause"]: 
+            case game.p1c["confirm"]: 
+                this.success = false;
+                this.timer = 0;
+                break;
+        }
+    },
+    Update: function() {
+        if(!this.success) {
+            if(--this.timer <= 0) {
+                this.success = true;
+                game.Transition(Title);
+            } else {
+                this.TrySpeak();
+            }
+        }
+    },
+    AnimUpdate: function() {
+
     }
 };
 

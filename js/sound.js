@@ -1,15 +1,48 @@
 const SpeakHandler = {
     Speakers: {
-        "Zenn" : { variant: "croak", pitch: 15 }
+        "Zenn" : { variant: "croak", pitch: 15 },
+        "logo": { variant: "m2", pitch: 50, speed: 110, wordgap: 1 }
     },
     Speak: function(text, person) {
         person = person || "Zenn";
         console.log(`${person}: ${text}`);
         if(!playerOptions["voice"].value) { return; }
-        //meSpeak.speak(text, SpeakHandler.Speakers[person]);
+        meSpeak.speak(text, SpeakHandler.Speakers[person]);
     },
     Stop: function() {
         meSpeak.stop();
+    },
+    Preload: function(key, text, person) {
+        person = person || "Zenn";
+        const options = Object.assign(SpeakHandler.Speakers[person], { rawdata: true });
+        meSpeak.speak(text, options, function(success, id, stream) {
+            SpeakHandler.PreloadedMessages[key] = stream;
+            SpeakHandler.SoundsToPreload -= 1;
+            //console.log(`Preloaded Message "${key}." Remaining: ${SpeakHandler.SoundsToPreload}`);
+        });
+    },
+    PreloadedMessages: {}, 
+    SpeakFromKey: function(key, callback) {
+        if(SpeakHandler.PreloadedMessages[key] === undefined) { return; }
+        const audioStream = SpeakHandler.PreloadedMessages[key].slice(0); // creates a copy
+        if(callback === undefined) {
+            meSpeak.play(audioStream);
+        } else {
+            meSpeak.play(audioStream, undefined, callback);
+        }
+    },
+    SoundsToPreload: 0, 
+    PreloadAll: function() {
+        if(SpeakHandler.SoundsToPreload > 0 || SpeakHandler.PreloadedMessages["logo"] !== undefined) { return; }
+        meSpeak.loadVoice("voices/en/en-us.json", function() {
+            const soundsToPreload = [
+                { key: "logo", speaker: "logo", text: "d.a. sports 2. become one with the game!" },
+                { key: "letsplay", text: "Let's play some Base Sol!" }
+            ];
+            soundsToPreload.push(...TeamInfo.map(t => ({ key: t.name, text: t.name })));
+            SpeakHandler.SoundsToPreload = soundsToPreload.length;
+            soundsToPreload.forEach(f => SpeakHandler.Preload(f.key, f.text, f.speaker));
+        });
     }
 };
 const Sounds = {

@@ -22,11 +22,11 @@ class FieldHandler extends SecondaryHandler {
                 AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
                 return;
             }
-            let lowestDistance = -1;
+            let lowestDistance = 999999;
             this.fielders.forEach((fielder, i) => {
                 const dx = fielder.x - runner.x, dy = fielder.y - runner.y;
                 const magnitude = Math.sqrt(dx * dx + dy * dy);
-                if(magnitude < lowestDistance || lowestDistance < 0) {
+                if(magnitude < lowestDistance && i !== this.targetFielderIdx) {
                     lowestDistance = magnitude;
                     this.targetFielderIdx = i;
                 }

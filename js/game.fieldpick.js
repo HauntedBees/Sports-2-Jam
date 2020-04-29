@@ -12,9 +12,9 @@ function GetDebugFunkoPop() {
     BaseStar.FieldSetupComplete(cs[fph.constsel], [
         {x: -7, y: -37},
         {x: 134, y: -18},
-        {x: 197, y: 53} ,
+        {x: 197, y: 53},
         {x: 10, y: 81},
-        {x: 63, y: 19} ,
+        {x: 63, y: 19},
         {x: 226, y: -94},
         {x: -86, y: 68},
         {x: -1, y: -90},
@@ -39,7 +39,7 @@ class FieldPickHandler extends Handler {
     scale = 0.32; maxY = 0;
     leftx = 0; rightx = 0; topy = 0; bottomy = 0;
     noZoneLeft = 0; noZoneRight = 0; noZoneTop = 0; noZoneBottom = 0;
-    boundsMult = 1.5;
+    boundsMult = 1; boundShift = 1000;
     constructor() {
         super();
         this.team = BaseStar.data.GetFieldTeam();
@@ -91,44 +91,50 @@ class FieldPickHandler extends Handler {
             this.state = 1;
             const c = ConstellationInfo[this.team.GetConstellations()[this.constsel]];
             this.totalOutfielders = 20 - c.stars.length - 1;
-            const scaleInfo = this.DrawConstellation(c, 320, 365);
-            this.scale = scaleInfo.scale;
-            this.maxY = scaleInfo.maxy;
-            while(((Math.max(1000, this.maxY) * this.scale) * this.boundsMult) > 284) {
-                this.scale -= 0.01;
-            }
-            const w = (1000 * this.boundsMult) * this.scale, h = ((Math.max(1000, this.maxY) * this.scale) * this.boundsMult) / 2;
-            this.leftx = -w / 2;
-            this.x0 = -500 * this.scale;
-            this.y0 = -(this.maxY * this.scale) / 2;
-            this.rightx = w;
-            this.topy = -h;
-            this.bottomy = h;
-            const dx = this.rightx - this.leftx;
-            const dy = this.bottomy - this.topy;
-            this.noZoneLeft = this.leftx;
-            this.noZoneTop = this.topy + dy / 3;
-            this.noZoneBottom = this.topy + dy * 2 / 3;
-            this.noZoneRight = this.leftx + 15 * this.scale + dx / 4;
+            this.SetBounds(c);
             this.AddOutfielder(true);
             return false;
         } else if(this.state === 1) {
             this.AddOutfielder(false);
             return false;
         } else {
-            const x0 = -500 * this.scale;
-            const y0 = -(this.maxY * this.scale) / 2;
-            BaseStar.FieldSetupComplete(this.team.GetConstellations()[this.constsel], this.outfielders.map(o => ({
-                x: (o.x - x0) / this.scale,
-                y: (o.y - y0) / this.scale
-            })), {
-                x: (this.leftx - x0) / this.scale,
-                y: (this.topy - y0) / this.scale,
-                w: (this.rightx - this.leftx) / this.scale,
-                h: (this.bottomy - this.topy) / this.scale
-            });
+            this.FinishFieldSetup();
             return true;
         }
+    }
+    SetBounds(constellationInfo) {
+        const scaleInfo = this.DrawConstellation(constellationInfo, 320, 365);
+        this.scale = scaleInfo.scale;
+        this.maxY = scaleInfo.maxy;
+        while(((Math.max(this.boundShift, this.maxY) * this.scale) * this.boundsMult) > 284) {
+            this.scale -= 0.01;
+        }
+        const w = (this.boundShift * this.boundsMult) * this.scale, h = (this.maxY * 1.25 * this.scale * this.boundsMult) / 2;
+        this.leftx = -w / 2 - 200 * this.scale;
+        this.x0 = -500 * this.scale;
+        this.y0 = -(this.maxY * this.scale) / 2;
+        this.rightx = w * 0.75;
+        this.topy = -h;
+        this.bottomy = h;
+        const dx = this.rightx - this.leftx;
+        const dy = this.bottomy - this.topy;
+        this.noZoneLeft = this.leftx;
+        this.noZoneTop = this.topy + dy / 3;
+        this.noZoneBottom = this.topy + dy * 2 / 3;
+        this.noZoneRight = this.leftx + 15 * this.scale + dx / 4;
+    }
+    FinishFieldSetup() {
+        const x0 = -500 * this.scale;
+        const y0 = -(this.maxY * this.scale) / 2;
+        BaseStar.FieldSetupComplete(this.team.GetConstellations()[this.constsel], this.outfielders.map(o => ({
+            x: (o.x - x0) / this.scale,
+            y: (o.y - y0) / this.scale
+        })), {
+            x: (this.leftx - x0) / this.scale,
+            y: (this.topy - y0) / this.scale,
+            w: (this.rightx - this.leftx) / this.scale,
+            h: (this.bottomy - this.topy) / this.scale
+        });
     }
     MoveOutfielder(dx, dy) {
         let newX = this.ofx + 10 * dx, newY = this.ofy + 10 * dy;
@@ -191,8 +197,8 @@ class FieldPickHandler extends Handler {
         gfx.DrawCenteredSprite("constellations", c.hx, c.hy, cx, cy, "interface", 128, 0.5);
         gfx.DrawCenteredSprite("bigsprites", 0, 0, cx, cy, "interface", 128, 0.5);
         
-        const w = (1000 * this.boundsMult) * this.scale;
-        const csx = 320 - w / 4, csy = 340;
+        const w = (this.boundShift * this.boundsMult) * this.scale;
+        const csx = 383 - w / 4, csy = 340;
         this.DrawConstellation(c, csx, csy, this.scale, 0.5);
         // borders
         gfx.DrawLineToCameras(csx + this.leftx, csy + this.topy, csx + this.rightx, csy + this.topy, "#00FF00", "interface");

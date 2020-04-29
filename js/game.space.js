@@ -2,7 +2,8 @@ class FieldRunHandler extends Handler {
     state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; ball = null; hundredTimer = 0;
     gravMult = 1.5; showSplitScreenIn2P = true;
-    slamdunks = []; runner = null;
+    slamdunks = []; runner = null; boondaries = [];
+    b2updateRate = b2Framerate * SpeedMult();
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
     constructor(ballDetails, pitcherPos, constellation) {
@@ -109,6 +110,15 @@ class FieldRunHandler extends Handler {
         BaseStar.b2Helper.GetBarrier(boundx, boundy + boundh, boundw, 20);
         BaseStar.b2Helper.GetBarrier(boundx - 20, boundy, 20, boundh);
         BaseStar.b2Helper.GetBarrier(boundx + boundw, boundy, 20, boundh);
+        const boundBottom = boundy + boundh, boundRight = boundx + boundw;
+        for(let x = 0; x < boundw; x += 64) {
+            this.boondaries.push({ x: x, y: boundy, sx: 4 + Math.floor(Math.random() * 4) });
+            this.boondaries.push({ x: x, y: boundBottom, sx: 4 + Math.floor(Math.random() * 4) });
+        }
+        for(let y = 0; y < boundh; y += 64) {
+            this.boondaries.push({ x: boundx, y: y, sx: 4 + Math.floor(Math.random() * 4) });
+            this.boondaries.push({ x: boundRight, y: y, sx: 4 + Math.floor(Math.random() * 4) });
+        }
         this.debugBounds = [boundx, boundy, boundx + boundw, boundy + boundh];
     }
     /** @param {string} constellationName @param {Team} runningTeam @param {Team} fieldTeam @param {number} pitcherDx @param {any} ballDetails */
@@ -189,7 +199,7 @@ class FieldRunHandler extends Handler {
     }
     Update() {
         if(AnimationHelpers.IsAnimating() || game.paused) { return; }
-        this.world.Step(1 / 60, 10, 10);	
+        this.world.Step(this.b2updateRate, 10, 10);	
         this.world.ClearForces();
         BaseStar.cameras.forEach(e => e.Update());
         if(++this.hundredTimer > 100) { this.hundredTimer = 0; }
@@ -217,7 +227,7 @@ class FieldRunHandler extends Handler {
         }
 
         if(this.dunkyTargeting) { this.ApplyDunkies(); }
-        this.gravMult *= 1.001;
+        this.gravMult *= 1 + (0.001 * SpeedMult()); // NOTE: the math on this doesn't really check out but eh
         if(this.gravMult > 13) { this.gravMult = 13; }
         this.ApplyBallGravityForces(this.ball, this.gravMult);
         this.runHandler.Update();
@@ -269,7 +279,7 @@ class FieldRunHandler extends Handler {
                         onlyStar = i;
                     }
                 });
-                this.ApplyForceFromStar(this.stars[onlyStar], ballPos, ballData.thrown, true);
+                if(onlyStar >= 0) { this.ApplyForceFromStar(ball, gravMult, this.stars[onlyStar], ballPos, ballData.thrown, true); }
             } else {
                 this.stars.forEach(star => this.ApplyForceFromStar(ball, gravMult, star, ballPos, ballMass, ballData.thrown, false));
             }
@@ -368,6 +378,10 @@ class FieldRunHandler extends Handler {
             const sx = this.GetBallAngle(Math.atan2(linearVelocity.y, linearVelocity.x));
             gfx.DrawCenteredSpriteToCameras("ball", "sprites", sx, 2, m2p(pos.x), m2p(pos.y), "interface", 32);
         }
+
+        this.boondaries.forEach(asteroid => {
+            gfx.DrawCenteredSpriteToCameras("asteroid", "sprites", asteroid.sx, 2, asteroid.x, asteroid.y, "interface", 64, 1);
+        });
 
         gfx.DrawHUDRectToCameras(0, 1, 640, 100, "#FFFFFF", "#000000", "overlay");
         this.minimap.Draw(this.runHandler.team.isPlayerControlled, this.fieldHandler.team.isPlayerControlled);

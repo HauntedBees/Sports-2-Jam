@@ -68,11 +68,11 @@ class AtBatHandler extends Handler {
                 const dir = (distance < 0) ? -1 : 1; // too soon is right, too late is left
                 distance = Math.abs(distance);
                 let offset = 0;
-                console.log(distance);
+                console.log("distance: " + distance);
                 if(distance <= 0.08) { // perfect shot
                     this.ohWowState = 1;
                     offset = 0;
-                } else if(distance <= 0.75) { // close enough
+                } else if(distance <= 0.1) { // close enough
                     offset = 0.25;
                 } else if(distance <= 0.15) { // ehh
                     offset = Math.log(100 * distance);
@@ -158,9 +158,10 @@ class AtBatHandler extends Handler {
         gfx.WriteEchoOptionText(BaseStar.data.team1.initial, scoreX - dx, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
         gfx.WriteEchoOptionText(`${BaseStar.data.team1.score}-${BaseStar.data.team2.score}`, scoreX, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
         gfx.WriteEchoOptionText(BaseStar.data.team2.initial, scoreX + dx, scoreY, "background2", "#FFFFFF", "#BA66FF", 12);
-        const underlineMult = BaseStar.data.team1.isUp ? -1 : 1;
-        gfx.WriteOptionText("-", scoreX + underlineMult * dx, scoreY + 15, "background2", "#FFADCD", 30);
-
+        const infoDir = BaseStar.data.team1.isUp ? -1 : 1;
+        gfx.WriteOptionText("-", scoreX + infoDir * dx, scoreY + 15, "background2", "#FFADCD", 30);
+        gfx.WriteOptionText(this.GetRomanNumeral(BaseStar.data.inning.playersOnBase.length), scoreX + infoDir * 8, scoreY + 8, "background2", "#FFFFFF", 8);
+      
         const playerInfoY = 435, batX = 10, pitchX = 525, dy = 17, statDx = 100;
         const battingPlayer = this.batHandler.team.players[BaseStar.data.inning.atBatPlayerIdx];
         gfx.WriteEchoPlayerText(battingPlayer.name, batX, playerInfoY, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
@@ -175,5 +176,28 @@ class AtBatHandler extends Handler {
         gfx.WriteEchoPlayerText("KZ.", pitchX, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "left");
         gfx.WriteEchoPlayerText(pitchingPlayer.stat3.toFixed(2), pitchX + statDx, playerInfoY + dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
         gfx.WriteEchoPlayerText(pitchingPlayer.stat4.toString(), pitchX + statDx, playerInfoY + 2 * dy, 110, "background2", "#FFFFFF", "#BA66FF", 12, "right");
+    }
+    GetRomanNumeral(i) {
+        if(i >= 20) { return "XX"; } // shouldn't ever actually happen; no constellation has 20+ stars
+        let numeral = "";
+        if(i >= 10) {
+            i -= 10;
+            numeral = "X";
+        }
+        if(i === 9) {
+            i -= 9;
+            numeral += "IX";
+        }
+        if(i >= 5) {
+            i -= 5;
+            numeral += "V";
+        }
+        switch(i) {
+            case 1: numeral += "I"; break;
+            case 2: numeral += "II"; break;
+            case 3: numeral += "III"; break;
+            case 4: numeral += "IV"; break;
+        }
+        return numeral;
     }
 }

@@ -3,8 +3,10 @@ const playerOptions = {
     "music": { displayName: "Music", value: true },
     "voice": { displayName: "Voices", value: true },
     "gameplay": { displayName: "Gameplay", value: false },
+    "slowdown": { displayName: "Slowdown Mode", value: false },
     "particles": { displayName: "Particle Effects", value: true }
 };
+function SpeedMult() { return playerOptions["slowdown"].value ? slowdownMult : 1; }
 const OptionsScreen = {
     elems: [], selection: 0, controlWidth: 0, saveWidth: 0,
     GetY: i => 80 + i * 50,
@@ -19,7 +21,7 @@ const OptionsScreen = {
             return { len: len, y: y, key: key, value: obj.value };
         });
         this.controlWidth = gfx.WriteEchoOptionText("Change Controls", 320, this.GetY(options.length), "background", "#FFFFFF", "#0000AA", 24);
-        this.saveWidth = gfx.WriteEchoOptionText("Save and Quit", 320, this.GetY(options.length + 2.5), "background", "#FFFFFF", "#0000AA", 24);
+        this.saveWidth = gfx.WriteEchoOptionText("Save and Quit", 320, this.GetY(options.length + 1.5), "background", "#FFFFFF", "#0000AA", 24);
         this.selection = fromControls === true ? this.elems.length : 0;
     },
     CleanUp: function() { this.elems = []; },
@@ -73,7 +75,7 @@ const OptionsScreen = {
             gfx.DrawCenteredSprite("sprites", 2, 0, 305 - this.controlWidth / 2, y, "interface", 32, 0.75);
             gfx.DrawCenteredSprite("sprites", 2, 0, 335 + this.controlWidth / 2, y, "interface", 32, 0.75);
         } else if(this.selection > this.elems.length) { // save and quit
-            const y = this.GetY(this.elems.length + 2.5) - 8;
+            const y = this.GetY(this.elems.length + 1.5) - 8;
             gfx.DrawCenteredSprite("sprites", 2, 0, 305 - this.saveWidth / 2, y, "interface", 32, 0.75);
             gfx.DrawCenteredSprite("sprites", 2, 0, 335 + this.saveWidth / 2, y, "interface", 32, 0.75);
         }
