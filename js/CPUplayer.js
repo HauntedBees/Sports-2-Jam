@@ -108,22 +108,23 @@ class CPUplayer {
             }
         } else {
             const targetFielder = this.fielder.fielders[this.runner.runner.targetStar];
-            if(targetFielder.ball !== null) { // target has ball, run somewhere else!
+            if(this.runner.runner.onBase) { // i'm on base!
+               this.runner.Confirm();
+            } else if(targetFielder.ball !== null) { // target has ball, run somewhere else!
                 let closestDistance = 9999;
                 const myPos = vecp2m({ x: this.runner.runner.x, y: this.runner.runner.y }); // easier than converting all the stars FROM box2d
                 const occupiedBases = this.runner.onBaseRunners.map(r => r.baseNumber);
+                let newTargetStarIdx = 0;
                 this.fielder.fullHandler.stars.forEach((star, i) => {
                     if(occupiedBases.indexOf(i) >= 0 || i === this.runner.runner.targetStar) { return; }
                     const pos = star.GetWorldCenter();
                     const d = Dist(pos.x, pos.y, myPos.x, myPos.y);
                     if(d < closestDistance) {
                         closestDistance = d;
-                        this.runner.runner.targetStar = i;
+                        newTargetStarIdx = i;
                     }
                 });
-            }
-            if(this.runner.runner.onBase) { // i'm on base!
-                this.runner.Confirm();
+                this.runner.runner.MoveToStar(newTargetStarIdx);
             } else { // target does not have ball
                 if(--this.didThingCooldown > 0) { return; }
                 this.didThingCooldown = 10;
@@ -536,7 +537,7 @@ class CPUplayer {
                 }
             }
             this.pitcher.throwStyle = mostFailures;
-        } else if(Math.random() < 0.15 && outerGameData.seriesRound < 2) { // ever-so-slightly prefer easy balls early on
+        } else if(Math.random() < 0.15 && outerGameData.seriesRound === 0) { // ever-so-slightly prefer easy balls early on
             this.pitcher.throwStyle = 1;
         } else { // otherwise go oppan random style
             this.pitcher.throwStyle = Math.floor(Math.random() * 4);
@@ -548,7 +549,7 @@ class CPUplayer {
         this.batter.ready = true;
         this.batter.dx = 0;
         this.batter.dir = -10 + 20 * Math.random();
-        this.batter.power = 2 + Math.random() * 10;
+        this.batter.power = 1 + Math.random() * 11;
         this.batter.state = 2;
         this.someChance = 0.0002;
     }
@@ -561,7 +562,7 @@ class CPUplayer {
         } else if(pitchPercent < 0.15) {
             doHit = Math.random() < 0.01;
         } else if(pitchPercent > 0.4) {
-            doHit = Math.random() < 0.3;
+            doHit = Math.random() < 0.35;
         } else {
             doHit = Math.random() < this.someChance;
         }

@@ -2,6 +2,7 @@ const playerOptions = {
     "sound": { displayName: "Sound", value: true },
     "music": { displayName: "Music", value: true },
     "voice": { displayName: "Voices", value: true },
+    "captions": { displayName: "Voice Captions", value: true },
     "gameplay": { displayName: "Gameplay", value: false },
     "slowdown": { displayName: "Slowdown Mode", value: false },
     "particles": { displayName: "Particle Effects", value: true }
@@ -9,7 +10,7 @@ const playerOptions = {
 function SpeedMult() { return playerOptions["slowdown"].value ? slowdownMult : 1; }
 const OptionsScreen = {
     elems: [], selection: 0, controlWidth: 0, saveWidth: 0,
-    GetY: i => 80 + i * 50,
+    GetY: i => 80 + i * 45,
     Init: function(fromControls) {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         gfx.WriteEchoOptionText("Options", 320, 32, "background", "#FFFFFF", "#BA66FF", 24);

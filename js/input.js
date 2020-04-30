@@ -9,7 +9,8 @@ class GameInput {
         0, 0, 0, 0]; // positive axes Lx Ly Rx Ry
     /** @type {string[]} */ controlArray = [];
     /** @param {{ up: string; left: string; down: string; right: string; confirm: string; cancel: string; pause: string; }} keyboardDefaults */
-    constructor(keyboardDefaults) {
+    constructor(playerNum, keyboardDefaults) {
+        this.playerNum = playerNum;
         this.keyboardControls = keyboardDefaults;
         this.gamepadControls = { up: "Gamepad12", left: "Gamepad14", down: "Gamepad13", right: "Gamepad15", confirm: "Gamepad0", cancel: "Gamepad1", pause: "Gamepad9" };
         this.currentControls = this.keyboardControls;
@@ -86,6 +87,7 @@ class GameInput {
 
     /** @param {KeyboardEvent} e */
     KeyDown(e) {
+        if(helper.isVisible) { return; }
         const key = this.GetKey(e);
         if(this.controlArray.indexOf(key) < 0) { return; }
         this.ToggleControlType(false);
@@ -100,6 +102,7 @@ class GameInput {
     }
     /** @param {KeyboardEvent} e */
     KeyUp(e) {
+        if(helper.isVisible) { return; }
         const key = this.GetKey(e);
         if(this.controlArray.indexOf(key) < 0) { return; }
         this.justPressed[key] = -1;
@@ -112,6 +115,8 @@ class GameInput {
     /** @param {KeyboardEvent} e */
     KeyPress(e) {
         const key = this.GetKey(e);
+        if(key === "h") { return helper.GetHelpInformation(this.playerNum, true); }
+        if(helper.isVisible) { return; }
         if(this.controlArray.indexOf(key) < 0) { return; }
         if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && this.freeMovement) {
             return;
@@ -153,13 +158,18 @@ class GameInput {
                 if(btnVal === 1 || (btnVal >= 45 && btnVal % 15 === 0)) {
                     this.justPressed[btn] = this.justPressed[btn] === undefined ? 0 : (this.justPressed[btn] + 1);
                     if(movements.indexOf(btn) >= 0 && this.freeMovement) {
+                        if(helper.isVisible) { return; }
                         this.SetMainKey(btn);
                         if(this.keys[btn] !== undefined) { return; }
                         const me = this;
                         this.keys[btn] = setInterval(function() {
                             game.currentHandler.KeyPress(me.gamepadIndex.toString() + btn);
                         }, this.buttonDelay);
-                    } else { game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn); }
+                    } else {
+                        if(btn === "Gamepad8") { return helper.GetHelpInformation(this.playerNum, false); }
+                        if(helper.isVisible) { return; }
+                        game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn);
+                    }
                 }
             }
         });
@@ -167,7 +177,7 @@ class GameInput {
 }
 class ShellGameInput extends GameInput {
     constructor() {
-        super({ up: "", left: "", down: "", right: "", confirm: "", cancel: "", pause: "" });
+        super(0, { up: "", left: "", down: "", right: "", confirm: "", cancel: "", pause: "" });
     }
     Key(key) { return ""; }
     ChangeInputBinding(key, value) {}
@@ -189,8 +199,8 @@ class InputHandler {
     forceCleanKeyPress = false; ignoreNextKeyPress = false;
     gamepads = {}; gamepadQueryIdx = -1;
     controlSets = [
-        new GameInput({ up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" }),
-        new GameInput({ up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" })
+        new GameInput(1, { up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" }),
+        new GameInput(2, { up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" })
     ];
     constructor() {
         const me = this;

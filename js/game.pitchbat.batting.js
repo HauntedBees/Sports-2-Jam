@@ -8,7 +8,6 @@ class BatHandler extends SecondaryHandler {
     AwaitBall() { this.state = 3; }
     KeyPress(key) {
         switch(key) {
-            case this.myControls["pause"]: 
             case this.myControls["confirm"]:
                 if(this.state === 0) {
                     this.state = 1;

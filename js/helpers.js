@@ -12,12 +12,13 @@ const AnimationHelpers = {
 	animIdx: 0, animData: {}, 
 	IsAnimating: () => AnimationHelpers.animIdx > 0,
 	StartScrollText: function(text, callback) {
+		if(this.animIdx > 0) { return; }
+		SpeakHandler.Speak(text);
 		const len = gfx.WriteBorderedText(text, 0, 1000, "specialanim", "#FFFFFF", "#FFFFFF", 196, 5);
 		this.animData = { 
 			text: text, callback: callback,
 			x: 640 + len / 2, y: 300, 
 			length: len, endX: (-len / 2) };
-		if(this.animIdx > 0) { clearInterval(this.animIdx); }
 		this.animIdx = setInterval(this.AnimateScrollText, fpsAnim);
 	},
 	AnimateScrollText: function() {

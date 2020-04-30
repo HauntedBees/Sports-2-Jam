@@ -166,21 +166,23 @@ const TeamSelection = {
                 } else {
                     outerGameData.gameType = "series";
                     outerGameData.seriesRound = 0;
-                    outerGameData.seriesLineup = [3]; // [];
-                    for(let i = 0; i < 4; i++) { // 5
+                    outerGameData.seriesLineup = [];
+                    for(let i = 0; i < 3; i++) {
                         outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
                     }
                     game.Transition(SeriesIndicator);
                 }
             } else {
-                SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team1Idx].name);
+                SpeakHandler.Speak(TeamInfo[outerGameData.team1Idx].name);
+                //SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team1Idx].name);
                 this.confirmed = true;
                 Sounds.PlaySound("confirm", false);
             }
         } else {
             if(this.confirmed2) { return; }
             outerGameData.team2Idx = this.sy2 * this.rowLength + this.sx2;
-            SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team2Idx].name);
+            SpeakHandler.Speak(TeamInfo[outerGameData.team2Idx].name);
+            //SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team2Idx].name);
             this.confirmed2 = true;
             Sounds.PlaySound("confirm", false);
         }
@@ -319,16 +321,18 @@ const SeriesIndicator = {
         gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 0, 3, 450, helmety, "interface", 160, 1);
         gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 3 - opponentTeam.hx, opponentTeam.hy, 450, helmety, "interface", 160, 1);
         
-        gfx.DrawLineToCameras(120, bottomy, 120 + 100 * (outerGameData.seriesLineup.length - 1), bottomy, "#FF0000", "interface");
+        const leftmostX = 220;
+
+        gfx.DrawLineToCameras(leftmostX, bottomy, leftmostX + 100 * (outerGameData.seriesLineup.length - 1), bottomy, "#FF0000", "interface");
         for(let i = 0; i < outerGameData.seriesLineup.length; i++) {
             const smallTeam = TeamInfo[outerGameData.seriesLineup[i]];
-            const smallx = 120 + 100 * i;
+            const smallx = leftmostX + 100 * i;
             const sheet = i < outerGameData.seriesRound ? "helmetsfliptint" : "helmetsflip";
             let scale = i === outerGameData.seriesRound ? 0.6 : 0.5;
             gfx.DrawCenteredSpriteToCameras("helmet", "helmetsflip", 0, 3, smallx, bottomy, "interface", 160, scale);
             gfx.DrawCenteredSpriteToCameras("helmet", sheet, 3 - smallTeam.hx, smallTeam.hy, smallx, bottomy, "interface", 160, scale);
         }
-        const playerHelmetX = 120 + 100 * outerGameData.seriesRound + 10;
+        const playerHelmetX = leftmostX + 100 * outerGameData.seriesRound + 10;
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", playerTeam.hx, playerTeam.hy, playerHelmetX, bottomy + 90, "interface", 160, 0.4);
     },
@@ -427,6 +431,7 @@ const CoinToss = {
         this.state = 0;
         this.calledHeads = false;
         this.callingTeam = outerGameData.team1Idx;
+        SpeakHandler.Speak("Here's the coin toss.");
         switch(outerGameData.gameType) {
             case "series":
                 this.opposingTeam = outerGameData.seriesLineup[outerGameData.seriesRound];
@@ -456,22 +461,28 @@ const CoinToss = {
             return;
         }
         this.calledHeads = calledHeads;
+        const splitOnSpace = TeamInfo[this.callingTeam].name.split(" ");
+        const lastPartOfName = splitOnSpace[splitOnSpace.length - 1];
+        SpeakHandler.Speak(lastPartOfName + " call " + (calledHeads ? "heads." : "tails."));
         this.state = 1;
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Called ${calledHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
-        const spinTime = 5 + Math.ceil(Math.random() * 5);//1500 + Math.ceil(Math.random() * 1500);
+        const spinTime = 1500 + Math.ceil(Math.random() * 1500);
+        //const spinTime = 5 + Math.ceil(Math.random() * 5);//1500 + Math.ceil(Math.random() * 1500);
         setTimeout(function() { CoinToss.Landed(); }, spinTime);
     },
     Landed: function() {
         this.state = 2;
-        const landedHeads = !this.calledHeads;//this.coinFrame % 2 === 0;
+        //const landedHeads = !this.calledHeads;//this.coinFrame % 2 === 0;
+        const landedHeads = this.coinFrame % 2 === 0;
+        SpeakHandler.Speak(landedHeads ? "Heads." : "Tails.");
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
         this.p1BatsFirst = (this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads);
         const battingTeam = this.p1BatsFirst ? this.callingTeam : this.opposingTeam;
-        gfx.WriteEchoOptionText(`${TeamInfo[battingTeam].name} bat first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
+        gfx.WriteEchoOptionText(`${TeamInfo[battingTeam].name} jump first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
     },
     Update: function() { },
     AnimUpdate: function() {
@@ -556,7 +567,7 @@ const WinScreen = {
                 // TODO: play again?
             }
         } else if(this.p1Won) {
-            if(++outerGameData.seriesRound >= 5) {
+            if(++outerGameData.seriesRound >= outerGameData.seriesLineup.length) {
                 game.Transition(SeriesWinScreen);
             } else {
                 game.Transition(SeriesIndicator);
@@ -588,8 +599,7 @@ const SeriesWinScreen = {
         gfx.WriteEchoOptionText("OCNGRATULATION!", 320, 50, "text", "#FFFFFF", "#BA66FF", 48);
         gfx.WriteEchoOptionText("YOU WON THE WHIRLED SERIES!", 320, 80, "text", "#FFFFFF", "#BA66FF", 32);
         gfx.DrawRectSprite("troph", 0, 0, 320, 250, "background", 328, 382, 0.75, true);
-        const suffix = BaseStar.data.team1.name[BaseStar.data.team1.name.length - 1] === "s" ? "'" : "'s";
-        gfx.WriteEchoOptionText(`The epic highs and lows of the ${BaseStar.data.team1.name}${suffix}`, 320, 430, "text", "#FFFFFF", "#BA66FF", 18);
+        gfx.WriteEchoOptionText(`The epic highs and lows of the ${BaseStar.data.team1.PluralName()}`, 320, 430, "text", "#FFFFFF", "#BA66FF", 18);
         gfx.WriteEchoOptionText(`Basesol career cannot be overstated.`, 320, 455, "text", "#FFFFFF", "#BA66FF", 18);
     },
     KeyPress: function(key) {
@@ -597,7 +607,8 @@ const SeriesWinScreen = {
             case game.p1c["pause"]: 
             case game.p1c["confirm"]:
             case game.p1c["cancel"]:
-                game.Transition(Title, [0]);
+                game.Transition(Credits);
+                //game.Transition(Title, [0]);
                 break;
         }
     },
@@ -638,6 +649,9 @@ const Credits = {
         AddText("Sean Finch");
         AddText("Skyler Johnson");
         Whitespace(1);
+        AddHeading("Writing");
+        AddText("Sean Finch");
+        AddText("Marcin Rojek");
         AddHeading("Additional Credits");
         
         AddText(`"3D Man Running Eight Directions"`);
@@ -674,8 +688,10 @@ const Credits = {
         Whitespace(1);
 
         AddHeading("Special Thanks");
-        AddText("CC Contreras");
         AddText("Skyler Johnson");
+        AddText("Fabien Chereau");
+        AddText("Guillaume Chereau");
+        AddText("CC Contreras");
         AddText("Laura Billard");
         AddText("Sheila Pollard");
         AddText("Kelly Marine");
@@ -683,8 +699,6 @@ const Credits = {
         AddText("Drishti Nand");
         AddText("Catrina Fuentes");
         AddText("Mental Grain");
-        AddText("Fabien Chereau");
-        AddText("Guillaume Chereau");
         AddText("Andrew W.K.");
         Whitespace(1);
         AddText("and YOU!");
@@ -736,11 +750,12 @@ const LogoScreen = {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "logo", 640, 480, "background", 0, 0);
     },
     TrySpeak: function() {
-        if(SpeakHandler.PreloadedMessages["logo"] === undefined) { return; }
+        if(SpeakHandler.PreloadedMessages["logo"] === undefined || SpeakHandler.PreloadedMessages["logo"].stream === null) { return; }
         this.success = true;
         SpeakHandler.SpeakFromKey("logo", function(success) {
             if(!success) { return; }
             if(game.currentHandler !== LogoScreen) { return; }
+            SpeakHandler.EndCaption();
             game.Transition(Title);
         });
     },

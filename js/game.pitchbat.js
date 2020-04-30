@@ -21,6 +21,15 @@ class AtBatHandler extends Handler {
         });
         this.centerX = x0 + (x1 - x0) / 2;
         this.centerY = y0 + (y1 - y0) / 2;
+        if(BaseStar.data.inning.outs === 0 && BaseStar.data.inning.playersOnBase.length === 0 && BaseStar.data.inning.strikes === 0) {
+            Sounds.PlaySound("playBall", false);
+        } else if(BaseStar.data.inning.strikes === 0) {
+            if(Math.random() < 1) {//0.25) {
+                SpeakHandler.Speak(GetTeamComment(BaseStar.data.team1.teamIdx, BaseStar.data.team2.teamIdx));
+            } else {
+                SpeakHandler.Speak(MiscFiller(20, 33, battingTeam.players[BaseStar.data.inning.atBatPlayerIdx].name));
+            }
+        }
     }
     CleanUp() {
         gfx.ClearLayer("background2");

@@ -165,11 +165,10 @@ class PitchHandler extends SecondaryHandler {
         this.throwState = 1;
         this.ballx = ballPos.x; this.bally = ballPos.y;
         this.balldx = dir; this.balldy = -force - 2;
+        if(Math.random() > 0.75) { SpeakHandler.Speak(MiscFiller(10, 14)); }
     }
     KeyPress(key) {
         switch(key) {
-            case this.myControls["pause"]: 
-            case this.myControls["cancel"]: break;
             case this.myControls["left"]:
                 if(!this.ready) { this.throwStyle = 3; }
                 else if(this.pitchAnimState < 5) { this.dx = Math.max(this.dx - 1, -10); }

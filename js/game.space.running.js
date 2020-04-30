@@ -40,7 +40,6 @@ class RunHandler extends SecondaryHandler {
     }
     KeyPress(key) {
         switch(key) {
-            case this.myControls["pause"]: 
             case this.myControls["confirm"]: return this.Confirm();
             case this.myControls["left"]: return this.AimForNextStar(-1);
             case this.myControls["right"]: return this.AimForNextStar(1);
@@ -53,6 +52,7 @@ class RunHandler extends SecondaryHandler {
         this.runner.SyncCollider();
         if(this.runner.onBase && this.fullHandler.pitcher.ball !== null) {
             const me = this.fullHandler;
+            console.log("SAFE BECAUSE PITCHER CAUGHT IT!");
             AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
             return;
         }

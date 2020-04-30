@@ -5,6 +5,7 @@ const BaseStar = {
         new Camera(null, [], true), // player 1 camera
         new Camera(null, [], true)  // player 2 camera
     ],
+    paused: false, pausedBy: -1, 
     isSideBySide: false, 
     fast: true, fullMult: 3, 
     /** @type Handler */ subhandler: null,
@@ -79,7 +80,6 @@ const BaseStar = {
             AnimationHelpers.StartScrollText("GAME SET!", function() { BaseStar.EndGame(); });
         } else if(BaseStar.data.WasEndOfInning()) {
             let msg = "NEXT INNING!";
-            console.log(BaseStar.data.inning.inningNumber);
             switch(BaseStar.data.inning.inningNumber) {
                 case 1: msg = "SECOND INNING!"; break;
                 case 2: msg = "FINAL INNING!"; break;
@@ -90,9 +90,24 @@ const BaseStar = {
             AnimationHelpers.StartScrollText("CHANGE PLACES!", function() { BaseStar.ChangePlaces(); });
         }
     },
-    KeyPress: function(key) { this.subhandler.KeyPress(key); },
+    KeyPress: function(key) {
+        if(key === game.p1c["pause"]) {
+            this.TogglePause(1);
+        } else if(key === game.p2c["pause"]) {
+            this.TogglePause(2);
+        }
+        this.subhandler.KeyPress(key);
+    },
+    TogglePause: function(player) {
+        if(this.paused && player !== this.pausedBy) { return; }
+        this.pausedBy = player;
+        this.paused = !this.paused;
+        document.getElementById("pauseDisplay").style["display"] = this.paused ? "block" : "none";
+    },
     //Update: function() { this.subhandler.Update(); },
-    Update: function() { if(!debuggo.fuckTheRules) { this.subhandler.Update(); } },
+    Update: function() {
+        if(!this.paused) { this.subhandler.Update(); }
+    },
     AnimUpdate: function() {
         gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay", "text", "p2text"]);
         this.subhandler.AnimUpdate();
@@ -105,7 +120,7 @@ const BaseStar = {
     },
     ChangePlaces: function() {
         this.data.SwitchTeams();
-        this.SwitchHandler(AtBatHandler);
+        this.SwitchHandler(FieldPickHandler);
     },
     SwitchHandler: /** @param {new () => any} handler */
     function(handler) {
@@ -121,12 +136,14 @@ const BaseStar = {
     },
     SwitchHandlerWithArgs: function(handler, ...args) {
         if(this.subhandler !== null) { this.subhandler.CleanUp(); }
+        game.p1c.ClearAllKeys();
+        game.p2c.ClearAllKeys();
         this.subhandler = new handler(...args);
         if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
             this.SwitchView(true);
         } else { this.SwitchView(false); }
         game.p1c.freeMovement = this.subhandler.freeMovement;
-        game.p2c.freeMovement = this.subhandler.freeMovement;
+        game.p2c.freeMovement = this.subhandler.freeMovement2;
     },
     FieldSetupComplete: function(constellation, outfielders, fieldBoundaries) {
         this.data.SetConstellation(constellation);
@@ -141,7 +158,6 @@ const outerGameData = {
     seriesLineup: [], seriesRound: 0
 };
 class Game {
-    paused = false;
     animIdx = 0; updateIdx = 0;
     /** @type {BaseHandler} */ currentHandler = null;
     /** @type {InputHandler} */ inputHandler =  null;
@@ -175,7 +191,7 @@ class Game {
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
         const game = this;
         gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "controller",
-                                     "batmeter", "baseballers", "basehud", "teamlogos", "constellations",
+                                     "batmeter", "baseballers", "basehud", "teamlogos", "constellations", "logo",
                                      "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], function() {
             game.inputHandler = new InputHandler();
             game.p1c = game.inputHandler.controlSets[0];
@@ -191,6 +207,7 @@ class Game {
         this.currentHandler.AnimUpdate();
     }
     Update() {
+        if(helper.isVisible) { return; }
         if(this.currentHandler === null) { return; }
         this.currentHandler.Update();
     }
@@ -201,6 +218,8 @@ class Game {
     Transition(newHandler, args) {
         Sounds.EndAll();
         meSpeak.stop();
+        game.p1c.ClearAllKeys();
+        game.p2c.ClearAllKeys();
         const wasFast = this.currentHandler.fast || false;
         if(this.currentHandler.CleanUp !== undefined) { this.currentHandler.CleanUp(); }
         this.currentHandler = newHandler;
@@ -229,7 +248,9 @@ const BaseHandler = {
     AnimUpdate: function() {}
 };  
 class Handler {
+    /** @type Team */ team = null;
     freeMovement = false;
+    freeMovement2 = false;
     showSplitScreenIn2P = false;
     constructor() {}
     KeyPress(key) {}

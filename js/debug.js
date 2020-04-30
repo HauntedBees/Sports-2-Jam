@@ -66,8 +66,8 @@ class Debug {
             outerGameData.team1Idx = 0;
             outerGameData.gameType = "series";
             outerGameData.seriesRound = 0;
-            outerGameData.seriesLineup = [3];
-            for(let i = 0; i < 4; i++) {
+            outerGameData.seriesLineup = [];
+            for(let i = 0; i < 3; i++) {
                 outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
             }
             game.Transition(BaseStar, [fullChain[1] === "s"]);

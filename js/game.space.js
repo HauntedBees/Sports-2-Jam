@@ -2,7 +2,8 @@ class FieldRunHandler extends Handler {
     state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
     stars = []; ball = null; hundredTimer = 0;
     gravMult = 1.5; showSplitScreenIn2P = true;
-    slamdunks = []; runner = null; boondaries = [];
+    slamdunks = []; boondaries = [];
+    /** @type {Runner} */ runner = null; 
     b2updateRate = b2Framerate * SpeedMult();
     /** @type Fielder[] */ fielders = [];
     /** @type Runner[] */ onBasePlayers = [];
@@ -28,8 +29,8 @@ class FieldRunHandler extends Handler {
 
         this.runHandler = new RunHandler(runningTeam, this, this.runner, this.onBasePlayers, this.ball);
         this.fieldHandler = new FieldHandler(fieldTeam, this, this.fielders);
-        game.p1c.freeMovement = !p1IsRunner;
-        game.p2c.freeMovement = p1IsRunner;
+        this.freeMovement = !p1IsRunner;
+        this.freeMovement2 = p1IsRunner;
 
         if(p1IsRunner) {
             BaseStar.cameras[0].ignores = ["f_"];
@@ -135,7 +136,6 @@ class FieldRunHandler extends Handler {
         const bounds = BaseStar.fieldBounds;
         const pitcherPos = GetPoint(bounds.x, bounds.y + bounds.h / 2 + pitcherDx * 25);
         this.pitcher = new Pitcher(fieldTeam, fieldTeam.players[BaseStar.data.inning.pitcherIdx], pitcherPos.x, pitcherPos.y);
-        this.fielders.push(this.pitcher);
         const mainHandler = this;
         c.stars.forEach((e, i) => {
             const p = GetPoint(e.x + 16, e.y);
@@ -143,6 +143,7 @@ class FieldRunHandler extends Handler {
             mainHandler.stars.push(BaseStar.b2Helper.GetStar(p.x, p.y, e.power * e.power * powerMult, e.power));
             mainHandler.fielders.push(new Infielder(fieldTeam, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + i) % 20], p.x, p.y, i, mainHandler));
         });
+        this.fielders.push(this.pitcher);
         BaseStar.outfielders.forEach((e, i) => {
             const p = GetPoint(e.x, e.y);
             mainHandler.fielders.push(new Outfielder(fieldTeam, fieldTeam.players[(BaseStar.data.inning.pitcherIdx + 1 + c.stars.length + i) % 20], p.x, p.y));
@@ -198,7 +199,7 @@ class FieldRunHandler extends Handler {
         this.fieldHandler.KeyPress(key);
     }
     Update() {
-        if(AnimationHelpers.IsAnimating() || game.paused) { return; }
+        if(AnimationHelpers.IsAnimating() || BaseStar.paused) { return; }
         this.world.Step(this.b2updateRate, 10, 10);	
         this.world.ClearForces();
         BaseStar.cameras.forEach(e => e.Update());
@@ -232,8 +233,9 @@ class FieldRunHandler extends Handler {
         this.ApplyBallGravityForces(this.ball, this.gravMult);
         this.runHandler.Update();
         this.fieldHandler.Update();
-        if(this.fieldHandler.ballFielderIdx >= 0 && this.runner.onBase && this.runner.targetStar === this.fielders[this.fieldHandler.ballFielderIdx].base) {
+        if(this.runner.justArrivedOnBase && this.runner.baseNumber === this.fieldHandler.ballFielderIdx) {
             const me = this;
+            console.log("OUT BECAUSE PLAYER ARRIVED AT OCCUPIED BASE");
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
     }

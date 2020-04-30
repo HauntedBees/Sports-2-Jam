@@ -16,7 +16,7 @@ class FieldHandler extends SecondaryHandler {
             this.SwitchFielderFreeMovement(false);
             fielder.CatchBall(ball);
             this.ballFielderIdx = this.fielders.findIndex(e => e === fielder);
-            // if the ball reaches the pitcher when all runners are at their bases, the round ends and they're automatically safe
+            // if the ball reaches the pitcher (or the base the runner is on already on) when all runners are at their bases, the round ends and they're automatically safe
             if(this.fullHandler.runHandler.IsSafe() && (fielder.pitcher || this.fullHandler.runHandler.runner.targetStar === this.ballFielderIdx)) {
                 const me = this.fullHandler;
                 AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
@@ -31,6 +31,7 @@ class FieldHandler extends SecondaryHandler {
                     this.targetFielderIdx = i;
                 }
             });
+            if(Math.random() > 0.5) { SpeakHandler.Speak(MiscFiller(17, 20, fielder.playerInfo.name)); }
         } else { // runner is still one with the ball
             const me = this.fullHandler;
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
@@ -43,7 +44,7 @@ class FieldHandler extends SecondaryHandler {
     MoveFielders(dx, dy) {
         const speed = this.doubleSpeed ? 10 : 5;
         this.fielders.forEach(f => {
-            f.Move(speed * dx, speed * dy);
+            f.Move(speed * dx, speed * dy, true);
         });
     }
     AimForNextFielder(dir) {
@@ -81,6 +82,7 @@ class FieldHandler extends SecondaryHandler {
                 this.slamDunkIdx = this.ballFielderIdx;
                 this.dunked = true;
             }
+            SpeakHandler.Speak(MiscFiller(14, 17, this.fielders[this.ballFielderIdx].playerInfo.name));
         } else {
             this.fullHandler.gravMult = Math.max(1.5, this.fullHandler.gravMult / 2);
             this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);
@@ -97,7 +99,6 @@ class FieldHandler extends SecondaryHandler {
     KeyPress(key) {
         let dx = 0, dy = 0, confirm = false, cancel = false;
         switch(key) {
-            case this.myControls["pause"]: 
             case this.myControls["confirm"]: confirm = true; break;
             case this.myControls["cancel"]: cancel = true; break;
             case this.myControls["up"]: dy -= 1; break;
@@ -108,7 +109,10 @@ class FieldHandler extends SecondaryHandler {
         if(this.ballFielderIdx < 0) { // moving
             if(dx !== 0 || dy !== 0) { this.MoveFielders(dx, dy); }
         } else { // throwing ball
-            if(cancel) { this.targetFielderIdx = this.ballFielderIdx; }
+            if(cancel) {
+                this.targetFielderIdx = this.ballFielderIdx;
+                this.ThrowBall();
+            }
             else if(confirm) { this.ThrowBall(); }
             else if(dy === -1) { this.TargetRunner(); }
             else if(dy === 1) { this.TargetPitcher(); }
@@ -122,7 +126,7 @@ class FieldHandler extends SecondaryHandler {
             if(!someoneHasBall) {
                 const mult = 0.5;
                 const angle = Math.atan2(ballPos.y - f.y, ballPos.x - f.x);
-                f.Move(mult * Math.cos(angle), mult * Math.sin(angle));
+                f.Move(mult * Math.cos(angle), mult * Math.sin(angle), false);
                 f.SyncCollider();
             }
             f.Update();
@@ -168,10 +172,10 @@ class FieldHandler extends SecondaryHandler {
         const xInfo = this.fullHandler.GetInfoUIX(this.team.playerNum, true);
         if(this.ballFielderIdx < 0) {
             const cy = 45;
-            gfx.DrawCenteredSprite("sprites", 12, 1, xInfo.centerX, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 14, 1, xInfo.centerX + 32, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 11, 1, xInfo.centerX + 64, cy, layer, 32, 1);
-            gfx.DrawCenteredSprite("sprites", 13, 1, xInfo.centerX + 96, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 12, 6, xInfo.centerX, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 14, 6, xInfo.centerX + 32, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 11, 6, xInfo.centerX + 64, cy, layer, 32, 1);
+            gfx.DrawCenteredSprite("sprites", 13, 6, xInfo.centerX + 96, cy, layer, 32, 1);
             gfx.WriteEchoPlayerText("Move", xInfo.centerX + 128, cy + 5, 100, layer, "#FFFFFF", "#BA66FF", 16, "left");
         } else {
             const cy = 16, cy2 = 30;
@@ -195,7 +199,7 @@ class FieldHandler extends SecondaryHandler {
                 gfx.WriteEchoPlayerText("Throw Ball", xInfo.rightX + 32, cy2 + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
                 gfx.DrawCenteredSprite("sprites", 12, 2, xInfo.rightX, cy2 + 32, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Target Self", xInfo.rightX + 32, cy2 + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.WriteEchoPlayerText("Slam Dunk", xInfo.rightX + 32, cy2 + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
             }
         }
     }

@@ -74,7 +74,8 @@ class Fielder extends Player {
         this.ball = null;
         this.throwAnimState = 2;
     }
-    Move(x, y) {
+    /** @param {number} x @param {number} y @param {boolean} fromPlayerInput */
+    Move(x, y, fromPlayerInput) {
         this.x += x;
         this.y += y;
     }
@@ -144,10 +145,11 @@ class Outfielder extends Fielder {
             }
         };
     }
-    Move(x, y) {
+    Move(x, y, fromPlayerInput) {
         if(this.caughtBallTimer > 0) { return; }
-        x *= SpeedMult();
-        y *= SpeedMult();
+        const mult = fromPlayerInput ? 1.1 : 0.9;
+        x *= mult * SpeedMult();
+        y *= mult * SpeedMult();
         this.force.x += x;
         this.force.y += y;
     }
@@ -187,7 +189,7 @@ class Infielder extends Fielder {
             gfx.DrawRotatedSpriteToCameras("player", this.team.bigSpriteSheet, angle, 2 + this.animFrame % 2, 0, this.x + 7 * Math.sin(angle), this.y - 7 * Math.cos(angle), "interface", 128, 0.5);
         };
     }
-    Move(x, y) { }
+    Move(x, y, fromPlayerInput) { }
 }
 class RunnerShell {
     /** @param {Runner} runner */
@@ -208,6 +210,7 @@ class Runner extends Player {
         let animFrame = 0, animCounter = 0;
         let running = false;
         let dashTimer = 0;
+        this.justArrivedOnBase = false;
         this.onBase = onBase;
         this.baseNumber = -1;
         this.stargets = stars;
@@ -265,6 +268,7 @@ class Runner extends Player {
             sy = Math.floor(angle / 45);
         };
         this.Update = function () {
+            this.justArrivedOnBase = false;
             if (++animCounter > 5) {
                 animFrame = (++animFrame % 4);
                 animCounter = 0;
@@ -280,6 +284,7 @@ class Runner extends Player {
                 running = false;
                 this.x = this.stargets[this.targetStar].x;
                 this.y = this.stargets[this.targetStar].y;
+                this.justArrivedOnBase = true;
                 this.onBase = true;
                 this.baseNumber = this.targetStar;
             }

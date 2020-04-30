@@ -7,7 +7,7 @@
         <meta name="author" content="Haunted Bees Productions">
         <meta name="description" content="We're having a ball out here in space!">
         <meta name="keywords" content="gravity,sports,2">
-        <!--<link rel="shortcut icon" href="favicon.ico">-->
+        <link rel="shortcut icon" href="favicon.ico">
         <style>
             @font-face { font-family: "Retro"; src: url("RetroGamingZ.ttf") }
             body {
@@ -40,7 +40,7 @@
                 width: 320px;
                 height: 480px;
             }
-            #awaiter {
+            .textOverlay {
                 background-color: #000000;
                 color: #FFFFFF;
                 width: 640px; height: 480px;
@@ -52,8 +52,36 @@
                 z-index: 99999;
             }
             #awaiter > div {
-                padding-top: 220px;
+                padding-top: 180px;
                 font-size: 28px;
+            }
+            #helpText { background-color: #000000DD }
+            #pauseDisplay { background-color: #00000066 }
+            #helpTextContent {
+                padding-top: 100px;
+                margin: 0 40px;
+            }
+            #pauseDisplayText {
+                background-color: #000000EE;
+                margin-top: 231px;
+            }
+            br { line-height: 150% }
+            #captions {
+                z-index: 999999;
+                left: 0;
+                margin: 0 auto;
+                position: absolute;
+                right: 0;
+                top: 0;
+                width: 640px;
+                text-align: center;
+            }
+            #captionsText {
+                display: inline-block;
+                padding: 5px;
+                background-color: #000000CC;
+                color: #FFFFFF;
+                max-width: 600px;
             }
         </style>
     </head>
@@ -78,7 +106,29 @@
         </div>
         <canvas id="specialanim" width="640" height="480" style="border: 1px solid black"></canvas>
         <canvas id="minimap" width="160" height="120"></canvas>
-        <div id="awaiter" style="display: none"><div>Click here to start the game.</div></div>
+        <div id="awaiter" class="textOverlay" style="display: none">
+            <div>
+                Click here to start the game.
+                <hr>
+                <div style="font-size: 0.5em; margin: 0 50px">
+                    Press the H key or the BACK button on your controller at any time to see relevant help information and tips.
+                    <!--Default Controls: WASD to move, Z to confirm, X to cancel, P to pause
+                    <br><br>
+                    For Player 2: arrow keys to move, I to confirm, O to cancel, P to pause
+                    <br><br>
+                    Gamepads are supported (D-Pad, A, B, and start)-->
+                </div>
+            </div>
+        </div>
+        <div id="helpText" class="textOverlay" style="display: none">
+            <div id="helpTextContent"></div>
+        </div>
+        <div id="pauseDisplay" class="textOverlay" style="display: none">
+            <div id="pauseDisplayText">== PAUSED ==</div>
+        </div>
+        <div id="captions" style="display: none">
+            <div id="captionsText">hey</div>
+        </div>
         <div id="fontLoader"><div style="font-family:Retro">&nbsp;</div></div>
         <script type="text/javascript" src="mespeak/mespeak.js"></script>
         <script type="text/javascript" src="js/lib/box2d.min.js"></script>
@@ -103,11 +153,12 @@
         <script type="text/javascript" src="js/game.space.running.js"></script>
         <script type="text/javascript" src="js/game.space.fielding.js"></script>
         <script type="text/javascript" src="js/game.space.js"></script>
+        <script type="text/javascript" src="js/game.helpfile.js"></script>
         <script type="text/javascript" src="js/rendering.js"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function() {
                 SpeakHandler.PreloadAll();
-                game.Initialize(false); 
+                game.Initialize(false);
             });
         </script>
     </body>

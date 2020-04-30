@@ -52,7 +52,6 @@ class FieldPickHandler extends Handler {
     KeyPress(key) {
         switch(key) {
             case this.myControls["cancel"]: return this.Cancel();
-            case this.myControls["pause"]: 
             case this.myControls["confirm"]: return this.Confirm();
             case this.myControls["left"]: 
                 if(this.state === 0) {
@@ -89,8 +88,10 @@ class FieldPickHandler extends Handler {
     Confirm() {
         if(this.state === 0) {
             this.state = 1;
-            const c = ConstellationInfo[this.team.GetConstellations()[this.constsel]];
+            const constellationName = this.team.GetConstellations()[this.constsel];
+            const c = ConstellationInfo[constellationName];
             this.totalOutfielders = 20 - c.stars.length - 1;
+            SpeakHandler.Speak(`The ${this.team.LastName()} choose ${constellationName}. ${MiscFiller(0, 10)}`);
             this.SetBounds(c);
             this.AddOutfielder(true);
             return false;

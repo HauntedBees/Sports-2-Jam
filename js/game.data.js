@@ -91,9 +91,12 @@ function Team(player, idx, isPlayerControlled, darkTint) {
     const splitName = teamInfo.name.split(" ");
     this.initial = splitName[splitName.length - 1][0];
     this.isPlayerControlled = isPlayerControlled;
+    this.teamIdx = idx;
     this.isUp = false;
     this.score = 0;
     this.playerNum = player;
+    this.PluralName = function() { return this.name + (this.name[this.name.length - 1] === "s" ? "'" : "'s"); };
+    this.LastName = function() { return splitName[splitName.length - 1]; }
     this.GetLayerPrefix = function() {
         if(player === 1) { return ""; }
         return isPlayerControlled ? "p2" : null;
