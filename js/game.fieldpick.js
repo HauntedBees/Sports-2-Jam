@@ -91,7 +91,7 @@ class FieldPickHandler extends Handler {
             const constellationName = this.team.GetConstellations()[this.constsel];
             const c = ConstellationInfo[constellationName];
             this.totalOutfielders = 20 - c.stars.length - 1;
-            SpeakHandler.Speak(`The ${this.team.LastName()} choose ${constellationName}. ${MiscFiller(0, 10)}`);
+            SpeakHandler.Speak(`The ${this.team.LastName()} choose ${constellationName}. ${miscFillers[RandRange(0, 10)]}`);
             this.SetBounds(c);
             this.AddOutfielder(true);
             return false;

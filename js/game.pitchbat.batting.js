@@ -17,6 +17,7 @@ class BatHandler extends SecondaryHandler {
                     this.state = 2;
                     this.ready = true;
                 } else if(this.state === 3) {
+                    Sounds.PlaySound("pot_01");
                     this.swingCounter = 0;
                     this.state = 4;
                     this.swingState = 1;

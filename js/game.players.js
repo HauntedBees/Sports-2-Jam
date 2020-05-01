@@ -246,6 +246,7 @@ class Runner extends Player {
             dashTimer = 30;
         };
         this.MoveToStar = function (idx) {
+            Sounds.PlaySound("switch_02");
             if (this.ball !== null) {
                 return;
             }
@@ -285,6 +286,7 @@ class Runner extends Player {
                 this.x = this.stargets[this.targetStar].x;
                 this.y = this.stargets[this.targetStar].y;
                 this.justArrivedOnBase = true;
+                Sounds.PlaySound("switch_01");
                 this.onBase = true;
                 this.baseNumber = this.targetStar;
             }

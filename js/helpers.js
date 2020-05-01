@@ -13,7 +13,7 @@ const AnimationHelpers = {
 	IsAnimating: () => AnimationHelpers.animIdx > 0,
 	StartScrollText: function(text, callback) {
 		if(this.animIdx > 0) { return; }
-		SpeakHandler.Speak(text);
+		SpeakHandler.Speak(text, "Zenn", true);
 		const len = gfx.WriteBorderedText(text, 0, 1000, "specialanim", "#FFFFFF", "#FFFFFF", 196, 5);
 		this.animData = { 
 			text: text, callback: callback,

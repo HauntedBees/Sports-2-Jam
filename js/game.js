@@ -102,9 +102,14 @@ const BaseStar = {
         if(this.paused && player !== this.pausedBy) { return; }
         this.pausedBy = player;
         this.paused = !this.paused;
-        document.getElementById("pauseDisplay").style["display"] = this.paused ? "block" : "none";
+        if(this.paused) {
+            document.getElementById("pauseDisplay").style["display"] = "block";
+            Sounds.Pause();
+        } else {
+            document.getElementById("pauseDisplay").style["display"] = "none";
+            Sounds.Unpause();
+        }
     },
-    //Update: function() { this.subhandler.Update(); },
     Update: function() {
         if(!this.paused) { this.subhandler.Update(); }
     },
@@ -157,6 +162,44 @@ const outerGameData = {
     gameType: "series",
     seriesLineup: [], seriesRound: 0
 };
+class Loader {
+    spritesheetLoadPercent = 0;
+    soundLoadPercent = 0;
+    musicLoadPercent = 0;
+    areVoicesLoaded = false;
+    done = false;
+    loaderElem = document.getElementById("loaderInfo");
+    constructor(callback) {
+        this.callback = callback;
+        const me = this;
+        Sounds.Init(
+            function(loadedPercent) { me.soundLoadPercent = loadedPercent; me.UpdateAndCheckIfLoaded(); },
+            function() { me.soundLoadPercent = 1; me.UpdateAndCheckIfLoaded(); },
+            function(loadedPercent) { me.musicLoadPercent = loadedPercent; me.UpdateAndCheckIfLoaded(); },
+            function() { me.musicLoadPercent = 1; me.UpdateAndCheckIfLoaded(); }
+        );
+        //meSpeak.loadVoice("voices/en/en-us.json", function() {
+        meSpeak.loadVoice("voices/en/en-us.json", function() {
+            me.areVoicesLoaded = true;
+            me.UpdateAndCheckIfLoaded();
+        });
+        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "controller",
+            "batmeter", "baseballers", "basehud", "teamlogos", "constellations", "logo",
+            "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], 
+            function(loadedPercent) { me.spritesheetLoadPercent = loadedPercent; me.UpdateAndCheckIfLoaded(); },
+            function() { me.spritesheetLoadPercent = 1; me.UpdateAndCheckIfLoaded(); }
+        );
+    }
+    UpdateAndCheckIfLoaded() {
+        const loaderAmount = Math.round(100 * (this.spritesheetLoadPercent + this.musicLoadPercent + this.soundLoadPercent + (this.areVoicesLoaded ? 1 : 0)) / 4);
+        this.loaderElem.textContent = loaderAmount + "%";
+        if(!this.done && this.areVoicesLoaded && this.spritesheetLoadPercent === 1 && this.soundLoadPercent === 1 && this.musicLoadPercent === 1) {
+            this.callback();
+            this.done = true;
+            document.getElementById("loader").remove();
+        }
+    }
+}
 class Game {
     animIdx = 0; updateIdx = 0;
     /** @type {BaseHandler} */ currentHandler = null;
@@ -190,9 +233,7 @@ class Game {
         }
         gfx.canvas = canvasObj; gfx.ctx = contextObj;
         const game = this;
-        gfx.LoadSpriteSheets("img", ["sprites", "title", "background", "background2", "helmets", "coin", "controller",
-                                     "batmeter", "baseballers", "basehud", "teamlogos", "constellations", "logo",
-                                     "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], function() {
+        const loader = new Loader(function() {
             game.inputHandler = new InputHandler();
             game.p1c = game.inputHandler.controlSets[0];
             game.p2c = game.inputHandler.controlSets[1];
@@ -217,7 +258,7 @@ class Game {
     }
     Transition(newHandler, args) {
         Sounds.EndAll();
-        meSpeak.stop();
+        SpeakHandler.Stop();
         game.p1c.ClearAllKeys();
         game.p2c.ClearAllKeys();
         const wasFast = this.currentHandler.fast || false;
@@ -231,6 +272,11 @@ class Game {
         } else if(!wasFast && newHandler.fast) {
             clearInterval(this.updateIdx);
             this.updateIdx = setInterval(function() { game.Update(); }, fpsAnim);
+        }
+        if(newHandler === BaseStar || newHandler === SeriesIndicator || newHandler === VersusIndicator || newHandler === CoinToss) {
+            Sounds.PlaySong("song_neospringcore");
+        } else {
+            Sounds.PlaySong("song_awake");
         }
         if(args === undefined) {
             this.currentHandler.Init();

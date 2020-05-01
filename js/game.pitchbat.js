@@ -24,10 +24,12 @@ class AtBatHandler extends Handler {
         if(BaseStar.data.inning.outs === 0 && BaseStar.data.inning.playersOnBase.length === 0 && BaseStar.data.inning.strikes === 0) {
             Sounds.PlaySound("playBall", false);
         } else if(BaseStar.data.inning.strikes === 0) {
-            if(Math.random() < 1) {//0.25) {
-                SpeakHandler.Speak(GetTeamComment(BaseStar.data.team1.teamIdx, BaseStar.data.team2.teamIdx));
-            } else {
-                SpeakHandler.Speak(MiscFiller(20, 33, battingTeam.players[BaseStar.data.inning.atBatPlayerIdx].name));
+            if(Math.random() < 0.25) { // comments about the player's team
+                SpeakHandler.SpeakRandomTeamComment(BaseStar.data.team1.teamIdx, BaseStar.data.team2.teamIdx);
+            } else if(Math.random() < 0.5) { // comments that don't use the player's name
+                SpeakHandler.SpeakMiscFiller(10, 13, battingTeam.players[BaseStar.data.inning.atBatPlayerIdx].name);
+            } else { // comments that use the player's name
+                SpeakHandler.SpeakFromKey(`spk_random${RandRange(0, 10)}`);
             }
         }
     }
@@ -88,6 +90,11 @@ class AtBatHandler extends Handler {
                 } else {
                     offset = -1;
                 }
+                if(offset === 0) {
+                    Sounds.PlaySound("gong_01", false);
+                } else if(offset > 0) {
+                    Sounds.PlaySound(`glass_0${RandRange(1, 6)}`, false);
+                }
                 if(offset >= 0) {
                     this.ballData = {
                         pos: this.batHandler.dx, swingType: 1, 
@@ -97,7 +104,6 @@ class AtBatHandler extends Handler {
                     this.pitchHandler.BallHit(2 * this.batHandler.dir + offset * dir, this.batHandler.power);
                 } else {
                     this.batHandler.missed = true;
-                    console.log("you missed dipshit");
                 }
             }
         } else if(this.state === 2 && this.pitchHandler.throwState === 2) {

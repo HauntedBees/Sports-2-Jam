@@ -45,11 +45,19 @@ const OptionsScreen = {
             if(sel.key === "gameplay") { return Sounds.PlaySound("cancel", true); }
             if(forcedVal !== undefined && forcedVal === sel.value) { return Sounds.PlaySound("cancel", true); }
             sel.value = !sel.value;
+            if(sel.key === "music") {
+                if(sel.value) {
+                    Sounds.ResumeSong();
+                } else {
+                    Sounds.StopSong();
+                }
+            }
             playerOptions[sel.key].value = sel.value;
             Sounds.PlaySound("confirm", true);
             return;
         }
         if(forcedVal !== undefined) { return; }
+        Sounds.PlaySound("confirm", true);
         if(this.selection > this.elems.length) { // save and quit
             game.Transition(Title, [2]);
         } else { // controls

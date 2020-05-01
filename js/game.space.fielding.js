@@ -11,6 +11,7 @@ class FieldHandler extends SecondaryHandler {
     }
     /** @param {Fielder} fielder @param {{ GetUserData: () => any; }} ball @param {Runner} runner */
     CatchBall(fielder, ball, runner) {
+        Sounds.PlaySound("metal_0" + (Math.random() <= 0.5 ? "4" : "5"));
         const ballInfo = ball.GetUserData();
         if(ballInfo.runner === undefined) { // catching ball, runner is not connected to ball
             this.SwitchFielderFreeMovement(false);
@@ -31,7 +32,7 @@ class FieldHandler extends SecondaryHandler {
                     this.targetFielderIdx = i;
                 }
             });
-            if(Math.random() > 0.5) { SpeakHandler.Speak(MiscFiller(17, 20, fielder.playerInfo.name)); }
+            if(Math.random() > 0.5) { SpeakHandler.SpeakMiscFiller(14, 17, fielder.playerInfo.name); }
         } else { // runner is still one with the ball
             const me = this.fullHandler;
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
@@ -39,6 +40,7 @@ class FieldHandler extends SecondaryHandler {
     }
     BonkyOut(slamDunk) {
         const me = this.fullHandler;
+        Sounds.PlaySound("metal_0" + (Math.random() <= 0.5 ? "4" : "5"));
         AnimationHelpers.StartScrollText((slamDunk ? "SLAM DUNK!  " : "") + "OUT!", function() { me.CatchOut(); });
     }
     MoveFielders(dx, dy) {
@@ -75,14 +77,15 @@ class FieldHandler extends SecondaryHandler {
         if(this.targetFielderIdx === this.ballFielderIdx) {
             if(this.fielders[this.ballFielderIdx].pitcher) {
                 if(this.pitcherdunked) { return; } // can't dunk twice in one round!
+                Sounds.PlaySound("spring_06");
                 this.slamDunkIdx = this.ballFielderIdx;
                 this.pitcherdunked = true;
             } else {
                 if(this.dunked) { return; } // can't dunk twice in one round!
+                Sounds.PlaySound("spring_06");
                 this.slamDunkIdx = this.ballFielderIdx;
                 this.dunked = true;
             }
-            SpeakHandler.Speak(MiscFiller(14, 17, this.fielders[this.ballFielderIdx].playerInfo.name));
         } else {
             this.fullHandler.gravMult = Math.max(1.5, this.fullHandler.gravMult / 2);
             this.fielders[this.ballFielderIdx].ThrowBall(this.fielders[this.targetFielderIdx]);

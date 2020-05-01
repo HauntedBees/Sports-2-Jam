@@ -22,7 +22,6 @@ class CPUplayer {
                 fp.Confirm();
             }
             fp.Confirm();
-            console.log("fuck you");
             return;
         }
         let wub = setInterval(function() {
@@ -269,10 +268,10 @@ class CPUplayer {
             const isFielderCloseToTargetBase = fielderDistanceToTargetBase < 250; // *A, *B
 
             const runnerDistanceToTargetBase = Dist(runner.x, runner.y, runnerTargetFielder.x, runnerTargetFielder.y);
-            const isRunnerCloseToTargetBase = runnerDistanceToTargetBase < 50; // 3
+            const isRunnerCloseToTargetBase = runnerDistanceToTargetBase < 80; // 3
 
             const runnerDistanceToFielderWithBall = Dist(runner.x, runner.y, fielderWithBall.x, fielderWithBall.y);
-            const isRunnerCloseToBall = runnerDistanceToFielderWithBall < 60; // d
+            const isRunnerCloseToBall = runnerDistanceToFielderWithBall < 80; // d
 
             const fielderDistanceToPitcher = isPitcher ? 0 : Dist(fielderWithBall.x, fielderWithBall.y, pitcher.x, pitcher.y);
             const isFielderCloseToPitcher = fielderDistanceToPitcher < 100; // x, y
@@ -518,7 +517,6 @@ class CPUplayer {
         }
         probablyGoodPlacesToGo.sort((a, b) => a.weightedDistance - b.weightedDistance);
         this.targetFieldPos = probablyGoodPlacesToGo[Math.floor(Math.random() * Math.min(3, probablyGoodPlacesToGo.length))];
-        //console.log(`it is likely that fielder ${this.targetFieldPos.fielder} can catch the ball at around timestep ${this.targetFieldPos.timestep}`);
     }
 
 
@@ -569,6 +567,7 @@ class CPUplayer {
         if(doHit) {
             this.batter.swingCounter = 0;
             this.batter.state = 4;
+            Sounds.PlaySound("pot_01");
             this.batter.swingState = 1;
             return true;
         } else {

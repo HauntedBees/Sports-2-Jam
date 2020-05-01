@@ -76,7 +76,6 @@ class DeceitPitch extends Pitch {
         this.realBall = RandRange(0, this.numBalls - 3);
         if(this.realBall === 0) {
             this.realBall = RandRange(0, this.numBalls - 3);
-            console.log(this.realBall);
         }
         this.ballGap = RandRange(15, 40);
     }
@@ -165,7 +164,7 @@ class PitchHandler extends SecondaryHandler {
         this.throwState = 1;
         this.ballx = ballPos.x; this.bally = ballPos.y;
         this.balldx = dir; this.balldy = -force - 2;
-        if(Math.random() > 0.75) { SpeakHandler.Speak(MiscFiller(10, 14)); }
+        if(Math.random() > 0.75) { SpeakHandler.SpeakFromKey(`spk_solHit${RandRange(0, 4)}`); }
     }
     KeyPress(key) {
         switch(key) {
@@ -210,8 +209,10 @@ class PitchHandler extends SecondaryHandler {
                 }
             }
         } else if(this.throwing && this.pitchAnimState < 3 && ++this.miscCounter > 8) {
-            this.pitchAnimState++;
             this.miscCounter = 0;
+            if(++this.pitchAnimState === 3) {
+                Sounds.PlaySound("plop_0" + (Math.random() <= 0.5 ? "2" : "1"), false);
+            }
         }
     }
     AnimUpdate() {

@@ -15,7 +15,6 @@ const Title = {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "title", 640, 480, "background", 0, 0);
         gfx.WriteEchoPlayerText("Licensed by Haunted Bees Productions", 5, 455, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
         gfx.WriteEchoPlayerText("© 2992 Digital Artisinal", 5, 475, 400, "background", "#FFFFFF", "#BA66FF", 14, "left");
-        Sounds.PlaySong("title");
     },
     CleanUp: function() { this.elems = []; },
     KeyPress: function(key) {
@@ -31,7 +30,7 @@ const Title = {
         Sounds.PlaySound("confirm", true);
         switch(this.state) {
             case 0: 
-                SpeakHandler.SpeakFromKey("letsplay");
+                SpeakHandler.SpeakFromKey("spk_letsplay");
                 return this.ShowChoices();
             case 1: return this.ConfirmSelection();
             case 2:
@@ -173,16 +172,14 @@ const TeamSelection = {
                     game.Transition(SeriesIndicator);
                 }
             } else {
-                SpeakHandler.Speak(TeamInfo[outerGameData.team1Idx].name);
-                //SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team1Idx].name);
+                SpeakHandler.SpeakFromKey(`spk_teamName${outerGameData.team1Idx}`);
                 this.confirmed = true;
                 Sounds.PlaySound("confirm", false);
             }
         } else {
             if(this.confirmed2) { return; }
             outerGameData.team2Idx = this.sy2 * this.rowLength + this.sx2;
-            SpeakHandler.Speak(TeamInfo[outerGameData.team2Idx].name);
-            //SpeakHandler.SpeakFromKey(TeamInfo[outerGameData.team2Idx].name);
+            SpeakHandler.SpeakFromKey(`spk_teamName${outerGameData.team2Idx}`);
             this.confirmed2 = true;
             Sounds.PlaySound("confirm", false);
         }
@@ -313,7 +310,7 @@ const SeriesIndicator = {
         this.earthX = lastTeam.mapx;
         this.earthY = lastTeam.mapcy;
 
-        SpeakHandler.Speak(`Match ${outerGameData.seriesRound + 1}: ${playerTeam.name} versus ${opponentTeam.name}`);
+        SpeakHandler.Speak(`Match ${outerGameData.seriesRound + 1}: ${playerTeam.name} versus ${opponentTeam.name}`, "Zenn", true);
 
         gfx.WriteOptionText(`${playerTeam.name} v. ${opponentTeam.name}`, 320, 64, "background", "#FFFFFF", 20);
         gfx.DrawCenteredSpriteToCameras("helmet", "helmets", 3, 3, 190, helmety, "interface", 160, 1);
@@ -461,22 +458,15 @@ const CoinToss = {
             return;
         }
         this.calledHeads = calledHeads;
-        const splitOnSpace = TeamInfo[this.callingTeam].name.split(" ");
-        const lastPartOfName = splitOnSpace[splitOnSpace.length - 1];
-        SpeakHandler.Speak(lastPartOfName + " call " + (calledHeads ? "heads." : "tails."));
         this.state = 1;
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
-        gfx.WriteEchoOptionText(`Called ${calledHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
         const spinTime = 1500 + Math.ceil(Math.random() * 1500);
-        //const spinTime = 5 + Math.ceil(Math.random() * 5);//1500 + Math.ceil(Math.random() * 1500);
         setTimeout(function() { CoinToss.Landed(); }, spinTime);
     },
     Landed: function() {
         this.state = 2;
-        //const landedHeads = !this.calledHeads;//this.coinFrame % 2 === 0;
         const landedHeads = this.coinFrame % 2 === 0;
-        SpeakHandler.Speak(landedHeads ? "Heads." : "Tails.");
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
@@ -673,8 +663,14 @@ const Credits = {
         AddText(`"Awake! (Megawall-10)"`);
         AddText(`by Cynic Music (CC0 License)`);
         Whitespace(0.5);
+        AddText(`"Neo Springcore"`);
+        AddText(`by Spring (CC0 License)`);
+        Whitespace(0.5);
         AddText(`"7 Assorted Sound Effects"`);
         AddText(`by Joth (CC0 License)`);
+        Whitespace(0.5);
+        AddText(`"100 CC0 SFX"`);
+        AddText(`by rubberduck (CC0 License)`);
         Whitespace(0.5);
         AddText(`"Play Ball! v2.wav"`);
         AddText(`by CGEffex (CC BY 3.0 License)`);
@@ -745,43 +741,24 @@ const LogoScreen = {
     Init: function() {
         gfx.FlipSheet("helmets");
         gfx.FlipSheet("baseballers");
-        this.success = false;
-        this.timer = 50;
+        this.timer = 60;
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "logo", 640, 480, "background", 0, 0);
-    },
-    TrySpeak: function() {
-        if(SpeakHandler.PreloadedMessages["logo"] === undefined || SpeakHandler.PreloadedMessages["logo"].stream === null) { return; }
-        this.success = true;
-        SpeakHandler.SpeakFromKey("logo", function(success) {
-            if(!success) { return; }
-            if(game.currentHandler !== LogoScreen) { return; }
-            SpeakHandler.EndCaption();
-            game.Transition(Title);
-        });
+        SpeakHandler.SpeakFromKey("spk_logo");
     },
     CleanUp: function() { },
     KeyPress: function(key) {
         switch(key) {
-            case game.p1c["pause"]: 
             case game.p1c["confirm"]: 
-                this.success = false;
                 this.timer = 0;
                 break;
         }
     },
     Update: function() {
-        if(!this.success) {
-            if(--this.timer <= 0) {
-                this.success = true;
-                game.Transition(Title);
-            } else {
-                this.TrySpeak();
-            }
+        if(--this.timer <= 0) {
+            game.Transition(Title);
         }
     },
-    AnimUpdate: function() {
-
-    }
+    AnimUpdate: function() { }
 };
 
 class TeamOption {
@@ -825,7 +802,6 @@ class TextOption {
         this.shinePanel = -1;
         this.isSelected = selected || false;
         this.numTiles = Math.ceil(gfx.WriteOptionText(this.text, -30, -30, "text", "#FFFFFF", 12) / 32);
-        console.log(this.text + ": " + this.numTiles);
     }
     Deselect() {
         this.bounceState = -1;

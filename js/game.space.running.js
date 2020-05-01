@@ -15,6 +15,7 @@ class RunHandler extends SecondaryHandler {
             const me = this.fullHandler;
             AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
         } else {
+            Sounds.PlaySound("explosion");
             this.runner.Dash();
         }
     }
@@ -33,6 +34,7 @@ class RunHandler extends SecondaryHandler {
     }
     SwitchRunner() {
         if(this.onBaseRunners.length === 0) { return; }
+        Sounds.PlaySound("switch_02");
         const newRunner = this.onBaseRunners.shift();
         this.onBaseRunners.push(this.runner);
         this.runner = newRunner;
@@ -52,7 +54,6 @@ class RunHandler extends SecondaryHandler {
         this.runner.SyncCollider();
         if(this.runner.onBase && this.fullHandler.pitcher.ball !== null) {
             const me = this.fullHandler;
-            console.log("SAFE BECAUSE PITCHER CAUGHT IT!");
             AnimationHelpers.StartScrollText("SAFE!", function() { me.SafeBall(); });
             return;
         }

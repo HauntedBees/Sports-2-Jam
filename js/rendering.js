@@ -6,8 +6,8 @@ const gfx = {
     tileWidth: 960, tileHeight: 720, 
     spritesheets: [],
 
-    LoadSpriteSheets: /** @param {string} source @param {string[]} paths @param {() => void} callback */
-    function(source, paths, callback) {
+    LoadSpriteSheets: /** @param {string} source @param {string[]} paths @param {(number) => void} innerCallback @param {() => void} finalCallback */
+    function(source, paths, innerCallback, finalCallback) {
         let count = 0;
         paths.forEach(function(path) {
             const f = function(path, len) {
@@ -15,7 +15,8 @@ const gfx = {
                 img.onload = function() {
                     gfx.spritesheets[path] = this;
                     count += 1;
-                    if(count === len) { callback(); }
+                    innerCallback(count / len);
+                    if(count === len) { finalCallback(); }
                 };
                 img.src = `${source}/${path}.png`;
             };

@@ -235,7 +235,6 @@ class FieldRunHandler extends Handler {
         this.fieldHandler.Update();
         if(this.runner.justArrivedOnBase && this.runner.baseNumber === this.fieldHandler.ballFielderIdx) {
             const me = this;
-            console.log("OUT BECAUSE PLAYER ARRIVED AT OCCUPIED BASE");
             AnimationHelpers.StartScrollText("OUT!", function() { me.CatchOut(); });
         }
     }

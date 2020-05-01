@@ -83,6 +83,18 @@
                 color: #FFFFFF;
                 max-width: 600px;
             }
+            #loader { background-image: url('img/bgLoader.jpg') }
+            #loaderText {
+                font-size: 2em;
+                margin-top: 180px;
+            }
+            #copyrightInfo {
+                position: absolute;
+                top: 463px;
+                text-align: right;
+                width: 640px;
+                font-size: 0.8em;
+            }
         </style>
     </head>
     <body style="text-align: center">
@@ -120,21 +132,19 @@
                 </div>
             </div>
         </div>
-        <div id="helpText" class="textOverlay" style="display: none">
-            <div id="helpTextContent"></div>
-        </div>
-        <div id="pauseDisplay" class="textOverlay" style="display: none">
-            <div id="pauseDisplayText">== PAUSED ==</div>
-        </div>
-        <div id="captions" style="display: none">
-            <div id="captionsText">hey</div>
+        <div id="helpText" class="textOverlay" style="display: none"><div id="helpTextContent"></div></div>
+        <div id="pauseDisplay" class="textOverlay" style="display: none"><div id="pauseDisplayText">== PAUSED ==</div></div>
+        <div id="captions" style="display: none"><div id="captionsText">hey</div></div>
+        <div id="loader" class="textOverlay">
+            <div id="loaderText">Now Lording</div>
+            <div id="loaderInfo">0%</div>
+            <div id="copyrightInfo">© 2020 Sean Finch / Haunted Bees Productions&nbsp;</div>
         </div>
         <div id="fontLoader"><div style="font-family:Retro">&nbsp;</div></div>
         <script type="text/javascript" src="mespeak/mespeak.js"></script>
         <script type="text/javascript" src="js/lib/box2d.min.js"></script>
         <script type="text/javascript" src="js/sound.js"></script>
         <script type="text/javascript" src="js/helpers.js"></script>
-        <script type="text/javascript" src="js/debug.js"></script>
         <script type="text/javascript" src="js/b2helpers.js"></script>
         <script type="text/javascript" src="js/input.js"></script>
         <script type="text/javascript" src="js/constellations.js"></script>
@@ -155,9 +165,10 @@
         <script type="text/javascript" src="js/game.space.js"></script>
         <script type="text/javascript" src="js/game.helpfile.js"></script>
         <script type="text/javascript" src="js/rendering.js"></script>
+        <script type="text/javascript" src="js/debug.js"></script>
+        <script type="text/javascript" src="js/devtools.js"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function() {
-                SpeakHandler.PreloadAll();
                 game.Initialize(false);
             });
         </script>
