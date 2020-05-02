@@ -33,9 +33,9 @@ class BatHandler extends SecondaryHandler {
     }
     Update() {
         if(this.state === 0) {
-            this.dirCursorCounter += 0.05;
+            this.dirCursorCounter += SpeedMult() * 0.05;
         } else if(this.state === 1) {
-            this.power += 0.25;
+            this.power += SpeedMult() * 0.25;
             if(this.power > 12) { this.power = 0; }
         } else if(this.state === 4) {
             if(this.swingState < 5 && ++this.swingCounter > 3) {

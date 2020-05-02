@@ -165,10 +165,7 @@ const TeamSelection = {
                 } else {
                     outerGameData.gameType = "series";
                     outerGameData.seriesRound = 0;
-                    outerGameData.seriesLineup = [];
-                    for(let i = 0; i < 3; i++) {
-                        outerGameData.seriesLineup.push(GetNumberNotInList(TeamInfo.length, outerGameData.team1Idx, ...outerGameData.seriesLineup));
-                    }
+                    outerGameData.seriesLineup = TeamInfo[outerGameData.team1Idx].series;
                     game.Transition(SeriesIndicator);
                 }
             } else {
@@ -268,6 +265,8 @@ const TeamSelection = {
             gfx.WriteEchoOptionText(team.name, cx + 96, 92, "text", "#FFFFFF", "#BA66FF", 18);
             gfx.DrawSprite("helmets", 3, 3, 30, 80, "interface", 160);
             gfx.DrawSprite("helmets", team.hx, team.hy, 30, 80, "interface", 160);
+            gfx.DrawSprite(team.name, 0, 8, 80, 200, "interface", 64, 1);
+            gfx.DrawSprite("baseballers", 4, 8, 80, 200, "interface", 64, 1);
             gfx.WriteEchoPlayerText("Star Becomer: " + starPlayers[teamIdx].batter, cx - 25, 230, 500, "text", "#FFFFFF", "#AA6666", 12, "left");
             gfx.WriteEchoPlayerText("Star Pitcher: " + starPlayers[teamIdx].pitcher, cx - 25, 250, 500, "text", "#FFFFFF", "#6666AA", 12, "left");
         }
@@ -282,6 +281,8 @@ const TeamSelection = {
             gfx.DrawCenteredSprite("helmets", 3, 3, cx + 10, helmety, "interface", 160);
             gfx.DrawCenteredSprite("helmets", team.hx, team.hy, cx + 10, helmety, "interface", 160);
         }
+        gfx.DrawSprite(team.name, 0, 8, cx - 30, 200, "interface", 64, 1);
+        gfx.DrawSprite("baseballers", 4, 8, cx - 30, 200, "interface", 64, 1);
         const dx = flipped ? 130 : -130;
         team.constellations.forEach((name, i) => {
             const c = ConstellationInfo[name];
@@ -563,7 +564,8 @@ const WinScreen = {
                 game.Transition(SeriesIndicator);
             }
         } else {
-            game.Transition(Title, [0]);
+            game.Transition(Credits);
+            //game.Transition(Title, [0]);
         }
     },
     Update: function() {
@@ -642,8 +644,10 @@ const Credits = {
         AddHeading("Writing");
         AddText("Sean Finch");
         AddText("Marcin Rojek");
+        Whitespace(1);
+
         AddHeading("Additional Credits");
-        
+        Whitespace(0.25);
         AddText(`"3D Man Running Eight Directions"`);
         AddText(`by Randy Tayler (CC0 License)`);
         Whitespace(0.5);

@@ -17,7 +17,7 @@ class Pitch {
         this.animCounter = 0;
     }
     Advance() {
-        this.ballPos += this.velocity;
+        this.ballPos += SpeedMult() * this.velocity;
         this.animCounter = (this.animCounter + 1) % 8;
     }
     Draw() { }

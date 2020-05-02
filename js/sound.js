@@ -43,10 +43,26 @@ const captions = {
     "spk_random3": "Zenn: I have not seen a match like this in years.",
     "spk_random4": "Zenn: Games like this remind me of why I took this job in the first place.",
     "spk_random5": "Zenn: I hope this game wraps up soon, I need to go home and watch Oprah 2.",
-    "spk_random6": "Zenn: This game is proudly sponsored by d.a. sports 2. Buy their games!",
+    "spk_random6": "Zenn: This game is proudly sponsored by da Sports 2. Buy their games!",
     "spk_random7": "Zenn: I meditated on this game for seven days and seven nights. It's going to be a good one, folks.",
     "spk_random8": "Zenn: Remember when the pickle went extinct?",
     "spk_random9": "Zenn: We would like to remind our extra-dimensional viewers that attempting to alter the outcome of the game is strictly forbidden under penalty of space law.",
+    "spk_random10": "Zenn: Remember to save the bees while you still can!",
+    "spk_random11": "Zenn: My parents said I'd never be able to make a career from Sports 2 commentary! Who's laughing now, mom?",
+    "spk_random12": "Zenn: If you missed last week's game you can watch it by dunking your head in a bowl of Basesol Milk after sunset any day this week!",
+    "spk_random13": "Zenn: Ancient people believed that the stars could predict the future. Now we know they don't predict it, they enforce it! Wild stuff!",
+    "spk_random14": "Zenn: Will the owner of a '91 black Elonmobile DX please see someone at the entrance, you left your bitcoin miner running!",
+    "spk_random15": "Zenn: Feeling thirsty? Quench your thirst with a nice bottle of American Sludge from our concession stand!",
+    "spk_random16": "Zenn: The hot dogs at our concession stand are made with real hexagons!",
+    "spk_random17": "Zenn: Our Kiss Cam is currently undergoing maintenance, as the last kiss was so intense and passionate that it crashed our systems!",
+    "spk_random18": "Zenn: Remember to spay and neuter your giant squids, folks!",
+    "spk_random19": "Zenn: My boss isn't listening, so, quickly: workers of the world unite, you have nothing to lose but your chains and HI BOSS YES I LOVE BASESOL! INNINGS! TOUCHDOWN!",
+    "spk_random20": "Zenn: All rise for the ceremonial throwing of a goat into a black hole.",
+    "spk_random21": "Zenn: As a reminder, no police officers are allowed on the premises. All of our players, audience members, and me, have several outstanding arrest warrants.",
+    "spk_random22": "Zenn: And in the VIP section tonight we have the Lord of Darkness himself! All hail Santa!",
+    "spk_random23": "Zenn: Oh, a shooting star! Make a wish! Normally I would, too, but no star can wash the blood from my hands.",
+    "spk_random24": "Zenn: We would like to take this time to remind everyone to not patronize the space manatees.",
+    "spk_random25": "Zenn: I would like to thank any veterans of the Amazon War in the audience tonight! Thanks to you, we're all breathing sighs of relief, without having to pay for the oxygen anymore!",
     "spk_solHit0": "Zenn: Excellent form.",
     "spk_solHit1": "Zenn: A beautiful projection.",
     "spk_solHit2": "Zenn: And it's off!",
@@ -90,8 +106,12 @@ const SpeakHandler = {
         if(replacement === undefined) { return val; }
         SpeakHandler.Speak(val.replace("{0}", replacement));
     },
+    InitSpeaker: function(callback) {
+        meSpeak.loadVoice("voices/en/en-us.json", callback);
+    },
     counter: 0,
     Refresh(callback) {
+        callback();
         meSpeak.refresh();
         meSpeak.loadVoice("voices/en-us.json", callback);
     },
@@ -153,6 +173,9 @@ const Sounds = {
                         // Random Comments
                         "spk_random0", "spk_random1", "spk_random2", "spk_random3", "spk_random4",
                         "spk_random5", "spk_random6", "spk_random7", "spk_random8", "spk_random9",
+                        "spk_random10", "spk_random11", "spk_random12", "spk_random13", "spk_random14",
+                        "spk_random15", "spk_random16", "spk_random17", "spk_random18", "spk_random19",
+                        "spk_random20", "spk_random21", "spk_random22", "spk_random23", "spk_random24", "spk_random25",
                         // Team Comments
                         "spk_teamComments0_0", "spk_teamComments0_1", "spk_teamComments0_2",
                         "spk_teamComments1_0", "spk_teamComments1_1", "spk_teamComments1_2", 

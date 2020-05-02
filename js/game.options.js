@@ -7,7 +7,7 @@ const playerOptions = {
     "slowdown": { displayName: "Slowdown Mode", value: false },
     "particles": { displayName: "Particle Effects", value: true }
 };
-function SpeedMult() { return playerOptions["slowdown"].value ? slowdownMult : 1; }
+function SpeedMult() { return playerOptions["slowdown"].value ? 0.5 : 1; }
 const OptionsScreen = {
     elems: [], selection: 0, controlWidth: 0, saveWidth: 0,
     GetY: i => 80 + i * 45,

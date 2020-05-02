@@ -109,11 +109,35 @@ function ArrayRange(array, min, max) {
     return arr;
 }
 function GenerateSpeechClips() {
-    const soundsToPreload = [
-        { key: "spk_random9", speaker: "Zenn", text: "We would like to remind our extra-dimensional viewers that attempting to alter the outcome of the game is strictly forbidden under penalty of space law."}
+    /*const soundsToPreload = [
+        "I hope this game wraps up soon, I need to go home and watch Ope-rah 2.",
+        "Remember to save the bees while you still can!",
+        "My parents said I'd never be able to make a career from Sports 2 commentary! Who's laughing now, mom?",
+        "If you missed last week's game you can watch it by dunking your head in a bowl of Basesol Milk after sunset any day this week!",
+        "Ancient people believed that the stars could predict the future. Now we know they don't predict it, they enforce it! Wild stuff!",
+        "Will the owner of a '91 black Elonmobile DX please see someone at the entrance, you left your bitcoin miner running!",
+        "Feeling thirsty? Quench your thirst with a nice bottle of American Sludge from our concession stand!",
+        "The hot dogs at our concession stand are made with real hexagons!",
+        "Our Kiss Cam is currently undergoing maintenance, as the last kiss was so intense and passionate that it crashed our systems!",
+        "Remember to spay and neuter your giant squids, folks!",
+        "My boss isn't listening, so, quickly: workers of the world unite, you have nothing to lose but your chains and HI BOSS YES I LOVE BASESOL! INNINGS! TOUCHDOWN!",
+        "All rise for the ceremonial throwing of a goat into a black hole.",
+        "As a reminder, no police officers are allowed on the premises. All of our players, audience members, and me, have several outstanding arrest warrants.",
+        "And in the VIP section tonight we have the Lord of Darkness himself! All hail Santa!",
+        "Oh, a shooting star! Make a wish! Normally I would, too, but no star can wash the blood from my hands.",
+        "We would like to take this time to remind everyone to not patronize the space manatees.",
+        "I would like to thank any veterans of the Amazon War in the audience tonight! Thanks to you, we're all breathing sighs of relief, without having to pay for the oxygen anymore!"
+    ].map((e, i) => ({ key: `spk_random${i === 0 ? 5 : (i + 9)}`, speaker: "Zenn", text: e }));*/
+    const soundsToPreload = [{
+        key: "spk_random22", speaker: "Zenn", text: "And in the VIP section tonight we have the Lord of Darkness himself! All hail San ta!"
+    }];
+    /*[
+        //{ key: "spk_random9", speaker: "Zenn", text: "We would like to remind our extra-dimensional viewers that attempting to alter the outcome of the game is strictly forbidden under penalty of space law."}
         //{ key: "spk_logo", speaker: "Announcer", text: "d.a. sports 2. become one with the game!" },
         //{ key: "spk_letsplay", text: "Let's play some Basesol!" }
-    ];
+    ];*/
+
+
   /*  teamComments.forEach((e, i) => {
         soundsToPreload.push(...e.map((t, j) => ({ key: `spk_teamComments${i}_${j}`, text: t })));
     });
@@ -238,7 +262,7 @@ const UnnormalizedConstellationInfo = {
         new Star(480, 150, 3),
         new Star(542, 200, 3)
     ], [ [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7] ]),
-    "Dephinus": new Constellation(4, 4, 0, 0, 1, 1, [
+    "Delphinus": new Constellation(4, 4, 0, 0, 1, 1, [
         new Star(5, 80, 3),
         new Star(83, 7, 4),
         new Star(167, 35, 4),
@@ -440,7 +464,7 @@ const UnnormalizedConstellationInfo = {
         new Star(200, 5, 2),
         new Star(170, 37, 2)
     ], [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [3, 6], [6, 2], [2, 7], [1, 8]]),
-    "Virgo": new Constellation(2, 2, 100, 0, 1, 1, [
+    "Virjo": new Constellation(2, 2, 100, 0, 1, 1, [
         new Star(10, 135, 1), // leg
         new Star(190, 148, 1),
         new Star(295, 185, 2),
@@ -663,23 +687,94 @@ const UnnormalizedConstellationInfo = {
     ], [
         [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], // wings
         [7, 3], [3, 8], [8, 9] // body
+    ]),
+    "Auriga": new Constellation(5, 3, 0, 0, 1, 1, [
+        new Star(6, 260, 3),
+        new Star(144, 320, 2),
+        new Star(262, 220, 2),
+        new Star(316, 128, 4),
+        new Star(235, 8, 4),
+        new Star(95, 65, 3)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 0]
+    ]),
+    "Sculptor": new Constellation(5, 4, 0, 0, 1, 1, [
+        new Star(1, 54, 4),
+        new Star(111, 2, 3),
+        new Star(166, 22, 4),
+        new Star(155, 65, 3)
+    ], [
+        [0, 1], [1, 2], [2, 3]
+    ]),
+    "Corona Australis": new Constellation(0, 5, 0, 0, 1, 1, [
+        new Star(6, 378, 3),
+        new Star(167, 340, 2),
+        new Star(322, 270, 2),
+        new Star(417, 190, 4),
+        new Star(403, 125, 3),
+        new Star(338, 60, 3),
+        new Star(269, 29, 3),
+        new Star(152, 10, 2),
+        new Star(70, 42, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8]
+    ]),
+    "Lyra": new Constellation(1, 5, 0, 0, 1, 1, [
+        new Star(13, 200, 4),
+        new Star(130, 230, 3),
+        new Star(335, 45, 2),
+        new Star(210, 15, 2),
+        new Star(455, 33, 4)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 0], [2, 4]
+    ]),
+    "Canis Major": new Constellation(2, 5, 0, 0, 1, 1, [
+        new Star(10, 215, 2),
+        new Star(85, 195, 1),
+        new Star(120, 215, 3),
+        new Star(120, 290, 3),
+        new Star(210, 225, 1),
+        new Star(365, 205, 2),
+        new Star(450, 235, 3),
+        new Star(370, 120, 4),
+        new Star(320, 85, 2),
+        new Star(310, 30, 2),
+        new Star(410, 5, 1)
+    ], [
+        [0, 1], [1, 2], // tail
+        [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 2], //body
+        [7, 8], [8, 9], [9, 10], [10, 8] // head
+    ]),
+    "Lacerta": new Constellation(3, 5, 0, 0, 1, 1, [
+        new Star(10, 15, 3),
+        new Star(165, 15, 2),
+        new Star(275, 85, 3),
+        new Star(310, 130, 2),
+        new Star(365, 160, 3),
+        new Star(340, 115, 3)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 2]
+    ]),
+    "Corvus": new Constellation(4, 5, 0, 0, 1, 1, [
+        new Star(10, 10, 4),
+        new Star(185, 55, 3),
+        new Star(150, 140, 4),
+        new Star(10, 155, 2)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 0]
+    ]),
+    "Felis": new Constellation(5, 5, 0, 0, 1, 1, [
+        new Star(25, 105, 2),
+        new Star(8, 70, 3),
+        new Star(63, 44, 2),
+        new Star(125, 40, 2),
+        new Star(150, 55, 2),
+        new Star(124, 18, 1),
+        new Star(162, 8, 4),
+        new Star(170, 25, 3),
+        new Star(30, 30, 1)
+    ], [
+        [0, 1], [1, 2], [2, 3], [3, 4], // body
+        [3, 5], [5, 6], [6, 7], [2, 8] // head and tail
     ])
 };
-
-/*
-,
-    "X": new Constellation(3, 1, 0, 0, 1, 1, [
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2),
-        new Star(0, 0, 2)
-    ], [
-
-    ])
-
-*/

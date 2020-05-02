@@ -17,6 +17,7 @@ const BaseStar = {
     fieldBounds: null,
     freeMovement: true, 
     /** @type b2Helpers */ b2Helper: null,
+    /** @type TransitionAnimation */ transitionAnim: null,
     Init: function(p1BatsFirst, skipTheBullshit) {
         if(outerGameData.gameType === "series") {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false, p1BatsFirst);
@@ -49,7 +50,6 @@ const BaseStar = {
                     // @ts-ignore
                     canvies[i].style["left"] = "-320px";
                 } else {
-                    console.log("BEEG");
                     // @ts-ignore
                     canvies[i].style["left"] = "-640px";
                 }
@@ -111,9 +111,12 @@ const BaseStar = {
         }
     },
     Update: function() {
-        if(!this.paused) { this.subhandler.Update(); }
+        if(this.paused) { return; }
+        if(this.transitionAnim !== null && this.transitionAnim.active) { return; }
+        this.subhandler.Update();
     },
     AnimUpdate: function() {
+        if(this.subhandler === null) { return; }
         gfx.ClearSome(["interface", "overlay", "p2interface", "p2overlay", "text", "p2text"]);
         this.subhandler.AnimUpdate();
     },
@@ -127,28 +130,22 @@ const BaseStar = {
         this.data.SwitchTeams();
         this.SwitchHandler(FieldPickHandler);
     },
-    SwitchHandler: /** @param {new () => any} handler */
-    function(handler) {
-        if(this.subhandler !== null) { this.subhandler.CleanUp(); }
-        game.p1c.ClearAllKeys();
-        game.p2c.ClearAllKeys();
-        this.subhandler = new handler();
-        if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
-            this.SwitchView(true);
-        } else { this.SwitchView(false); }
-        game.p1c.freeMovement = this.subhandler.freeMovement;
-        game.p2c.freeMovement = this.subhandler.freeMovement;
-    },
-    SwitchHandlerWithArgs: function(handler, ...args) {
-        if(this.subhandler !== null) { this.subhandler.CleanUp(); }
-        game.p1c.ClearAllKeys();
-        game.p2c.ClearAllKeys();
-        this.subhandler = new handler(...args);
-        if(this.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local") {
-            this.SwitchView(true);
-        } else { this.SwitchView(false); }
-        game.p1c.freeMovement = this.subhandler.freeMovement;
-        game.p2c.freeMovement = this.subhandler.freeMovement2;
+    SwitchHandler: /** @param {any} handler @param {any[]} [args] */
+    function(handler, args) {
+        const me = this;
+        this.transitionAnim = new TransitionAnimation("specialanim", 5, 5, function() {
+            if(me.subhandler !== null) { me.subhandler.CleanUp(); }
+            game.p1c.ClearAllKeys();
+            game.p2c.ClearAllKeys();
+            if(args === undefined) {
+                me.subhandler = new handler();
+            } else {
+                me.subhandler = new handler(...args);
+            }
+            me.SwitchView(me.subhandler.showSplitScreenIn2P && outerGameData.gameType === "2p_local");
+            game.p1c.freeMovement = me.subhandler.freeMovement;
+            game.p2c.freeMovement = me.subhandler.freeMovement;
+        }, function() { me.transitionAnim = null; });
     },
     FieldSetupComplete: function(constellation, outfielders, fieldBoundaries) {
         this.data.SetConstellation(constellation);
@@ -178,8 +175,7 @@ class Loader {
             function(loadedPercent) { me.musicLoadPercent = loadedPercent; me.UpdateAndCheckIfLoaded(); },
             function() { me.musicLoadPercent = 1; me.UpdateAndCheckIfLoaded(); }
         );
-        //meSpeak.loadVoice("voices/en/en-us.json", function() {
-        meSpeak.loadVoice("voices/en/en-us.json", function() {
+        SpeakHandler.InitSpeaker(function() {
             me.areVoicesLoaded = true;
             me.UpdateAndCheckIfLoaded();
         });
@@ -187,7 +183,11 @@ class Loader {
             "batmeter", "baseballers", "basehud", "teamlogos", "constellations", "logo",
             "worldmap", "worldcover", "bigsprites", "zennhalsey", "pitcher", "batter", "troph"], 
             function(loadedPercent) { me.spritesheetLoadPercent = loadedPercent; me.UpdateAndCheckIfLoaded(); },
-            function() { me.spritesheetLoadPercent = 1; me.UpdateAndCheckIfLoaded(); }
+            function() {
+                me.spritesheetLoadPercent = 1;
+                TeamInfo.forEach(t => { gfx.TintSheet("baseballers", t.color, t.name); });
+                me.UpdateAndCheckIfLoaded();
+            }
         );
     }
     UpdateAndCheckIfLoaded() {
@@ -200,8 +200,56 @@ class Loader {
         }
     }
 }
+class TransitionAnimation {
+    active = true;
+    state = 0; currentFrame = 0;
+    /** @param {string} drawLayer @param {number} fadeFrames @param {number} holdFrames @param {() => void} midpointCallback @param {() => void} finishedCallback */
+    constructor(drawLayer, fadeFrames, holdFrames, midpointCallback, finishedCallback) {
+        this.drawLayer = drawLayer;
+        this.fadeFrames = fadeFrames;
+        this.holdFrames = holdFrames;
+        this.midpointCallback = midpointCallback;
+        this.finishedCallback = finishedCallback;
+        const me = this;
+        this.animIdx = setInterval(function() { me.Animate(); }, 10);
+    }
+    Animate() {
+        if(!this.active) { return; }
+        gfx.ClearLayer(this.drawLayer);
+        if(this.state === 0) {
+            if(++this.currentFrame >= this.fadeFrames) {
+                this.state = 1;
+                this.currentFrame = 0;
+                this.midpointCallback();
+                this.DrawHold(1);
+            } else {
+                this.DrawFadeIn(this.currentFrame / this.fadeFrames);
+            }
+        } else if(this.state === 1) {
+            this.DrawHold(1);
+            if(++this.currentFrame >= this.holdFrames) {
+                this.state = 2;
+                this.currentFrame = 0;
+            }
+        } else if(this.state === 2) {
+            if(++this.currentFrame >= this.fadeFrames) {
+                this.active = false;
+                this.finishedCallback();
+                clearInterval(this.animIdx);
+            } else {
+                this.DrawFadeOut(this.currentFrame / this.fadeFrames);
+            }
+        }
+    }
+    /** @param {number} percentage */
+    DrawFadeIn(percentage) { gfx.DrawFullScreenRect(this.drawLayer, "#000000", percentage); }
+    /** @param {number} percentage */
+    DrawHold(percentage) { gfx.DrawFullScreenRect(this.drawLayer, "#000000", percentage); }
+    /** @param {number} percentage */
+    DrawFadeOut(percentage) { gfx.DrawFullScreenRect(this.drawLayer, "#000000", 1 - percentage); }
+}
 class Game {
-    animIdx = 0; updateIdx = 0;
+    animIdx = 0; updateIdx = 0; transitionAnim = null;
     /** @type {BaseHandler} */ currentHandler = null;
     /** @type {InputHandler} */ inputHandler =  null;
     /** @type {GameInput} */ p1c =  null;
@@ -250,39 +298,47 @@ class Game {
     Update() {
         if(helper.isVisible) { return; }
         if(this.currentHandler === null) { return; }
+        if(this.transitionAnim !== null && this.transitionAnim.active) { return; }
         this.currentHandler.Update();
+    }
+    KeyPress(key) {
+        if(this.transitionAnim !== null && this.transitionAnim.active) { return; }
+        this.currentHandler.KeyPress(key);
     }
     SetFreeMovement(newVal) {
         game.p1c.freeMovement = newVal;
         game.p2c.freeMovement = newVal;
     }
     Transition(newHandler, args) {
-        Sounds.EndAll();
-        SpeakHandler.Stop();
-        game.p1c.ClearAllKeys();
-        game.p2c.ClearAllKeys();
-        const wasFast = this.currentHandler.fast || false;
-        if(this.currentHandler.CleanUp !== undefined) { this.currentHandler.CleanUp(); }
-        this.currentHandler = newHandler;
-        game.SetFreeMovement(newHandler.freeMovement || false);
-        gfx.ClearAll();
-        if(wasFast && !newHandler.fast) {
-            clearInterval(this.updateIdx);
-            this.updateIdx = setInterval(function() { game.Update(); }, fpsUpdate);
-        } else if(!wasFast && newHandler.fast) {
-            clearInterval(this.updateIdx);
-            this.updateIdx = setInterval(function() { game.Update(); }, fpsAnim);
-        }
-        if(newHandler === BaseStar || newHandler === SeriesIndicator || newHandler === VersusIndicator || newHandler === CoinToss) {
-            Sounds.PlaySong("song_neospringcore");
-        } else {
-            Sounds.PlaySong("song_awake");
-        }
-        if(args === undefined) {
-            this.currentHandler.Init();
-        } else {
-            this.currentHandler.Init(...args);
-        }
+        const me = this;
+        this.transitionAnim = new TransitionAnimation("specialanim", 10, 5, function() {
+            Sounds.EndAll();
+            SpeakHandler.Stop();
+            game.p1c.ClearAllKeys();
+            game.p2c.ClearAllKeys();
+            const wasFast = me.currentHandler.fast || false;
+            if(me.currentHandler.CleanUp !== undefined) { me.currentHandler.CleanUp(); }
+            me.currentHandler = newHandler;
+            game.SetFreeMovement(newHandler.freeMovement || false);
+            gfx.ClearAll();
+            if(wasFast && !newHandler.fast) {
+                clearInterval(me.updateIdx);
+                me.updateIdx = setInterval(function() { game.Update(); }, fpsUpdate);
+            } else if(!wasFast && newHandler.fast) {
+                clearInterval(me.updateIdx);
+                me.updateIdx = setInterval(function() { game.Update(); }, fpsAnim);
+            }
+            if(newHandler === BaseStar || newHandler === SeriesIndicator || newHandler === VersusIndicator || newHandler === CoinToss) {
+                Sounds.PlaySong("song_neospringcore");
+            } else {
+                Sounds.PlaySong("song_awake");
+            }
+            if(args === undefined) {
+                me.currentHandler.Init();
+            } else {
+                me.currentHandler.Init(...args);
+            }
+        }, function() { me.transitionAnim = null; });
     }
 }
 const game = new Game();

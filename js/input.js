@@ -96,9 +96,9 @@ class GameInput {
             this.SetMainKey(key);
             if(this.keys[key] !== undefined) { return; }
             this.keys[key] = setInterval(function() {
-                game.currentHandler.KeyPress(key);
+                game.KeyPress(key);
             }, 50);
-        } else if(this.IsIgnoredByKeyPress(key)) { game.currentHandler.KeyPress(key); }        
+        } else if(this.IsIgnoredByKeyPress(key)) { game.KeyPress(key); }        
     }
     /** @param {KeyboardEvent} e */
     KeyUp(e) {
@@ -121,7 +121,7 @@ class GameInput {
         if([this.currentControls.up, this.currentControls.left, this.currentControls.down, this.currentControls.right].indexOf(key) >= 0 && this.freeMovement) {
             return;
         }
-        game.currentHandler.KeyPress(key);
+        game.KeyPress(key);
         this.justPressed[key]++;
     }
     /** @param {Gamepad} gp */
@@ -163,12 +163,12 @@ class GameInput {
                         if(this.keys[btn] !== undefined) { return; }
                         const me = this;
                         this.keys[btn] = setInterval(function() {
-                            game.currentHandler.KeyPress(me.gamepadIndex.toString() + btn);
+                            game.KeyPress(me.gamepadIndex.toString() + btn);
                         }, this.buttonDelay);
                     } else {
                         if(btn === "Gamepad8") { return helper.GetHelpInformation(this.playerNum, false); }
                         if(helper.isVisible) { return; }
-                        game.currentHandler.KeyPress(this.gamepadIndex.toString() + btn);
+                        game.KeyPress(this.gamepadIndex.toString() + btn);
                     }
                 }
             }
@@ -257,7 +257,7 @@ class InputHandler {
     }
     /** @param {KeyboardEvent} e */
     KeyDown(e) {
-        if(this.forceCleanKeyPress) { game.currentHandler.KeyPress(e.key); return; }
+        if(this.forceCleanKeyPress) { game.KeyPress(e.key); return; }
         this.controlSets.forEach(c => c.KeyDown(e));
     }
     /** @param {KeyboardEvent} e */

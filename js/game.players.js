@@ -246,7 +246,6 @@ class Runner extends Player {
             dashTimer = 30;
         };
         this.MoveToStar = function (idx) {
-            Sounds.PlaySound("switch_02");
             if (this.ball !== null) {
                 return;
             }

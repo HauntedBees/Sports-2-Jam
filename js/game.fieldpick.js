@@ -81,8 +81,6 @@ class FieldPickHandler extends Handler {
                 this.ofy = o.y;
                 this.state = 1;
             }
-        } else {
-            game.Transition(TeamSelection, []);
         }
     }
     Confirm() {

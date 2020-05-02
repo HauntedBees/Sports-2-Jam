@@ -24,12 +24,12 @@ class AtBatHandler extends Handler {
         if(BaseStar.data.inning.outs === 0 && BaseStar.data.inning.playersOnBase.length === 0 && BaseStar.data.inning.strikes === 0) {
             Sounds.PlaySound("playBall", false);
         } else if(BaseStar.data.inning.strikes === 0) {
-            if(Math.random() < 0.25) { // comments about the player's team
+            if(Math.random() < 0.1) { // comments about the player's team
                 SpeakHandler.SpeakRandomTeamComment(BaseStar.data.team1.teamIdx, BaseStar.data.team2.teamIdx);
-            } else if(Math.random() < 0.5) { // comments that don't use the player's name
+            } else if(Math.random() < 0.45) { // comments that don't use the player's name
                 SpeakHandler.SpeakMiscFiller(10, 13, battingTeam.players[BaseStar.data.inning.atBatPlayerIdx].name);
             } else { // comments that use the player's name
-                SpeakHandler.SpeakFromKey(`spk_random${RandRange(0, 10)}`);
+                SpeakHandler.SpeakFromKey(`spk_random${RandRange(0, 26)}`);
             }
         }
     }
@@ -79,7 +79,6 @@ class AtBatHandler extends Handler {
                 const dir = (distance < 0) ? -1 : 1; // too soon is right, too late is left
                 distance = Math.abs(distance);
                 let offset = 0;
-                console.log("distance: " + distance);
                 if(distance <= 0.08) { // perfect shot
                     this.ohWowState = 1;
                     offset = 0;
@@ -108,7 +107,7 @@ class AtBatHandler extends Handler {
             }
         } else if(this.state === 2 && this.pitchHandler.throwState === 2) {
             this.state = 3;
-            BaseStar.SwitchHandlerWithArgs(FieldRunHandler, this.ballData, this.pitchHandler.dx, BaseStar.data.constellation);
+            BaseStar.SwitchHandler(FieldRunHandler, [this.ballData, this.pitchHandler.dx, BaseStar.data.constellation]);
         }
     }
     AnimUpdate() {

@@ -61,6 +61,14 @@ const gfx = {
         gfx.spritesheets[newname] = canvas;
     },
 
+    DrawFullScreenRect: function(layer, color, alpha) {
+        const ctx = gfx.ctx[layer];
+        ctx.fillStyle = color;
+        ctx.globalAlpha = alpha;
+        ctx.fillRect(0, 0, 640, 480);
+        ctx.globalAlpha = 1;
+    },
+
     DrawLine: /** @param {number} x1 @param {number} y1 @param {number} x2 @param {number} y2 @param {string} color @param {any} layer @param {number} [cx] @param {number} [cy] @param {number} [lineWidth] */
     function(x1, y1, x2, y2, color, layer, cx, cy, lineWidth) {
         const ctx = gfx.ctx[layer];

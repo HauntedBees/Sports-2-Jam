@@ -62,7 +62,6 @@ function InningData() {
 /** @param {number} player @param {number} idx @param {boolean} isPlayerControlled @param {boolean} darkTint */
 function Team(player, idx, isPlayerControlled, darkTint) {
     const teamInfo = TeamInfo[idx];
-    gfx.TintSheet("baseballers", teamInfo.color, teamInfo.name);
     gfx.TintSheet("bigsprites", teamInfo.color, teamInfo.name + "_big");
     gfx.TintSheet("pitcher", teamInfo.color, teamInfo.name + "_pitcher");
     gfx.TintSheet("batter", teamInfo.color, teamInfo.name + "_batter");
@@ -108,18 +107,18 @@ function Team(player, idx, isPlayerControlled, darkTint) {
     this.GetConstellations = function() { return teamInfo.constellations; }
 };
 const TeamInfo = [ // NOTE: KEEP MAPX BETWEEN 225 AND 450
-    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 369, mapcy: 70, constellations: ["Sagittarius", "Orion", ""] },        // Greenland
-    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 324, mapcy: 34, constellations: ["Ursa Major", "Taurus", ""] },          // Burundi
-    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 247, mapcy: 12, constellations: ["Centaurus", "", "Libra"] },              // Australia
-    { name: "Makhachkala Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 297, mapcy: 64, constellations: ["Cetus", "Boötes", "Aries"] },         // *Russia
-    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 339, mapcy: 60, constellations: ["Scorpius", "Perseus", ""] },           // France
-    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 254, mapcy: 56, constellations: ["Gemini", "Cygnus", ""] },                  // Japan
-    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 390, mapcy: 30, constellations: ["Pegasus", "Capricornus", "Monoceros"] },   // *Peru
-    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 413, mapcy: 58, constellations: ["Aquarius", "", ""] },           // USA
-    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 363, mapcy: 54, constellations: ["Pisces", "", "Delphinus"] },              // Atlantis
-    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 248, mapcy: 60, constellations: ["Hercules", "", "Cancer"] },           // Korea
-    { name: "Cúcuta Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 387, mapcy: 36, constellations: ["Virgo", "", "Andromeda"] },             // Colombia
-    { name: "Lilongwe Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 321, mapcy: 22, constellations: ["Lepus", "Leo", "Ursa Minor"] }          // *Malawi
+    { name: "Sisimiut Centaurs", hx: 3, hy: 1, color: "#78103066", mapx: 369, mapcy: 70, series: [1, 3, 7], constellations: ["Sagittarius", "Orion", "Lyra"] },                 // Greenland
+    { name: "Bujumbura Bulls", hx: 0, hy: 0, color: "#0048B066", mapx: 324, mapcy: 34, series: [0, 4, 9], constellations: ["Hercules", "Taurus", "Monoceros"] },                // Burundi
+    { name: "Sydney Scales", hx: 2, hy: 1, color: "#48005866", mapx: 247, mapcy: 12, series: [3, 7, 9], constellations: ["Cetus", "Perseus", "Libra"] },                        // Australia
+    { name: "Makhachkala Rams", hx: 2, hy: 0, color: "#68D80066", mapx: 297, mapcy: 64, series: [2, 0, 5], constellations: ["Lepus", "Canis Major", "Aries"] },                 // Russia
+    { name: "Seine Scorpions", hx: 1, hy: 0, color: "#D86C2066", mapx: 339, mapcy: 60, series: [10, 8, 6], constellations: ["Scorpius", "Aquila", "Lacerta"] },                 // France
+    { name: "Tokyo Twins", hx: 3, hy: 0, color: "#90002066", mapx: 254, mapcy: 56, series: [3, 10, 8], constellations: ["Gemini", "Boötes", "Sculptor"] },                      // Japan
+    { name: "Qusqu Goats", hx: 0, hy: 2, color: "#00246866", mapx: 390, mapcy: 30, series: [4, 11, 7], constellations: ["Pegasus", "Capricornus", "Auriga"] },                  // Peru
+    { name: "San Diego Waterbearers", hx: 1, hy: 1, color: "#F8FC0066", mapx: 413, mapcy: 58, series: [0, 6, 2], constellations: ["Aquarius", "Corona Australis", "Felis"] },   // USA
+    { name: "Atlantis Koi", hx: 0, hy: 1, color: "#00005866", mapx: 363, mapcy: 54, series: [11, 5, 6], constellations: ["Pisces", "Cygnus", "Delphinus"] },                    // Atlantis
+    { name: "Seoul Snow Crabs", hx: 3, hy: 2, color: "#00FCD866", mapx: 248, mapcy: 60, series: [2, 1, 11], constellations: ["Centaurus", "Ursa Minor", "Cancer"] },            // Korea
+    { name: "Cúcuta Maidens", hx: 1, hy: 2, color: "#2048F866", mapx: 387, mapcy: 36, series: [4, 5, 9], constellations: ["Virjo", "Lynx", "Andromeda"] },                      // Colombia
+    { name: "Lilongwe Lions", hx: 2, hy: 2, color: "#B0484866", mapx: 321, mapcy: 22, series: [10, 1, 8], constellations: ["Ursa Major", "Leo", "Corvus"] }                     // Malawi
 ];
 const PlayerInfo = [
     { team: 0, name: "Etharalie Tarobon", stat1: 476, stat2: 0.584, stat3: 6.3, stat4: 72 },

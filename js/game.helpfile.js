@@ -53,9 +53,9 @@ class Helper {
                     "Ah, the Options Menu. Truly a screen beloved by all.",
                     "Sound, Music, and Voices toggle sound, music, and voice audio respectively. Voice Captions toggles captions for the spoken messages, regardless of whether voice audio is on or off.",
                     "When Gameplay is off, there is no video game. Only darkness. This cannot be turned on.",
-                    "When Slowdown Mode is on, the game will run at half speed. This is ideal for new players or players on slower computers.",
-                    "Likewise, turning Particle Effects off may fix slowdown on slower computers."
-                ]);
+                    "When Slowdown Mode is on, the game will run at half speed. Perfect for new players and those who think the real world moves fast enough outside of video games! It also might be useful for players on slower computers.",
+                    "Likewise, turning Particle Effects off may fix slowdown on slower computers or help players who don't like seeing that much sparkling stuff on screen."
+                ], true);
             case ControlsScreen:
                 return this.ShowMessage([
                     "Here you can change the keyboard or gamepad controls you want to use for the game.",
