@@ -33,12 +33,12 @@ const Title = {
                 SpeakHandler.SpeakFromKey("spk_letsplay");
                 return this.ShowChoices();
             case 1: return this.ConfirmSelection();
-            case 2:
+            /*case 2:
                 switch(this.selection) {
                     case 0: return game.Transition(TeamSelection, [2]);
                     case 1: return game.Transition(OnlineHostGame);
                     case 2: return game.Transition(OnlineJoinGame);
-                }
+                }*/
         }
     },
     Cancel: function() {
@@ -57,7 +57,7 @@ const Title = {
         ];
         this.elems[this.selection].Select();
     },
-    ShowMultiplayerChoices: function() {
+    /*ShowMultiplayerChoices: function() {
         this.state = 2;
         this.selection = 0;
         this.elems = [
@@ -66,11 +66,11 @@ const Title = {
             new TextOption("Join Match", 5, 12.5)
         ];
         this.elems[this.selection].Select();
-    },
+    },*/
     ConfirmSelection: function() {
         switch(this.selection) {
             case 0: return game.Transition(TeamSelection, [1]);
-            case 1: return this.ShowMultiplayerChoices();
+            case 1: return game.Transition(TeamSelection, [2]);//this.ShowMultiplayerChoices();
             case 2: return game.Transition(OptionsScreen, []);
         }
     },
@@ -100,16 +100,17 @@ const TeamSelection = {
     /** @type {TeamOption[]} */ teams: [],
     sx: 0, sy: 0, confirmed: false,
     sx2: 1, sy2: 0, confirmed2: false,
-    twoPlayer: false, 
+    twoPlayer: false, isOnline: false,
     earthX: 0, earthY: 0,
     nextX: 0, nextY: 0,
     exDir: 0, eyDir: 0,
-    Init: function(numPlayers) {
+    Init: function(numPlayers, isOnline) {
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background", 640, 480, "background", 0, 0);
         this.earthX = TeamInfo[0].mapx;
         this.earthY = TeamInfo[0].mapcy;
         this.exDir = 0; this.eyDir = 0;
         this.twoPlayer = numPlayers === 2;
+        this.isOnline = isOnline;
         if(this.twoPlayer) {
             this.sx = 0; this.sy = 0; this.confirmed = false;
             this.sx2 = 1; this.sy2 = 0; this.confirmed2 = false;
@@ -160,7 +161,7 @@ const TeamSelection = {
             if(this.confirmed) {
                 if(this.twoPlayer) {
                     if(!this.confirmed2) { return; }
-                    outerGameData.gameType = "2p_local";
+                    outerGameData.gameType = this.isOnline ? "2p_online" : "2p_local";
                     game.Transition(VersusIndicator);
                 } else {
                     outerGameData.gameType = "series";
@@ -423,7 +424,8 @@ const VersusIndicator = {
 };
 const CoinToss = {
     coinFrame: 0, state: 0, p1BatsFirst: false,  
-    calledHeads: false, callingTeam: 0, opposingTeam: 0, 
+    calledHeads: false, landedHeads: false, 
+    callingTeam: 0, opposingTeam: 0, 
     Init: function() {
         this.coinFrame = 0;
         this.state = 0;
@@ -463,15 +465,15 @@ const CoinToss = {
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
         const spinTime = 1500 + Math.ceil(Math.random() * 1500);
+        this.landedHeads = spinTime % 2 === 0;
         setTimeout(function() { CoinToss.Landed(); }, spinTime);
     },
     Landed: function() {
         this.state = 2;
-        const landedHeads = this.coinFrame % 2 === 0;
         gfx.ClearLayer("text");
         gfx.WriteEchoOptionText(TeamInfo[this.callingTeam].name, 320, 100, "text", "#FFFFFF", "#BA66FF", 24);
-        gfx.WriteEchoOptionText(`Landed ${landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
-        this.p1BatsFirst = (this.calledHeads && landedHeads) || (!this.calledHeads && !landedHeads);
+        gfx.WriteEchoOptionText(`Landed ${this.landedHeads ? "Heads" : "Tails"}!`, 320, 150, "text", "#FFFFFF", "#BA66FF", 24);
+        this.p1BatsFirst = (this.calledHeads && this.landedHeads) || (!this.calledHeads && !this.landedHeads);
         const battingTeam = this.p1BatsFirst ? this.callingTeam : this.opposingTeam;
         gfx.WriteEchoOptionText(`${TeamInfo[battingTeam].name} jump first!`, 320, 340, "text", "#FFFFFF", "#BA66FF", 24);
     },

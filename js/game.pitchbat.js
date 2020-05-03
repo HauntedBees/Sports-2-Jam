@@ -89,20 +89,16 @@ class AtBatHandler extends Handler {
                 } else {
                     offset = -1;
                 }
-                if(offset === 0) {
-                    Sounds.PlaySound("gong_01", false);
-                } else if(offset > 0) {
-                    Sounds.PlaySound(`glass_0${RandRange(1, 6)}`, false);
-                }
                 if(offset >= 0) {
                     this.ballData = {
-                        pos: this.batHandler.dx, swingType: 1, 
-                        dir: this.batHandler.dir, offset: offset * dir,
-                        power: this.batHandler.power
+                        pos: this.batHandler.dx, dir: this.batHandler.dir,
+                        offset: offset * dir, power: this.batHandler.power
                     };
-                    this.pitchHandler.BallHit(2 * this.batHandler.dir + offset * dir, this.batHandler.power);
+                    this.pitchHandler.BallHit(2 * this.batHandler.dir + offset * dir, this.batHandler.power, offset);
+                    //game.DoOnlineThing("hitBall", false, this.pitchHandler.pitch.ballPos, 2 * this.batHandler.dir + offset * dir, this.batHandler.power, offset, this.ballData);
                 } else {
                     this.batHandler.missed = true;
+                    //game.DoOnlineThing("hitBall", true);
                 }
             }
         } else if(this.state === 2 && this.pitchHandler.throwState === 2) {

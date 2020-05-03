@@ -138,7 +138,6 @@ class PitchHandler extends SecondaryHandler {
     ready = false; // ready to throw
     dx = 0; throwStyle = 1; pitchSpeed = 0; throwState = 0;
     t = 0; miscCounter = 0; pitchAnimState = 0; // animation buddies
-    
     /** @type {Pitch} */ pitch = null;
     ballOffsetX = 17; ballOffsetY = 114;
     throwing = false;
@@ -158,8 +157,13 @@ class PitchHandler extends SecondaryHandler {
             case 3: this.pitch = new DeceitPitch(x1, y1, this.dx); break;
         }
     }
-    /** @param {number} dir @param {number} force */
-    BallHit(dir, force) {
+    /** @param {number} dir @param {number} force @param {number} offset */
+    BallHit(dir, force, offset) {
+        if(offset === 0) {
+            Sounds.PlaySound("gong_01", false);
+        } else {
+            Sounds.PlaySound(`glass_0${RandRange(1, 6)}`, false);
+        }
         const ballPos = this.pitch.GetPosition();
         this.throwState = 1;
         this.ballx = ballPos.x; this.bally = ballPos.y;
@@ -229,7 +233,7 @@ class PitchHandler extends SecondaryHandler {
                 gfx.DrawCenteredSprite("sprites", 7, 2, this.pitcherx + 25, this.pitchery + 8, "interface", 32, 0.7);
                 break;
         }
-        if(this.team.isPlayerControlled && !this.ready) {
+        if(this.team.showUI && !this.ready) {
             const centerx = outerGameData.gameType === "2p_local" ? 420 : 320, centery = 400, d = 20;
             gfx.DrawCenteredSprite("sprites", 11, 2, centerx, centery, "text", 32, 1);
             gfx.DrawCenteredSprite("sprites", 11, this.throwStyle === 0 ? 1 : 0, centerx, centery + d, "text", 32, 1);

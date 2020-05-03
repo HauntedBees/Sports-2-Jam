@@ -107,7 +107,7 @@ const SpeakHandler = {
         SpeakHandler.Speak(val.replace("{0}", replacement));
     },
     InitSpeaker: function(callback) {
-        meSpeak.loadVoice("voices/en/en-us.json", callback);
+        meSpeak.loadVoice("en-us.json", callback);
     },
     counter: 0,
     Refresh(callback) {

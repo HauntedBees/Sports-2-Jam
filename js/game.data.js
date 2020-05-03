@@ -94,6 +94,7 @@ function Team(player, idx, isPlayerControlled, darkTint) {
     this.isUp = false;
     this.score = 0;
     this.playerNum = player;
+    this.showUI = isPlayerControlled;
     this.PluralName = function() { return this.name + (this.name[this.name.length - 1] === "s" ? "'" : "'s"); };
     this.LastName = function() { return splitName[splitName.length - 1]; }
     this.GetLayerPrefix = function() {

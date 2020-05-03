@@ -23,6 +23,10 @@ const BaseStar = {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false, p1BatsFirst);
         } else if(outerGameData.gameType === "2p_local") {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.team2Idx, true, p1BatsFirst);
+        } else if(outerGameData.gameType === "2p_online") {
+            this.data = new GameData(outerGameData.team1Idx, outerGameData.team2Idx, true, p1BatsFirst);
+            /*this.data.team1.showUI = (game.onlineHandler.playerNum === 1);
+            this.data.team2.showUI = (game.onlineHandler.playerNum === 2);*/
         }
         this.SwitchView(false);
         this.particles = [];
@@ -251,8 +255,8 @@ class TransitionAnimation {
 class Game {
     animIdx = 0; updateIdx = 0; transitionAnim = null;
     /** @type {BaseHandler} */ currentHandler = null;
-    /** @type {InputHandler} */ inputHandler =  null;
-    /** @type {GameInput} */ p1c =  null;
+    /** @type {InputHandler} */ inputHandler =  null; 
+    /** @type {GameInput} */ p1c = null;
     /** @type {GameInput} */ p2c = null;
     Initialize(addAwaiter) {
         if(addAwaiter) {
@@ -309,6 +313,11 @@ class Game {
         game.p1c.freeMovement = newVal;
         game.p2c.freeMovement = newVal;
     }
+    /* onlineHandler =  null;
+    DoOnlineThing(target, ...params) {
+        if(game.onlineHandler === null) { return; }
+        game.onlineHandler.socket.emit(target, ...params);
+    }*/
     Transition(newHandler, args) {
         const me = this;
         this.transitionAnim = new TransitionAnimation("specialanim", 10, 5, function() {

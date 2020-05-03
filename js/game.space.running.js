@@ -41,6 +41,7 @@ class RunHandler extends SecondaryHandler {
         BaseStar.cameras[0].SwitchFocus(this.runner, false);
     }
     KeyPress(key) {
+        if(!this.team.showUI) { return; }
         switch(key) {
             case this.myControls["confirm"]: return this.Confirm();
             case this.myControls["left"]: return this.AimForNextStar(-1);
@@ -68,6 +69,7 @@ class RunHandler extends SecondaryHandler {
         if(!this.team.isPlayerControlled) { BaseStar.cpu.HandleRun(); }
     }
     AnimUpdate() {
+        if(!this.team.showUI) { return; }
         this.DrawInfoUI();
         this.runner.Draw();
         this.onBaseRunners.forEach(e => e.Draw());

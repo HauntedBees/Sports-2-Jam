@@ -2,7 +2,7 @@ class GameInput {
     justPressed = {}; keys = {};
     /** @type {number} */ mainDirectionKey = undefined; 
     usingGamepad = false; gamepadIndex = 0;
-    freeMovement = false;
+    freeMovement = false; ignore = false;
     triggerMin = 0.5; deadZones = [0.25, 0.25, 0.25, 0.25]; buttonDelay = 10;
     gamepadButtons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
         0, 0, 0, 0, // negative axes Lx Ly Rx Ry
@@ -115,6 +115,10 @@ class GameInput {
     /** @param {KeyboardEvent} e */
     KeyPress(e) {
         const key = this.GetKey(e);
+        this.KeyPressFromKey(key);
+    }
+    /** @param {string} key */
+    KeyPressFromKey(key) {
         if(key === "h") { return helper.GetHelpInformation(this.playerNum, true); }
         if(helper.isVisible) { return; }
         if(this.controlArray.indexOf(key) < 0) { return; }
@@ -178,6 +182,7 @@ class GameInput {
 class ShellGameInput extends GameInput {
     constructor() {
         super(0, { up: "", left: "", down: "", right: "", confirm: "", cancel: "", pause: "" });
+        this.ignore = true;
     }
     Key(key) { return ""; }
     ChangeInputBinding(key, value) {}
@@ -243,7 +248,7 @@ class InputHandler {
         if(gamepads === undefined || gamepads === null || !document.hasFocus()) { return; }
         const numGamepads = gamepads.length;
         for(let i = 0; i < numGamepads; i++) {
-            this.controlSets.forEach(c => c.ParseGamepad(gamepads[i]));
+            this.controlSets.forEach(c => { if(!c.ignore) { c.ParseGamepad(gamepads[i]); }});
         }
     }
     /** @param {KeyboardEvent} e */
@@ -253,13 +258,13 @@ class InputHandler {
             this.ignoreNextKeyPress = false;
             return;
         }
-        this.controlSets.forEach(c => c.KeyPress(e));
+        this.controlSets.forEach(c => { if(!c.ignore) { c.KeyPress(e); }});
     }
     /** @param {KeyboardEvent} e */
     KeyDown(e) {
         if(this.forceCleanKeyPress) { game.KeyPress(e.key); return; }
-        this.controlSets.forEach(c => c.KeyDown(e));
+        this.controlSets.forEach(c => { if(!c.ignore) { c.KeyDown(e); }});
     }
     /** @param {KeyboardEvent} e */
-    KeyUp(e) { this.controlSets.forEach(c => c.KeyUp(e)); }
+    KeyUp(e) { this.controlSets.forEach(c => { if(!c.ignore) { c.KeyUp(e); }}); }
 };

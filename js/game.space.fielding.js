@@ -100,6 +100,7 @@ class FieldHandler extends SecondaryHandler {
         controls.freeMovement = newVal;
     }
     KeyPress(key) {
+        if(!this.team.showUI) { return; }
         let dx = 0, dy = 0, confirm = false, cancel = false;
         switch(key) {
             case this.myControls["confirm"]: confirm = true; break;
@@ -141,6 +142,7 @@ class FieldHandler extends SecondaryHandler {
         if(!this.team.isPlayerControlled) { BaseStar.cpu.HandleField(); }
     }
     AnimUpdate() {
+        if(!this.team.showUI) { return; }
         this.DrawInfoUI();
         this.fielders.forEach(e => e.Draw());
         if(this.targetFielderIdx >= 0) {

@@ -60,10 +60,7 @@ class CPUplayer {
 
     /** @param {RunHandler} rh @param {FieldHandler} fh @param {boolean} isRunnerCPU @param {boolean} isFielderCPU @param {{ x: any; y: any; }} runnerPos @param {any} linearVelocity */
     InitFieldRun(rh, fh, isRunnerCPU, isFielderCPU, runnerPos, linearVelocity) {
-        this.runner = rh;
-        this.fielder = fh;
-
-        // this.PredictBallPath(outerGameData.seriesRound * 2.5, outerGameData.seriesRound * 3, runnerPos, linearVelocity);
+        this.runner = rh; this.fielder = fh;
         if(isRunnerCPU) { this.SetUpRun(); }
         if(isFielderCPU) { this.SetUpField(outerGameData.seriesRound * 2.5, outerGameData.seriesRound * 3, runnerPos, linearVelocity); }
     }
@@ -268,7 +265,7 @@ class CPUplayer {
             const isFielderCloseToTargetBase = fielderDistanceToTargetBase < 250; // *A, *B
 
             const runnerDistanceToTargetBase = Dist(runner.x, runner.y, runnerTargetFielder.x, runnerTargetFielder.y);
-            const isRunnerCloseToTargetBase = runnerDistanceToTargetBase < 80; // 3
+            const isRunnerCloseToTargetBase = runnerDistanceToTargetBase < 250; // 3
 
             const runnerDistanceToFielderWithBall = Dist(runner.x, runner.y, fielderWithBall.x, fielderWithBall.y);
             const isRunnerCloseToBall = runnerDistanceToFielderWithBall < 80; // d

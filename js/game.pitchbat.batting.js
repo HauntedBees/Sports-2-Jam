@@ -57,7 +57,7 @@ class BatHandler extends SecondaryHandler {
         const batHandlerX = outerGameData.gameType === "2p_local" ? 220 : 320, batHandlerY = 360;
         gfx.DrawRectSprite(this.team.batterSheet, this.swingAnimState, 0, 220 + this.dx, 100, "interface", 145, 335, 0.75);
         gfx.DrawRectSprite("batter", this.swingAnimState, 1, 220 + this.dx, 100, "interface", 145, 335, 0.75);
-        if(this.team.isPlayerControlled) {
+        if(this.team.showUI) {
             gfx.DrawRectSprite("batmeter", 0, 0, batHandlerX, 424, "text", 128, 128, 1, true);
             const offset = Math.round(35 * Math.sin(this.dirCursorCounter));
             gfx.DrawCenteredSprite("sprites", ((--this.dirCursorFlicker > 0 && this.dirCursorFlicker % 2 === 0) ? 3 : 2), 1, batHandlerX + offset, batHandlerY + 89, "text", 32, 1);

@@ -1,4 +1,4 @@
-# Zenn Halsey Basesol '93
+# Zenn Halsey BaseSol '93
 ## wut
 A sports 2 game for the [Sports 2 Game Jam](https://itch.io/jam/sports-2). It's vaguely like baseball, but also it's 2-ier. Work in Progress.
 ## license
@@ -17,13 +17,13 @@ This game's source code is licensed with the [GNU Affero General Public License]
 * “[3D Man Running Eight Directions](https://opengameart.org/content/spritesheet-3d-man-running-eight-directions)” by [Randy Tayler](randytayler.com), released to the public domain.
 * “[Trophy](https://opengameart.org/content/trophy)” by [Jeremy Woods](https://opengameart.org/users/jeremywoods), released to the public domain.
 * “[Another Space Backgrounds](https://opengameart.org/content/another-space-backgrounds-0)” by [Rawdanitsu](https://opengameart.org/users/rawdanitsu), released to the public domain.
+* “[8-cell-orig.gif](https://commons.wikimedia.org/wiki/File:8-cell-orig.gif)” by [Jason Hise](https://commons.wikimedia.org/wiki/User:JasonHise), released to the public domain.
 * “[Cleveland Browns New Uniform Unveiling.jpg](https://en.wikipedia.org/wiki/File:Cleveland_Browns_New_Uniform_Unveiling_(16947116187).jpg)” by [Erik Drost](https://www.flickr.com/people/62091376@N03), licensed under the [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/deed.en) license.
 * “[Retro Gaming Font](https://www.dafont.com/retro-gaming.font)” by [Daymarius](https://www.creativefabrica.com/designer/Daymarius), which is licensed as "free for personal and commercial use."
 
 ### Code
 * [Box2DWeb](https://github.com/hecht-software/box2dweb), which has no license provided, but is a port of [Box2DFlash](https://sourceforge.net/projects/box2dflash/), which uses the [zlib License](https://zlib.net/zlib_license.html). That is, of course, a port of [Box2D](https://github.com/erincatto/box2d), which uses the [MIT License](https://github.com/erincatto/box2d/blob/master/LICENSE).
 * [mespeak.js](https://www.masswerk.at/mespeak/), licensed under the [GNU GPLv3](https://www.gnu.org/licenses/gpl-3.0.en.html).
-* [Simulating Multiple Sources of Gravity in Box2D](https://mentalgrain.com/box2d/simulating-multiple-sources-of-gravity-in-box2d/), which has no license provided.
 
 ## why
 Why not? Sports failed us. It's time for something new.

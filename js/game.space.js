@@ -385,7 +385,7 @@ class FieldRunHandler extends Handler {
         });
 
         gfx.DrawHUDRectToCameras(0, 1, 640, 100, "#FFFFFF", "#000000", "overlay");
-        this.minimap.Draw(this.runHandler.team.isPlayerControlled, this.fieldHandler.team.isPlayerControlled);
+        this.minimap.Draw(this.runHandler.team.showUI, this.fieldHandler.team.showUI);
     }
     GetInfoUIX(playerNum, isFielding) {
         const xInfo = { centerX: 320, leftX: 185, rightX: 440 };
