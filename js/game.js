@@ -38,6 +38,9 @@ const BaseStar = {
         this.SwitchHandler(FieldPickHandler);
         //GetDebugFunkoPop(); this.SwitchHandler(AtBatHandler);
     },
+    CleanUp: function() {
+        this.SwitchView(false);
+    },
     SwitchView: function(sideBySide) {
         const minifiedView = (document.getElementById("fullBoy") === null);
         if(sideBySide) {

@@ -1,8 +1,8 @@
-# BaseSol - The Milky Way Sport 2
-There's nothing humans love more on a casual Sunnday evening than heading to the local planetarium, buying some hot dogs or American Sludge, and looking up at the sky to watch a good old fashioned game of BaseSol. Since the **Global BaseSol League** was formed in 2876AD (or 807NC), they have worked with the best BaseSol players around the world to compete for an international audience during BaseSol season. Combining humankind's love of stargazing and competition, BaseSol was one of the first Sports 2 to capture the hearts of those curious about the limitations of Astral Projection - or lack thereof!
+# Basesol - The Milky Way Sport 2
+There's nothing humans love more on a casual Sunnday evening than heading to the local planetarium, buying some hot dogs or American Sludge, and looking up at the sky to watch a good old fashioned game of Basesol. Since the **Global Basesol League** was formed in 2876AD (or 807NC), they have worked with the best Basesol players around the world to compete for an international audience during Basesol season. Combining humankind's love of stargazing and competition, Basesol was one of the first Sports 2 to capture the hearts of those curious about the limitations of Astral Projection - or lack thereof!
 
 ## The "Video" Game
-Thanks to cybercomputer webterface technology, the "video" game publisher **digital artisinal**'s new division **da Sports 2** is faithfully recreating the world's favorite Sports 2 in "video" game form, so that fans can enjoy the timeless gameplay of classic Sports 2 like **BaseSol**, **Nudelkampf**, and **Deep Sea Football** in the comfort of their own homes, without needing to worry about finding teammates or Astrally Projecting themselves. Players need only "project" themselves into their favorite couch, turn on their infoscreens, and play **da Sports 2** "video" games on their favorite radio players like the **Videostation**, **Turbo Drive**, **MegaGrafx-17**, or **iGame™®©**.
+Thanks to cybercomputer webterface technology, the "video" game publisher **digital artisinal**'s new division **da Sports 2** is faithfully recreating the world's favorite Sports 2 in "video" game form, so that fans can enjoy the timeless gameplay of classic Sports 2 like **Basesol**, **Nudelkampf**, and **Deep Sea Football** in the comfort of their own homes, without needing to worry about finding teammates or Astrally Projecting themselves. Players need only "project" themselves into their favorite couch, turn on their infoscreens, and play **da Sports 2** "video" games on their favorite radio players like the **Videostation**, **Turbo Drive**, **MegaGrafx-17**, or **iGame™®©**.
 
 ### Controls
 Different radio players have slightly different control methods, but all players supported by **da Sports 2** have some standard buttons that can be used to play:
@@ -53,10 +53,10 @@ Different radio players have slightly different control methods, but all players
 
 
 ## How to Play
-Much like many of the historical "sports" that preceded Sports 2, a standard BaseSol game consists of two **teams** competing to earn **points**, with the **team** with the most **points** at the end of the game being declared the winner.
+Much like many of the historical "sports" that preceded Sports 2, a standard Basesol game consists of two **teams** competing to earn **points**, with the **team** with the most **points** at the end of the game being declared the winner.
 
 ### Summary
-The tildir* of a standard **BaseSol** game is as follows:
+The tildir* of a standard **Basesol** game is as follows:
  1. The **stopping team**'s **pitcher** projects the **sol** towards the **jumping team**'s **becomer.**
  2. The **becomer** *strikes* the **sol** and is fused with it, then launched into the playing field. If they miss the **sol** twice they are *struck out.*
  3. The **becomer**'s goal is to *jump off* the **sol** at the right moment and land on one of the **stars** on the playing field to become *safe.* At the end of a **round**, the number of players from the **jumping team** that are *safe*ly on **stars** will be the number of **points** that **team** gets.
@@ -69,7 +69,7 @@ The tildir* of a standard **BaseSol** game is as follows:
 \* From the AD English acronym **tl;dr**. Means "a short summary of a longer work."
 
 ### Full Rules
-A BaseSol game consists of **three innings**; each **inning** consists of two **rounds**, so that each **team** may alternate between **jumping** and **stopping** in every **inning**. Which **team** *jumps* first is determined by a coin toss at the start of the game; after the coin toss is determined, the winning **team** will **jump** first in each **inning**.
+A Basesol game consists of **three innings**; each **inning** consists of two **rounds**, so that each **team** may alternate between **jumping** and **stopping** in every **inning**. Which **team** *jumps* first is determined by a coin toss at the start of the game; after the coin toss is determined, the winning **team** will **jump** first in each **inning**.
 
 At the start of each **round**, the **stopping team** will choose a **constellation** to be the playing field for that **round**. Each **team** can choose from 3 different **constellations**, with different numbers of **stars** in them. **Constellations** with more **stars** will have more **catchers** but fewer **wanderers**, and vice versa. The **constellation** should be chosen strategically to match the **stopping team**'s strengths and the **jumping team**'s weaknesses.
 

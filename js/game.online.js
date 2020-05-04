@@ -20,7 +20,7 @@ class OnlineHandler {
         this.hasError = true;
         switch(errorType) {
             case "disconnect":
-                this.errorMsg = "The BaseSol server is down. This isn't your fault. Try again later :(";
+                this.errorMsg = "The Basesol server is down. This isn't your fault. Try again later :(";
                 break;
             case "reconnect_attempt":
                 this.errorMsg = `Trying to Connect (Attempt ${reconnectAttempt})`;

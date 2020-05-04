@@ -1,6 +1,6 @@
 const captions = {
     "spk_logo": "da Sports 2. Become one with the game!",
-    "spk_letsplay": "Zenn: Let's play some BaseSol!", 
+    "spk_letsplay": "Zenn: Let's play some Basesol!", 
     "spk_teamComments0_0": "Zenn: I had lunch with a centaur once. Great guy. He could really go to town on a plate full of hay.", 
     "spk_teamComments0_1": "Zenn: I'd say you should wear a jacket if you plan on visiting Greenland, but physically visiting places is very last-century! You don't need a jacket if you astrally project there! Ha ha!", 
     "spk_teamComments0_2": "Zenn: The Sisimiut Centaurs have won three championship games so far, which is pretty impressive considering they've only been in two! Parallel universes really mess with bookkeeping!", 
@@ -113,7 +113,7 @@ const SpeakHandler = {
     Refresh(callback) {
         callback();
         meSpeak.refresh();
-        meSpeak.loadVoice("voices/en-us.json", callback);
+        meSpeak.loadVoice("en-us.json", callback);
     },
     Speak: function(text, person, noCaption) {
         SpeakHandler.Stop();

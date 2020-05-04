@@ -20,13 +20,13 @@ class Helper {
             case WinScreen:
             case Credits:
                 return this.ShowMessage([
-                    "Welcome to BaseSol: a video game!",
+                    "Welcome to Basesol: a video game!",
                     "The default controls are WASD to move around, Z to confirm, X to cancel, and the Enter key to pause!",
                     "You can also use a gamepad with the d-pad, A and B buttons, and Start button to do the same!"
                 ]);
             case TeamSelection:
                 return this.ShowMessage([
-                    "It's time to select a BaseSol team to play with!",
+                    "It's time to select a Basesol team to play with!",
                     "Each team has 3 constellations to choose from. These constellations can be chosen when your team is pitching, and they will be the game field until you and the other team switch sides.",
                     "Other than constellations, all differences between teams are purely cosmetic, so unless you're an experienced player who knows which constellations they want, just pick whichever one looks cool to you!"
                 ]);
