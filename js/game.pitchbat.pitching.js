@@ -135,16 +135,22 @@ class SinePitch extends Pitch {
     }
 }
 class PitchHandler extends SecondaryHandler {
-    ready = false; // ready to throw
-    dx = 0; throwStyle = 1; pitchSpeed = 0; throwState = 0;
-    t = 0; miscCounter = 0; pitchAnimState = 0; // animation buddies
-    /** @type {Pitch} */ pitch = null;
-    ballOffsetX = 17; ballOffsetY = 114;
-    throwing = false;
     /** @param {Team} team @param {AtBatHandler} atBatHandler */
     constructor(team, atBatHandler) {
         super(team);
         this.fullHandler = atBatHandler;
+        this.ready = false; // ready to throw
+        this.dx = 0;
+        this.throwStyle = 1; 
+        this.pitchSpeed = 0; 
+        this.throwState = 0;
+        this.t = 0; 
+        this.miscCounter = 0; 
+        this.pitchAnimState = 0; // animation buddies
+        /** @type {Pitch} */ this.pitch = null;
+        this.ballOffsetX = 17; 
+        this.ballOffsetY = 114;
+        this.throwing = false;
     }
     ThrowBall() {
         this.throwing = true;

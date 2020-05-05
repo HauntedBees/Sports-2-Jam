@@ -1,6 +1,6 @@
 # Zenn Halsey Basesol '93
 ## wut
-A sports 2 game for the [Sports 2 Game Jam](https://itch.io/jam/sports-2). It's vaguely like baseball, but also it's 2-ier. Work in Progress.
+A sports 2 game for the [Sports 2 Game Jam](https://itch.io/jam/sports-2). It's vaguely like baseball, but also it's 2-ier.
 ## license
 This game's source code is licensed with the [GNU Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.en.html) and all art assets are licensed with the [CC BY-SA 4.0 License](https://creativecommons.org/licenses/by-sa/4.0/legalcode) with the following exceptions:
 

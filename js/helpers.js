@@ -36,14 +36,3 @@ const AnimationHelpers = {
 		}
 	}
 };
-function GetNumberNotInList(length, ...list) {
-	let attempts = 5;
-	while(attempts-- > 0) {
-		const rand = Math.floor(Math.random() * length);
-		if(list.indexOf(rand) < 0) { return rand; }
-	}
-	for(let i = 0; i < length; i++) { // randomness didn't work, just iterate through
-		if(list.indexOf(i) < 0) { return i; }
-	}
-	return -1;
-}

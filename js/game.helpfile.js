@@ -1,9 +1,10 @@
 class Helper {
-    outerDisplay = document.getElementById("helpText");
-    textDisplay = document.getElementById("helpTextContent");
-    isVisible = false;
-    justPressedByPlayer1 = false;
-    constructor() { }
+    constructor() {
+        this.outerDisplay = document.getElementById("helpText");
+        this.textDisplay = document.getElementById("helpTextContent");
+        this.isVisible = false;
+        this.justPressedByPlayer1 = false;
+    }
     GetHelpInformation(playerNum, fromKeyboard) {
         if(fromKeyboard) {
             if(playerNum === 1) {

@@ -24,12 +24,15 @@ class Player {
     }
 }
 class Fielder extends Player {
-    pitcher = false; catchDir = 0; base = -1;
-    force = { x: 0, y: 0 };
-    caughtBallTimer = 0; throwAnimState = 0;
     /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {string} type @param {number} radius */
     constructor(team, playerInfo, x, y, type, radius) {
         super(team, playerInfo, x, y, type, radius);
+        this.pitcher = false; 
+        this.catchDir = 0; 
+        this.base = -1;
+        this.force = { x: 0, y: 0 };
+        this.caughtBallTimer = 0; 
+        this.throwAnimState = 0;
         this.Update = function () {
             if (this.ball !== null) {
                 this.ball.SetPosition({ x: p2m(this.x), y: p2m(this.y - 10) });
@@ -84,10 +87,10 @@ class Fielder extends Player {
     };
 }
 class Outfielder extends Fielder {
-    angle = 0;
     /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {number} [radius] */
     constructor(team, playerInfo, x, y, radius) {
         super(team, playerInfo, x, y, "outfielder", radius || 40);
+        this.angle = 0;
         let animFrame = 0, animCounter = 0, sy = 0;
         let moving = false;
         this.Update = function() {
@@ -169,10 +172,11 @@ class Pitcher extends Outfielder {
     }
 }
 class Infielder extends Fielder {
-    animCounter = 0; animFrame = 0;
     /** @param {Team} team @param {{ team: number; name: string; stat1: number; stat2: number; stat3: number; stat4: number; }} playerInfo @param {number} x @param {number} y @param {number} base @param {FieldRunHandler} mainHandler */
     constructor(team, playerInfo, x, y, base, mainHandler) {
         super(team, playerInfo, x, y, "infielder", 35);
+        this.animCounter = 0;
+        this.animFrame = 0;
         this.base = base;
         this.mainHandler = mainHandler;
         this.Update = function () {

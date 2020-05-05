@@ -36,18 +36,18 @@ Different radio players have slightly different control methods, but all players
 #### On Field (Stopping Team)
 | Button           |  Action                                       |
 |------------------|-----------------------------------------------|
+| D-Pad (hold)     | Move all Wanderers (when not holding Sol)     |
 | D-Pad Left/Right | Cycle between Wanderers and Catchers          |
 | D-Pad Up         | Target Wanderer or Catcher closest to Becomer |
 | D-Pad Down       | Target Pitcher                                |
-| Confirm Button   | Throw Sol or Slam                             |
-| Cancel Button    | Target Self                                   |
+| Confirm Button   | Throw Sol or Slam Dunk (if targetting self)   |
+| Cancel Button    | Slam Dunk                                     |
 
 #### On Field (Jumping Team)
 | Button           |  Action                           |
 |------------------|-----------------------------------|
 | D-Pad Left/Right | Cycle between Stars to run to     |
 | D-Pad Up         | Target closest Star               |
-| D-Pad Down       | Target Pitcher                    |
 | Confirm Button   | Dash or call Safety               |
 | Cancel Button    | Switch to another player on field |
 

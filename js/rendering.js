@@ -219,17 +219,9 @@ const gfx = {
         layer = layer || "characters"; sx = sx || 0; sy = sy || 0;
         gfx.DrawImage(gfx.ctx[layer], gfx.spritesheets[sheet], sx * w, sy * h, w, h, (x - offset.x), (y - offset.y), w, h);
     },
-    failed: false,
     DrawImage: /** @param {CanvasRenderingContext2D} ctx @param {any} image @param {any} srcX @param {any} srcY @param {any} srcW @param {any} srcH @param {any} dstX @param {any} dstY @param {any} dstW @param {any} dstH */
     function(ctx, image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
-        if(gfx.failed) { return; }
-        try {
-            ctx.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);  
-        } catch {
-            console.log("A THING BREAK: " + image);
-            console.trace();
-            gfx.failed = true;
-        }
+        ctx.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH); 
     },
 
     WriteEchoPlayerText: /** @param {string} t @param {number} x @param {number} y @param {number} maxLen @param {string} layer @param {string} topColor @param {string} bottomColor @param {number} size @param {CanvasTextAlign} alignment */

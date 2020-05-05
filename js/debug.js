@@ -1,9 +1,28 @@
+function GetNumberNotInList(length, ...list) {
+	let attempts = 5;
+	while(attempts-- > 0) {
+		const rand = Math.floor(Math.random() * length);
+		if(list.indexOf(rand) < 0) { return rand; }
+	}
+	for(let i = 0; i < length; i++) { // randomness didn't work, just iterate through
+		if(list.indexOf(i) < 0) { return i; }
+	}
+	return -1;
+}
 class Debug {
-    started = false; fuckTheRules = false;
-    keyChain = []; allowCheats = true;
+    started = false;
+    keyChain = [];
+    allowCheats = true;
     constructor() {
         const me = this;
         document.addEventListener("keypress", function(e) { me.KeyPress(e); });
+        const testConstellation = "";
+        // @ts-ignore
+        if(testConstellation !== "") {
+            TeamInfo.forEach(e => {
+                e.constellations = [testConstellation, testConstellation, testConstellation];
+            });
+        }
     }
     /** @param {KeyboardEvent} e */
     KeyPress(e) {
@@ -18,43 +37,6 @@ class Debug {
             console.log("CHEAT USED");
             this.keyChain = [];
         }
-
-        if(game.currentHandler === BaseStar) {
-
-            const doX = x => BaseStar.cameras[0].offsetx += (10 * x);
-            const doY = y => BaseStar.cameras[0].offsety += (10 * y);
-
-            if(e.key === "p") { game.paused = !game.paused; }
-            if(e.key === "-") { BaseStar.cameras[0].zoom -= 0.1; }
-            if(e.key === "=" || e.key === "+") { BaseStar.cameras[0].zoom += 0.1; }
-            if(e.key === "4") { doX(1); }
-            if(e.key === "6") { doX(-1); }
-            if(e.key === "8") { doY(10); }
-            if(e.key === "2") { doY(-10); }
-            if(e.key === ".") {
-                game.paused = false;
-                BaseStar.Update();
-                game.paused = true;
-            }
-            return;
-        }
-
-
-        if(e.key === " ") { return; }
-        if(game.currentHandler.earthX !== undefined) { // Team Selection
-            //const idx = game.currentHandler.sy * game.currentHandler.rowLength + game.currentHandler.sx;
-            if(e.key === "4") { game.currentHandler.earthX -= 1; }
-            if(e.key === "6") { game.currentHandler.earthX += 1; }
-            if(e.key === "8") { game.currentHandler.earthY -= 2; }
-            if(e.key === "2") { game.currentHandler.earthY += 2; }
-            console.clear();
-            console.log(game.currentHandler.earthX + ", " + game.currentHandler.earthY);
-        }
-        if(game.currentHandler.subhandler !== undefined && game.currentHandler.subhandler.constructor.name === "FieldPickHandler") {
-            if(e.key === "-") { game.currentHandler.subhandler.scale -= 0.005; }
-            if(e.key === "=" || e.key === "+") { game.currentHandler.subhandler.scale += 0.005; }
-            if(e.key === "5") { console.log(game.currentHandler.subhandler.maxY); }
-        }*/
     }
     CheckCode(fullChain) {
         if(fullChain === "goku") {

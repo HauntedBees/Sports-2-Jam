@@ -1,10 +1,15 @@
 class FieldHandler extends SecondaryHandler {
-    ballFielderIdx = -1; targetFielderIdx = -1; doubleSpeed = false;
-    dunkSpan = 0; dunked = false; pitcherdunked = false; slamDunkIdx = -1;
-    animCounter = Math.floor(Math.random() * 100);
     /** @param {Team} team @param {FieldRunHandler} fieldRunHandler @param {Fielder[]} fielders */
     constructor(team, fieldRunHandler, fielders) {
         super(team);
+        this.ballFielderIdx = -1; 
+        this.targetFielderIdx = -1; 
+        this.doubleSpeed = false;
+        this.dunkSpan = 0; 
+        this.dunked = false; 
+        this.pitcherdunked = false; 
+        this.slamDunkIdx = -1;
+        this.animCounter = Math.floor(Math.random() * 100);
         this.fullHandler = fieldRunHandler;
         this.fielders = fielders;
         this.pitcher = fieldRunHandler.pitcher;
@@ -199,7 +204,7 @@ class FieldHandler extends SecondaryHandler {
                 }
             } else {
                 gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.rightX, cy2, layer, 32, 1);
-                gfx.WriteEchoPlayerText("Throw Ball", xInfo.rightX + 32, cy2 + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+                gfx.WriteEchoPlayerText("Throw Sol", xInfo.rightX + 32, cy2 + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
 
                 gfx.DrawCenteredSprite("sprites", 12, 2, xInfo.rightX, cy2 + 32, layer, 32, 1);
                 gfx.WriteEchoPlayerText("Slam Dunk", xInfo.rightX + 32, cy2 + 37, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");

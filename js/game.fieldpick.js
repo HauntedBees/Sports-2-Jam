@@ -1,47 +1,25 @@
-function GetDebugFunkoPop() {
-    const fph = new FieldPickHandler();
-    const cs = fph.team.GetConstellations();
-    fph.constsel = Math.floor(Math.random() * 3);
-    let i = 0;
-    while(cs[fph.constsel] === "" && ++i < 5) {
-        fph.constsel = (fph.constsel + 1) % 3;
-        console.log("redo");
-    }
-    fph.Confirm();
-    const x0 = -500 * fph.scale, y0 = -(fph.maxY * fph.scale) / 2;
-    BaseStar.FieldSetupComplete(cs[fph.constsel], [
-        {x: -7, y: -37},
-        {x: 134, y: -18},
-        {x: 197, y: 53},
-        {x: 10, y: 81},
-        {x: 63, y: 19},
-        {x: 226, y: -94},
-        {x: -86, y: 68},
-        {x: -1, y: -90},
-        {x: 144, y: -98},
-        {x: -56, y: -92},
-        {x: 117, y: 93},
-        {x: 16, y: 28},
-        {x: 57, y: -91},
-        {x: 217, y: 1},
-        {x: 236, y: -57}
-    ], {
-        x: (fph.leftx - x0) / fph.scale,
-        y: (fph.topy - y0) / fph.scale,
-        w: (fph.rightx - fph.leftx) / fph.scale,
-        h: (fph.bottomy - fph.topy) / fph.scale
-    });
-}
 class FieldPickHandler extends Handler {
-    state = 0; // 0 = selecting constellation, 1 = placing outfielders, 2 = confirm
-    constsel = 0; totalOutfielders = 0;
-    outfielders = []; ofx = 0; ofy = 0;
-    scale = 0.32; maxY = 0;
-    leftx = 0; rightx = 0; topy = 0; bottomy = 0;
-    noZoneLeft = 0; noZoneRight = 0; noZoneTop = 0; noZoneBottom = 0;
-    boundsMult = 1; boundShift = 1000;
     constructor() {
         super();
+        
+        this.state = 0; // 0 = selecting constellation, 1 = placing outfielders, 2 = confirm
+        this.constsel = 0;
+        this.totalOutfielders = 0;
+        this.outfielders = [];
+        this.ofx = 0;
+        this.ofy = 0;
+        this.scale = 0.32;
+        this.maxY = 0;
+        this.leftx = 0;
+        this.rightx = 0;
+        this.topy = 0;
+        this.bottomy = 0;
+        this.noZoneLeft = 0;
+        this.noZoneRight = 0;
+        this.noZoneTop = 0;
+        this.noZoneBottom = 0;
+        this.boundsMult = 1;
+        this.boundShift = 1000;
         this.team = BaseStar.data.GetFieldTeam();
         this.myControls = this.team.GetControls();
         if(!this.team.isPlayerControlled) {

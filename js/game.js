@@ -18,7 +18,7 @@ const BaseStar = {
     freeMovement: true, 
     /** @type b2Helpers */ b2Helper: null,
     /** @type TransitionAnimation */ transitionAnim: null,
-    Init: function(p1BatsFirst, skipTheBullshit) {
+    Init: function(p1BatsFirst) {
         if(outerGameData.gameType === "series") {
             this.data = new GameData(outerGameData.team1Idx, outerGameData.seriesLineup[outerGameData.seriesRound], false, p1BatsFirst);
         } else if(outerGameData.gameType === "2p_local") {
@@ -34,9 +34,7 @@ const BaseStar = {
         this.cameras[1].prefix = "p2";
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "background", 0, 0);
         gfx.DrawMapCharacter(0, 0, { x: 0, y: 0 }, "background2", 640, 480, "p2background", 0, 0);
-        
         this.SwitchHandler(FieldPickHandler);
-        //GetDebugFunkoPop(); this.SwitchHandler(AtBatHandler);
     },
     CleanUp: function() {
         this.SwitchView(false);
@@ -167,13 +165,13 @@ const outerGameData = {
     seriesLineup: [], seriesRound: 0
 };
 class Loader {
-    spritesheetLoadPercent = 0;
-    soundLoadPercent = 0;
-    musicLoadPercent = 0;
-    areVoicesLoaded = false;
-    done = false;
-    loaderElem = document.getElementById("loaderInfo");
     constructor(callback) {
+        this.spritesheetLoadPercent = 0;
+        this.soundLoadPercent = 0;
+        this.musicLoadPercent = 0;
+        this.areVoicesLoaded = false;
+        this.done = false;
+        this.loaderElem = document.getElementById("loaderInfo");
         this.callback = callback;
         const me = this;
         Sounds.Init(
@@ -208,10 +206,11 @@ class Loader {
     }
 }
 class TransitionAnimation {
-    active = true;
-    state = 0; currentFrame = 0;
     /** @param {string} drawLayer @param {number} fadeFrames @param {number} holdFrames @param {() => void} midpointCallback @param {() => void} finishedCallback */
     constructor(drawLayer, fadeFrames, holdFrames, midpointCallback, finishedCallback) {
+        this.active = true;
+        this.state = 0;
+        this.currentFrame = 0;
         this.drawLayer = drawLayer;
         this.fadeFrames = fadeFrames;
         this.holdFrames = holdFrames;
@@ -256,11 +255,15 @@ class TransitionAnimation {
     DrawFadeOut(percentage) { gfx.DrawFullScreenRect(this.drawLayer, "#000000", 1 - percentage); }
 }
 class Game {
-    animIdx = 0; updateIdx = 0; transitionAnim = null;
-    /** @type {BaseHandler} */ currentHandler = null;
-    /** @type {InputHandler} */ inputHandler =  null; 
-    /** @type {GameInput} */ p1c = null;
-    /** @type {GameInput} */ p2c = null;
+    constructor() {
+        this.animIdx = 0;
+        this.updateIdx = 0;
+        this.transitionAnim = null;
+        /** @type {BaseHandler} */ this.currentHandler = null;
+        /** @type {InputHandler} */ this.inputHandler =  null; 
+        /** @type {GameInput} */ this.p1c = null;
+        /** @type {GameInput} */ this.p2c = null;
+    }
     Initialize(addAwaiter) {
         if(addAwaiter) {
             const me = this;
@@ -362,19 +365,18 @@ const BaseHandler = {
     AnimUpdate: function() {}
 };  
 class Handler {
-    /** @type Team */ team = null;
-    freeMovement = false;
-    freeMovement2 = false;
-    showSplitScreenIn2P = false;
-    constructor() {}
+    constructor() {
+        /** @type Team */ this.team = null;
+        this.freeMovement = false;
+        this.freeMovement2 = false;
+        this.showSplitScreenIn2P = false;
+    }
     KeyPress(key) {}
     Update() {}
     AnimUpdate() {}
     CleanUp() {}
 }
 class SecondaryHandler extends Handler {
-    /** @type {GameInput} */ myControls = null;
-    /** @type {Team} */ team = null;
     /** @param {Team} team */
     constructor(team) {
         super();

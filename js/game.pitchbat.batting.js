@@ -1,10 +1,13 @@
 class BatHandler extends SecondaryHandler {
-    ready = false; // ready to swing
-    state = 0; // 0 = direction, 1 = power, 2 = moving, 3 = swinging
-    dir = 0; power = 0; // for setting swing (dir between -5 and 5, power between 0 and 12)
-    dx = 0; // position
-    swingState = 0; swingAnimState = 0; missed = false; // for swinging
-    dirCursorCounter = 0; dirCursorFlicker = 0; swingCounter = 0; // animation buddies
+    constructor(team) {
+        super(team);
+        this.ready = false; // ready to swing
+        this.state = 0; // 0 = direction, 1 = power, 2 = moving, 3 = swinging
+        this.dir = 0; this.power = 0; // for setting swing (dir between -5 and 5, power between 0 and 12)
+        this.dx = 0; // position
+        this.swingState = 0; this.swingAnimState = 0; this.missed = false; // for swinging
+        this.dirCursorCounter = 0; this.dirCursorFlicker = 0; this.swingCounter = 0; // animation buddies
+    }
     AwaitBall() { this.state = 3; }
     KeyPress(key) {
         switch(key) {

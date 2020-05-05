@@ -1,5 +1,4 @@
 class RunHandler extends SecondaryHandler {
-    animCounter = Math.floor(Math.random() * 100);
     /** @param {Team} team @param {FieldRunHandler} fieldRunHandler @param {Runner} runner @param {Runner[]} onBaseRunners @param {any} ball */
     constructor(team, fieldRunHandler, runner, onBaseRunners, ball) {
         super(team);
@@ -7,6 +6,7 @@ class RunHandler extends SecondaryHandler {
         this.runner = runner;
         this.onBaseRunners = onBaseRunners;
         this.ball = ball;
+        this.animCounter = Math.floor(Math.random() * 100);
     }
     Confirm() {
         if(this.runner.ball !== null) {
@@ -97,7 +97,7 @@ class RunHandler extends SecondaryHandler {
         if(this.runner.ball !== null) {
             const cy = 45;
             gfx.DrawCenteredSprite("sprites", 11, 2, xInfo.centerX, cy, layer, 32, 1);
-            gfx.WriteEchoPlayerText("Jump Off Ball", xInfo.centerX + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
+            gfx.WriteEchoPlayerText("Jump Off Sol", xInfo.centerX + 32, cy + 5, 300, layer, "#FFFFFF", "#BA66FF", 16, "left");
         } else {
             const cy = 30;
             gfx.DrawCenteredSprite("sprites", 14, 1, xInfo.leftX, cy, layer, 32, 1);

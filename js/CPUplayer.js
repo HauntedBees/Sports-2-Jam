@@ -1,9 +1,11 @@
 class CPUplayer {
-    constructor() { }
-    /** @type {BatHandler} */ batter = null;
-    /** @type {PitchHandler} */ pitcher = null;
-    /** @type {RunHandler} */ runner = null;
-    /** @type {FieldHandler} */ fielder = null;
+    constructor() {
+    /** @type {BatHandler} */ this.batter = null;
+    /** @type {PitchHandler} */ this.pitcher = null;
+    /** @type {RunHandler} */ this.runner = null;
+    /** @type {FieldHandler} */ this.fielder = null;
+    this.PlayerFailures = [0, 0, 0, 0];
+    }
 
     /** @param {FieldPickHandler} fp @param {boolean} debug */
     PickConstellationAndPlaceOutfielders(fp, debug) {
@@ -516,10 +518,7 @@ class CPUplayer {
         this.targetFieldPos = probablyGoodPlacesToGo[Math.floor(Math.random() * Math.min(3, probablyGoodPlacesToGo.length))];
     }
 
-
-
     // Pitching
-    PlayerFailures = [0, 0, 0, 0];
     SetUpPitch() {
         this.pitcher.ready = true;
         this.pitcher.dx = -5 + 10 * Math.random();

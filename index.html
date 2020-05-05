@@ -7,7 +7,7 @@
         <meta name="author" content="Haunted Bees Productions">
         <meta name="description" content="We're having a ball out here in space!">
         <meta name="keywords" content="gravity,sports,2">
-        <link rel="shortcut icon" href="favicon.ico">
+        <link rel="shortcut icon" href="favicon.png">
         <style>
             @font-face { font-family: "Retro"; src: url("RetroGamingZ.ttf") }
             body {
@@ -118,6 +118,14 @@
         </div>
         <canvas id="specialanim" width="640" height="480" style="border: 1px solid black"></canvas>
         <canvas id="minimap" width="160" height="120"></canvas>
+        <div id="helpText" class="textOverlay" style="display: none"><div id="helpTextContent"></div></div>
+        <div id="pauseDisplay" class="textOverlay" style="display: none"><div id="pauseDisplayText">== PAUSED ==</div></div>
+        <div id="captions" style="display: none"><div id="captionsText">hey</div></div>
+        <div id="loader" class="textOverlay">
+            <div id="loaderText">Now Lording</div>
+            <div id="loaderInfo">0%</div>
+            <div id="copyrightInfo">© 2020 Sean Finch / Haunted Bees Productions&nbsp;</div>
+        </div>
         <div id="awaiter" class="textOverlay" style="display: none">
             <div>
                 Click here to start the game.
@@ -127,43 +135,10 @@
                 </div>
             </div>
         </div>
-        <div id="helpText" class="textOverlay" style="display: none"><div id="helpTextContent"></div></div>
-        <div id="pauseDisplay" class="textOverlay" style="display: none"><div id="pauseDisplayText">== PAUSED ==</div></div>
-        <div id="captions" style="display: none"><div id="captionsText">hey</div></div>
-        <div id="loader" class="textOverlay">
-            <div id="loaderText">Now Lording</div>
-            <div id="loaderInfo">0%</div>
-            <div id="copyrightInfo">© 2020 Sean Finch / Haunted Bees Productions&nbsp;</div>
-        </div>
         <div id="fontLoader"><div style="font-family:Retro">&nbsp;</div></div>
         <script type="text/javascript" src="js/lib/mespeak.js"></script>
         <script type="text/javascript" src="js/lib/box2d.min.js"></script>
-        <script type="text/javascript" src="js/sound.js"></script>
-        <script type="text/javascript" src="js/helpers.js"></script>
-        <script type="text/javascript" src="js/b2helpers.js"></script>
-        <script type="text/javascript" src="js/input.js"></script>
-        <script type="text/javascript" src="js/constellations.js"></script>
-        <script type="text/javascript" src="js/CPUplayer.js"></script>
-        <script type="text/javascript" src="js/camera.js"></script>
-        <script type="text/javascript" src="js/game.js"></script>
-        <script type="text/javascript" src="js/game.data.js"></script>
-        <script type="text/javascript" src="js/game.misc.js"></script>
-        <script type="text/javascript" src="js/game.options.js"></script>
-        <!--<script type="text/javascript" src="js/lib/socket.io.slim.js"></script>
-        <script type="text/javascript" src="js/lib/aleaPRNG-1.1.min.js"></script>
-        <script type="text/javascript" src="js/game.online.js"></script>-->
-        <script type="text/javascript" src="js/game.fieldpick.js"></script>
-        <script type="text/javascript" src="js/game.pitchbat.batting.js"></script>
-        <script type="text/javascript" src="js/game.pitchbat.pitching.js"></script>
-        <script type="text/javascript" src="js/game.pitchbat.js"></script>
-        <script type="text/javascript" src="js/game.players.js"></script>
-        <script type="text/javascript" src="js/game.space.running.js"></script>
-        <script type="text/javascript" src="js/game.space.fielding.js"></script>
-        <script type="text/javascript" src="js/game.space.js"></script>
-        <script type="text/javascript" src="js/game.helpfile.js"></script>
-        <script type="text/javascript" src="js/rendering.js"></script>
-        <script type="text/javascript" src="js/debug.js"></script>
-        <script type="text/javascript" src="js/devtools.js"></script>
+        <script type="text/javascript" src="out.js"></script>
         <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function() {
                 game.Initialize(false);

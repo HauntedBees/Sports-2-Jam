@@ -1,14 +1,20 @@
 class FieldRunHandler extends Handler {
-    state = 0; debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
-    stars = []; ball = null; hundredTimer = 0;
-    gravMult = 1.5; showSplitScreenIn2P = true;
-    slamdunks = []; boondaries = [];
-    /** @type {Runner} */ runner = null; 
-    b2updateRate = b2Framerate * SpeedMult();
-    /** @type Fielder[] */ fielders = [];
-    /** @type Runner[] */ onBasePlayers = [];
     constructor(ballDetails, pitcherPos, constellation) {
         super();
+        this.state = 0; 
+        this.debug = 0; // 0 = no debug, 1 = only local, 2 = local + b2Debug
+        this.stars = []; 
+        this.ball = null; 
+        this.hundredTimer = 0;
+        this.gravMult = 1.5; 
+        this.showSplitScreenIn2P = true;
+        this.slamdunks = []; 
+        this.boondaries = [];
+        /** @type {Runner} */ this.runner = null;
+        this.b2updateRate = b2Framerate * SpeedMult();
+        /** @type Fielder[] */ this.fielders = [];
+        /** @type Runner[] */ this.onBasePlayers = [];
+
         const p1IsRunner = BaseStar.data.team1.isUp;
         const runningTeam = p1IsRunner ? BaseStar.data.team1 : BaseStar.data.team2;
         const fieldTeam = p1IsRunner ? BaseStar.data.team2 : BaseStar.data.team1;

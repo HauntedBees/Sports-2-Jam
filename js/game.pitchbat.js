@@ -1,9 +1,12 @@
 class AtBatHandler extends Handler {
-    state = 0; // 0 = waiting on both players, 1 = ball is being pitched or hit
-    ballData = {}; animFrame = 0; freeMovement = true;
-    ohWowState = 0; ohWowFrame = 0;
     constructor() {
         super();
+        this.state = 0; // 0 = waiting on both players, 1 = ball is being pitched or hit
+        this.ballData = {};
+        this.animFrame = 0;
+        this.freeMovement = true;
+        this.ohWowState = 0;
+        this.ohWowFrame = 0;
         const p1IsBatter = BaseStar.data.team1.isUp;
         const battingTeam = p1IsBatter ? BaseStar.data.team1 : BaseStar.data.team2;
         const pitchingTeam = p1IsBatter ? BaseStar.data.team2 : BaseStar.data.team1;

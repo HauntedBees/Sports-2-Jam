@@ -99,11 +99,13 @@ class MiniMapCamera extends Camera {
     }
 }
 class MiniMap {
-    mult = 0.075; offset = { x: 20, y: 20 };
-    w = 160; h = 120;
-    t = 0;
     /** @param {FieldRunHandler} space */
     constructor(space) {
+        this.mult = 0.075;
+        this.offset = { x: 20, y: 20 };
+        this.w = 160;
+        this.h = 120;
+        this.t = 0;
         document.getElementById("minimap").style["display"] = "block";
         this.space = space;
         this.const = ConstellationInfo[this.space.constellationName];

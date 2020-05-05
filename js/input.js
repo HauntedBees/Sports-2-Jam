@@ -1,16 +1,21 @@
 class GameInput {
-    justPressed = {}; keys = {};
-    /** @type {number} */ mainDirectionKey = undefined; 
-    usingGamepad = false; gamepadIndex = 0;
-    freeMovement = false; ignore = false;
-    triggerMin = 0.5; deadZones = [0.25, 0.25, 0.25, 0.25]; buttonDelay = 10;
-    gamepadButtons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
-        0, 0, 0, 0, // negative axes Lx Ly Rx Ry
-        0, 0, 0, 0]; // positive axes Lx Ly Rx Ry
-    /** @type {string[]} */ controlArray = [];
     /** @param {{ up: string; left: string; down: string; right: string; confirm: string; cancel: string; pause: string; }} keyboardDefaults */
     constructor(playerNum, keyboardDefaults) {
+        this.justPressed = {};
+        this.keys = {};
+        /** @type {number} */ this.mainDirectionKey = undefined;
+        this.usingGamepad = false;
+        this.gamepadIndex = 0;
+        this.triggerMin = 0.5;
+        this.deadZones = [0.25, 0.25, 0.25, 0.25];
+        this.buttonDelay = 10;
+        this.gamepadButtons = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // buttons 0 - 15
+                                0, 0, 0, 0, // negative axes Lx Ly Rx Ry
+                                0, 0, 0, 0]; // positive axes Lx Ly Rx Ry
+        this.freeMovement = false;
+        this.ignore = false;
         this.playerNum = playerNum;
+        /** @type {string[]} */ this.controlArray = [];
         this.keyboardControls = keyboardDefaults;
         this.gamepadControls = { up: "Gamepad12", left: "Gamepad14", down: "Gamepad13", right: "Gamepad15", confirm: "Gamepad0", cancel: "Gamepad1", pause: "Gamepad9" };
         this.currentControls = this.keyboardControls;
@@ -201,23 +206,21 @@ class ShellGameInput extends GameInput {
 }
 const NPCInput = new ShellGameInput();
 class InputHandler {
-    forceCleanKeyPress = false; ignoreNextKeyPress = false;
-    gamepads = {}; gamepadQueryIdx = -1;
-    controlSets = [
-        new GameInput(1, { up: "w", left: "a", down: "s", right: "d", confirm: " ", cancel: "q", pause: "Enter" }),
-        new GameInput(2, { up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "o", cancel: "u", pause: "p" })
-    ];
     constructor() {
         const me = this;
-        // @ts-ignore
-        window.addEventListener("gamepadconnected", function(e) { me.GamepadConnected(e); });
-        // @ts-ignore
-        window.addEventListener("gamepaddisconnected", function(e) { me.GamepadDisconnected(e); });
-        // @ts-ignore
+        this.keysToBlock = ["ArrowUp", "ArrowDown", "ArrowUp", "ArrowRight", " "];
+        this.forceCleanKeyPress = false;
+        this.ignoreNextKeyPress = false;
+        this.gamepads = {};
+        this.gamepadQueryIdx = -1;
+        this.controlSets = [
+            new GameInput(1, { up: "ArrowUp", left: "ArrowLeft", down: "ArrowDown", right: "ArrowRight", confirm: "z", cancel: "x", pause: "Enter" }),
+            new GameInput(2, { up: "i", left: "j", down: "k", right: "l", confirm: "o", cancel: "p", pause: "[" })
+        ];
+        window.addEventListener("gamepadconnected", function(e) { me.GamepadConnected(/** @type {GamepadEvent} */ (e)); });
+        window.addEventListener("gamepaddisconnected", function(e) { me.GamepadDisconnected(/** @type {GamepadEvent} */ (e)); });
         document.addEventListener("keypress", function(e) { me.KeyPress(e); });
-        // @ts-ignore
         document.addEventListener("keydown", function(e) { me.KeyDown(e); });
-        // @ts-ignore
         document.addEventListener("keyup", function(e) { me.KeyUp(e); });
     }
     /** @param {GamepadEvent} e */
@@ -262,6 +265,7 @@ class InputHandler {
     }
     /** @param {KeyboardEvent} e */
     KeyDown(e) {
+        if(this.keysToBlock.indexOf(e.key) >= 0) { e.preventDefault(); }
         if(this.forceCleanKeyPress) { game.KeyPress(e.key); return; }
         this.controlSets.forEach(c => { if(!c.ignore) { c.KeyDown(e); }});
     }
